@@ -1,0 +1,280 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  14:55:13 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\SNAP_101\main.c                                       #
+#    Command line =  C:\SNAP_101\main.c -e --enable_multibytes -On --no_cse   #
+#                    --no_unroll --no_inline --no_code_motion --no_tbaa       #
+#                    --no_cross_call --debug --code_model medium              #
+#                    --data_model medium -o C:\SNAP_101\Debug\Obj\            #
+#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#                    Workbench 6.5\stm8\LIB\dlstm8mmn.h" -D STM8S007 -lC      #
+#                    C:\SNAP_101\Debug\List\ -I .\ --no_system_include        #
+#                    --require_prototypes --vregs 16                          #
+#    List file    =  C:\SNAP_101\Debug\List\main.lst                          #
+#    Object file  =  C:\SNAP_101\Debug\Obj\main.o                             #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+C:\SNAP_101\main.c
+      1          /*-------------extern -----------------------------------------------------------------------*/
+      2          /* SNAP JOB#7896 USES STM8007C8T6 PROCESSOR                                           */
+      3          /* - 32K FLASH 2KRAM  128 EEPROM  ver 1.00                                            */
+      4          /*------------------------------------------------------------------------------------*/
+      5          /* Includes ------------------------------------------------------------------*/
+      6          #include "main.h"
+      7          extern char CID_Value;
+      8          extern char GS1011_State;
+      9          extern char Device_State;
+     10          extern u16 EEWRTimout;
+     11          extern u8 Device_Rcvr_Complete_flag;
+     12          extern int GS1011_Rvcr_Count;
+     13          extern char GS1011_Xmit_Buffer;
+     14          extern char *GS1011_Rcvr_Pointer;
+     15          extern char GS1011_Received_Response_Flag;
+     16          void SendYouThereMessageToGS1011(void);
+     17          void InitializeGS1011Buffer(void);
+     18          void InitializeDeviceBuffer (void);
+     19          void Handle_GS1011_State(void);
+     20          void Handle_Device_State(void);
+     21          /* Local Var------------------------------------------------------------------*/
+
+   \                                 In section .near.bss, align 1
+     22          u8  TEST;
+   \                     TEST:
+   \   000000              DS8 1
+
+   \                                 In section .near.bss, align 1
+     23          u8  BLCNT_INDX;
+   \                     BLCNT_INDX:
+   \   000000              DS8 1
+
+   \                                 In section .near.bss, align 1
+     24          u8  BLCNT_STATE;
+   \                     BLCNT_STATE:
+   \   000000              DS8 1
+
+   \                                 In section .near.bss, align 1
+     25          u8  BLCNT_VAL;         /*VERSION BLINK VALUE*/
+   \                     BLCNT_VAL:
+   \   000000              DS8 1
+
+   \                                 In section .near.bss, align 1
+     26          u8  SysError;          /* bit 0 = 1 if Temp reading ou   t of limits
+   \                     SysError:
+   \   000000              DS8 1
+     27                                    bit 1 = 1 if command start and no response*/
+     28          /*--------------VERSION NUMBER OF THIS FIRMWARE-------------------------------*/
+
+   \                                 In section .near.data, align 1
+     29          u8 VER[4] = {VER0,VER1,VER2,VER3};
+   \                     VER:
+   \   000000 00 02 00 04  DC8 0, 2, 0, 4
+     30          /*----------------------------------------------------------------------------*/
+     31          
+     32          /* Private function prototypes -----------------------------------------------*/
+     33          void RCC_Configuration(void);
+     34          void GPIO_Configuration(void);
+     35          void TIMER1_Configuration (void);
+     36          void InitEEData(void);
+     37          void InitDeviceUART(void);
+     38          void InitGS1011UART(void);
+     39          /*external Functions ---------------------------------------------------------*/
+     40          /*void Make_Send_SNAP_Ready_Message(void);*/
+     41          void Send_powered_Message(void);
+     42          void Save_PValues(void);
+     43          /* Main powerup/main loop -----------------------------------------------*/
+     44          extern char * GS1011_Xmit_Pointer;
+
+   \                                 In section .far_func.text, align 1
+     45          int main( void ){
+     46            /* System Clocks Configuration */
+     47            RCC_Configuration();
+   \                     main:
+   \   000000 8D ......    CALLF     RCC_Configuration
+     48            /* Configure the GPIO ports */
+     49            GPIO_Configuration();
+   \   000004 8D ......    CALLF     GPIO_Configuration
+     50            /*CONFIGURE TIMER1*/
+     51            TIMER1_Configuration();
+   \   000008 8D ......    CALLF     TIMER1_Configuration
+     52            /*Configure device UART*/
+     53            InitDeviceUART();
+   \   00000C 8D ......    CALLF     InitDeviceUART
+     54            /*Configure GS101 UART*/
+     55            InitGS1011UART();
+   \   000010 8D ......    CALLF     InitGS1011UART
+     56            SendYouThereMessageToGS1011();
+   \   000014 8D ......    CALLF     SendYouThereMessageToGS1011
+     57            InitializeGS1011Buffer();
+   \   000018 8D ......    CALLF     InitializeGS1011Buffer
+     58            InitializeDeviceBuffer();
+   \   00001C 8D ......    CALLF     InitializeDeviceBuffer
+     59            /*get data from EEPROM */
+     60            InitEEData();
+   \   000020 8D ......    CALLF     InitEEData
+     61            enableInterrupts();
+   \   000024 9A           RIM
+     62            GS1011_State = 0;
+   \   000025 35 00 ....   MOV       L:GS1011_State, #0x0
+     63            Device_State = 0;
+   \   000029 35 00 ....   MOV       L:Device_State, #0x0
+     64            CID_Value = 0x00;
+   \   00002D 35 00 ....   MOV       L:CID_Value, #0x0
+     65            GS1011_Received_Response_Flag = 0x00;
+   \   000031 35 00 ....   MOV       L:GS1011_Received_Response_Flag, #0x0
+     66            while (1)
+     67            {
+     68              Handle_Device_State();
+   \                     ??main_0:
+   \   000035 8D ......    CALLF     Handle_Device_State
+     69              Handle_GS1011_State();
+   \   000039 8D ......    CALLF     Handle_GS1011_State
+   \   00003D 20 F6        JRA       L:??main_0
+     70            }
+     71           /*infinite loop*/
+     72          }
+     73          /* Get the EEData on startup-------------------------------------------------*/
+     74          /*                                                                           */
+     75          /*---------------------------------------------------------------------------*/
+
+   \                                 In section .far_func.text, align 1
+     76          void InitEEData(void){
+     77          }
+   \                     InitEEData:
+   \   000000 87           RETF
+
+   \                                 In section .far_func.text, align 1
+     78          void assert_failed(uint8_t* file, uint32_t line)
+     79          {
+     80            /* User can add his own implementation to report the file name and line number,
+     81               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     82          }
+   \                     assert_failed:
+   \   000000 87           RETF
+     83          /*******************************************************************************
+     84          * Function Name  : RCC_Configuration
+     85          * Description    : Configures the different system clocks.
+     86          *                 16MHZ INTERNAL OSCILLATOR HSI ENABLED BY DEFAULT
+     87          * Input          : None
+     88          * Output         : None
+     89          * Return         : None
+     90          *******************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+     91          void RCC_Configuration(void){
+     92            CLK->SWCR = 0x08;     /*SWIF SET TO AUTO*/
+   \                     RCC_Configuration:
+   \   000000 35 08 50C5   MOV       L:0x50c5, #0x8
+     93            CLK->CKDIVR = 0;      /*SET TO FULL SPEED 16MHZ*/
+   \   000004 35 00 50C6   MOV       L:0x50c6, #0x0
+     94            CLK->PCKENR1 = 0x8D;  /*TIM1, I2C CLOCK ENABLED, UART1,3*/
+   \   000008 35 8D 50C7   MOV       L:0x50c7, #0x8d
+     95            CLK->PCKENR2 = 0x08;  /*ADC CLOCK ENABLED*/
+   \   00000C 35 08 50CA   MOV       L:0x50ca, #0x8
+     96            CLK->CSSR = 0x00;     /*security off*/
+   \   000010 35 00 50C8   MOV       L:0x50c8, #0x0
+     97          }
+   \   000014 87           RETF
+     98          /*******************************************************************************
+     99          * Function Name  : GPIO_Configuration
+    100          * Description    : Configures the different GPIO ports.
+    101          * Input          : None
+    102          * Output         : None
+    103          * Return         : None
+    104          *******************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    105          void GPIO_Configuration(void){
+    106            GPIOA->DDR = 0xDF;  /*all outputs*/
+   \                     GPIO_Configuration:
+   \   000000 35 DF 5002   MOV       L:0x5002, #0xdf
+    107            GPIOA->CR1 = 0x70; /*default inputs floating outputs OD*/
+   \   000004 35 70 5003   MOV       L:0x5003, #0x70
+    108            GPIOA->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000008 35 00 5004   MOV       L:0x5004, #0x0
+    109            GPIOB->DDR = 0xF0;  /*4-7 outputs, 0-3 inputs*/
+   \   00000C 35 F0 5007   MOV       L:0x5007, #0xf0
+    110            GPIOB->CR1 = 0; /*default inputs floating outputs OD*/
+   \   000010 35 00 5008   MOV       L:0x5008, #0x0
+    111            GPIOB->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000014 35 00 5009   MOV       L:0x5009, #0x0
+    112            GPIOC->DDR = 0xFF;  /*all outputs*/
+   \   000018 35 FF 500C   MOV       L:0x500c, #0xff
+    113            GPIOC->CR1 = 0xFF; /*outputs push pull*/
+   \   00001C 35 FF 500D   MOV       L:0x500d, #0xff
+    114            GPIOC->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000020 35 00 500E   MOV       L:0x500e, #0x0
+    115            GPIOD->DDR = 0xBD;  /*all outputs except D1,D6 */
+   \   000024 35 BD 5011   MOV       L:0x5011, #0xbd
+    116            GPIOD->CR1 = 0xB1; /*outputs push pull except 2,3,46 OD*/
+   \   000028 35 B1 5012   MOV       L:0x5012, #0xb1
+    117            GPIOD->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   00002C 35 00 5013   MOV       L:0x5013, #0x0
+    118            GPIOE->DDR = 0xFF;  /*all outputs */
+   \   000030 35 FF 5016   MOV       L:0x5016, #0xff
+    119            GPIOE->CR1 = 0x09; /*default inputs floating outputs OD*/
+   \   000034 35 09 5017   MOV       L:0x5017, #0x9
+    120            GPIOE->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000038 35 00 5018   MOV       L:0x5018, #0x0
+    121            GPIOG->DDR = 0xFE;  /*all outputs except PG0 */
+   \   00003C 35 FE 5020   MOV       L:0x5020, #0xfe
+    122            GPIOG->CR1 = 0xFE; /*outputs push pull input is floating */
+   \   000040 35 FE 5021   MOV       L:0x5021, #0xfe
+    123            GPIOG->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000044 35 00 5022   MOV       L:0x5022, #0x0
+    124          }
+   \   000048 87           RETF
+    125          
+    126          /* TIMER1 configuration -----------------------------------------------------*/
+    127          /*USED FOR GP TIMING RUN AT 200HZ                                            */
+    128          /*---------------------------------------------------------------------------*/
+
+   \                                 In section .far_func.text, align 1
+    129          void TIMER1_Configuration (void){
+    130            TIM1->PSCRH = 0x00; /*prescale div by 4  (16m/4 = 4mhz)*/
+   \                     TIMER1_Configuration:
+   \   000000 35 00 5260   MOV       L:0x5260, #0x0
+    131            TIM1->PSCRL = 0x03; /*prescale div by 4  (16m/4 = 4mhz)*/
+   \   000004 35 03 5261   MOV       L:0x5261, #0x3
+    132            TIM1->ARRH = 0x4E; /*auto reload = 20000 (4m/20k = 200)*/
+   \   000008 35 4E 5262   MOV       L:0x5262, #0x4e
+    133            TIM1->ARRL = 0x20;
+   \   00000C 35 20 5263   MOV       L:0x5263, #0x20
+    134            TIM1->CR1 = 0x91; /*enable counter with interrupts on overflow*/
+   \   000010 35 91 5250   MOV       L:0x5250, #0x91
+    135            TIM1->IER = 0x01; /*enable interrupts*/
+   \   000014 35 01 5254   MOV       L:0x5254, #0x1
+    136          }
+   \   000018 87           RETF
+    137          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       1  BLCNT_INDX
+       1  BLCNT_STATE
+       1  BLCNT_VAL
+      73  GPIO_Configuration
+       1  InitEEData
+      21  RCC_Configuration
+       1  SysError
+       1  TEST
+      25  TIMER1_Configuration
+       4  VER
+       1  assert_failed
+      63  main
+
+ 
+ 184 bytes in section .far_func.text
+   5 bytes in section .near.bss
+   4 bytes in section .near.data
+ 
+ 184 bytes of CODE memory
+   9 bytes of DATA memory
+
+Errors: none
+Warnings: none

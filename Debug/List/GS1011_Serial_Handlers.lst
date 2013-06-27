@@ -1,0 +1,947 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  15:01:06 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\SNAP_101\GS1011_Serial_Handlers.c                     #
+#    Command line =  C:\SNAP_101\GS1011_Serial_Handlers.c -e                  #
+#                    --enable_multibytes -On --no_cse --no_unroll             #
+#                    --no_inline --no_code_motion --no_tbaa --no_cross_call   #
+#                    --debug --code_model medium --data_model medium -o       #
+#                    C:\SNAP_101\Debug\Obj\ --dlib_config "C:\Program         #
+#                    Files\IAR Systems\Embedded Workbench                     #
+#                    6.5\stm8\LIB\dlstm8mmn.h" -D STM8S007 -lC                #
+#                    C:\SNAP_101\Debug\List\ -I .\ --no_system_include        #
+#                    --require_prototypes --vregs 16                          #
+#    List file    =  C:\SNAP_101\Debug\List\GS1011_Serial_Handlers.lst        #
+#    Object file  =  C:\SNAP_101\Debug\Obj\GS1011_Serial_Handlers.o           #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+C:\SNAP_101\GS1011_Serial_Handlers.c
+      1          /**
+      2            ******************************************************************************
+      3            * UART 1 is the GS1011 UART
+      4            * @file    stm8s_uart1.c
+      5            * @author  MCD Application Team
+      6            * @version V2.1.0
+      7            * @date    18-November-2011
+      8            * @brief   This file contains all the functions for the UART1 peripheral.
+      9            ******************************************************************************
+     10              
+     11            ******************************************************************************
+     12            *                                                                            *
+     13            *  This file contains the Initialization, and ISR routines for the GS1011    *
+     14            *     The initialization sets the port to:                                   *
+     15            *             9600 baud, 8 bits, no parity, 1 stop                           *
+     16            *     The RX ISR gets the resposes from the GS1011                           *
+     17            *     The TX ISR sends commands and device updates to the GS1011             *
+     18            *                                                                            *
+     19            *     The update data is formatted after it comes in from the device.        *
+     20            *     The ACK message is sent if the status:good is returned from the GS1011 *
+     21            *                                                                            *
+     22            *                                                                            *
+     23            *****************************************************************************/
+     24          
+     25          /* Includes ------------------------------------------------------------------*/
+     26          #include "stm8s_uart1.h"
+     27          
+     28          /* definitions ---------------------------------------------------------------*/
+     29          void InitGS1011UART(void);
+     30          void Handle_GS1011_State(void);
+     31          /*******************************   state machine handlers ************/
+     32          void GetNetworkStatusFromGS1011(void);
+     33          void Reset_Network_Access(void);
+     34          void Send_Website_Update(void);
+     35          /*******************************   state machine handlers end ************/
+     36          void GS1011_Received_Data_Handler(void);
+     37          void Sending_GS1011_Data_Handler(void);
+     38          void Start_GS1011_Send(void);
+     39          void GetNetworkStatusFromGS1011 (void);
+     40          void SetupGS1011Association(void);
+     41          void SendUpdateToWebsite (void);
+     42          void GetResponseFromGS1011(void);
+     43          void GetNSTAT_ResponseFromGS1011(void);
+     44          void SendYouThereMessageToGS1011(void);
+     45          void Are_You_There_with_Response(void);
+     46          void InitializeGS1011Buffer(void);
+     47          void Initialize_GS011_Xmit_buffer(void);
+     48          /* external definitions ------------------------------------------------------*/
+     49          /* GS1011 DATA */
+     50          extern int BFRSIZE;
+     51          extern char GS1011_State;
+     52          extern char GS1011_State_State;
+     53          extern u8 GS1011_String_Found;
+     54          extern char GS1011_Received_Response_Flag;
+     55          extern unsigned char GS1011_Xmit_Char;
+     56          extern unsigned char GS1011_Xmit_Char_Count;
+     57          extern void Start_GS1011_Send(void);
+     58          extern char GS1011_Xmit_Pointer;
+     59          extern char GS1011_Xmit_Buffer[];
+     60          extern unsigned char GS1011_Xmit_Char_Count;
+     61          extern char CopyBuffer (char dest[], char srce[]);
+     62          extern void CopyBufferGS1011 (char srce[]);
+     63          extern void FillBuffer (char bufr[],char filchr, char cntr);
+     64          extern char GS1011_Rcvr_Char;
+     65          extern u16 GS1011_Rcvr_InPtr;
+     66          extern u16 GS1011_Rcvr_OutPtr;
+     67          extern u16 GS1011_Rvcr_Count;
+     68          extern u16 GS1011_Rcvr_Pointer;
+     69          
+     70          extern char GS1011_Receiver_Buffer[];
+     71          
+     72          
+     73          /* external stock message definitions ----------------------------------------*/
+     74          extern char GetNSTATMessage[];
+     75          extern char WSTATECONNECTEDmsg[];
+     76          extern char OKAYmsg[];
+     77          /*  Reset GS1011 messages */
+     78          extern char YouThereMessage[];
+     79          extern char ForceFactoryResetMessage;
+     80          extern char ClearW0Message;
+     81          extern char ClearW1Message;
+     82          extern char ClearY0Message;
+     83          extern char ResetAdaptorMessage;
+     84          extern char ShutOffEchoMessage;
+     85          extern char DisassociateMessage;
+     86          extern void FindGS1011Chars(char chrstrng[]);
+     87          /* setup GS1011 to connect to WIFI */
+     88          extern char SetInitialIPAddressMessage;
+     89          extern char SetWM2Message;
+     90          extern char SetNDHCPMessage;
+     91          extern char SetDHCPSRVRMessage;
+     92          extern char SetWEBPROVMessage;
+     93          extern char GetProfileMessage;
+     94          
+     95          /*  sending update messages  */
+     96          extern char LookForMarsIPAddressMessage;
+     97          extern char SetConnectionType;
+     98          extern char SendKeepAliveMessage;
+     99          extern char OpenMarsConnectionHeader;   /*add ip Address*/
+    100          extern char SendtoWebsiteHeader;   /*add CID, and status*/
+    101          
+    102          /* external functions */
+    103          extern void CountGS1011Chars(void);
+    104          extern char CountChars(char s[]);
+    105          extern int Add_Char_to_Buffer (char *bufr,int ptr,char chr);
+    106          
+    107          #define CR 0x0D
+    108          #define LF 0x0A
+    109          /*****************************************************************************/
+    110          /*****************************************************************************/
+    111          /*****        GS1011 State machine                                       *****/
+    112          /*****************************************************************************/
+    113          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    114          void Handle_GS1011_State(void) {
+    115            switch (GS1011_State) {
+   \                     Handle_GS1011_State:
+   \   000000 C6 ....      LD        A, L:GS1011_State
+   \   000003 4D           TNZ       A
+   \   000004 27 08        JREQ      L:??Handle_GS1011_State_0
+   \   000006 4A           DEC       A
+   \   000007 27 0B        JREQ      L:??Handle_GS1011_State_1
+   \   000009 4A           DEC       A
+   \   00000A 27 0E        JREQ      L:??Handle_GS1011_State_2
+   \   00000C 20 10        JRA       L:??Handle_GS1011_State_3
+    116            case 0:
+    117              GetNetworkStatusFromGS1011();
+   \                     ??Handle_GS1011_State_0:
+   \   00000E 8D ......    CALLF     GetNetworkStatusFromGS1011
+    118              break;
+   \   000012 20 0A        JRA       L:??Handle_GS1011_State_3
+    119            case 1:
+    120              Reset_Network_Access();
+   \                     ??Handle_GS1011_State_1:
+   \   000014 8D ......    CALLF     Reset_Network_Access
+    121              break;
+   \   000018 20 04        JRA       L:??Handle_GS1011_State_3
+    122            case 2:
+    123              Send_Website_Update();
+   \                     ??Handle_GS1011_State_2:
+   \   00001A 8D ......    CALLF     Send_Website_Update
+    124              break;
+    125            }
+    126          }
+   \                     ??Handle_GS1011_State_3:
+   \   00001E 87           RETF
+    127          /*****************************************************************************
+    128           ****   GetNetworkStatusFromGS1011  -  STATE 0                            ****
+    129           ****                                                                     ****
+    130           **** sends an AT\r\n and waits for an OK or ERROR                        ****
+    131           ****                                                                     ****
+    132           ******************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    133          void GetNetworkStatusFromGS1011 (void){
+    134            
+    135            if (GS1011_Received_Response_Flag == 0x00){
+   \                     GetNetworkStatusFromGS1011:
+   \   000000 C6 ....      LD        A, L:GS1011_Received_Response_Flag
+   \   000003 A1 00        CP        A, #0x0
+   \   000005 26 19        JRNE      L:??GetNetworkStatusFromGS1011_0
+    136              InitializeGS1011Buffer();
+   \   000007 8D ......    CALLF     InitializeGS1011Buffer
+    137              CopyBufferGS1011(GetNSTATMessage);  
+   \   00000B AE ....      LDW       X, #GetNSTATMessage
+   \   00000E 8D ......    CALLF     CopyBufferGS1011
+    138              Start_GS1011_Send();                                /* kickstart the xmitter*/
+   \   000012 8D ......    CALLF     Start_GS1011_Send
+    139              GS1011_Received_Response_Flag = 0x01;
+   \   000016 35 01 ....   MOV       L:GS1011_Received_Response_Flag, #0x1
+    140              GetNSTAT_ResponseFromGS1011();
+   \   00001A 8D ......    CALLF     GetNSTAT_ResponseFromGS1011
+   \   00001E 20 04        JRA       L:??GetNetworkStatusFromGS1011_1
+    141             }
+    142            else {
+    143              GetNSTAT_ResponseFromGS1011();
+   \                     ??GetNetworkStatusFromGS1011_0:
+   \   000020 8D ......    CALLF     GetNSTAT_ResponseFromGS1011
+    144            }
+    145            
+    146          }
+   \                     ??GetNetworkStatusFromGS1011_1:
+   \   000024 87           RETF
+    147          
+    148          /*****************************************************************************
+    149           ****   Reset_Network_Access  -  STATE 1                                  ****
+    150           ****                                                                     ****
+    151           **** sends an AT\r\n and waits for an OK or ERROR                        ****
+    152           ****                                                                     ****
+    153           ******************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    154          void Reset_Network_Access(void){
+    155          }
+   \                     Reset_Network_Access:
+   \   000000 87           RETF
+    156          
+    157          /*****************************************************************************
+    158           ****   Send_Website_Update  -  STATE 2                                   ****
+    159           ****                                                                     ****
+    160           **** sends an AT\r\n and waits for an OK or ERROR                        ****
+    161           ****                                                                     ****
+    162           ******************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    163          void Send_Website_Update(void){
+    164            
+    165          }
+   \                     Send_Website_Update:
+   \   000000 87           RETF
+    166          /*****************************************************************************
+    167           ****   send_Are_You_There_Get_Response                                   ****
+    168           ****                                                                     ****
+    169           **** sends an AT\r\n and waits for an OK or ERROR                        ****                                              *
+    170           ****                                                                     ****
+    171           ******************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    172          void Are_You_There_with_Response(void){
+    173          }
+   \                     Are_You_There_with_Response:
+   \   000000 87           RETF
+    174          
+    175          
+    176          /*****************************************************************************/
+    177          /*****************************************************************************/
+    178          /****                       normal routines                                ***/
+    179          /*****************************************************************************/
+    180          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    181          void SendYouThereMessageToGS1011 (void){
+    182          CopyBufferGS1011(YouThereMessage);                                 
+   \                     SendYouThereMessageToGS1011:
+   \   000000 AE ....      LDW       X, #YouThereMessage
+   \   000003 8D ......    CALLF     CopyBufferGS1011
+    183          Start_GS1011_Send();                                /* kickstart the xmitter*/
+   \   000007 8D ......    CALLF     Start_GS1011_Send
+    184          if (GS1011_Xmit_Char_Count >6)
+   \   00000B C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   00000E A1 07        CP        A, #0x7
+   \   000010 25 04        JRC       L:??SendYouThereMessageToGS1011_0
+    185            GetResponseFromGS1011();
+   \   000012 8D ......    CALLF     GetResponseFromGS1011
+    186          }
+   \                     ??SendYouThereMessageToGS1011_0:
+   \   000016 87           RETF
+    187          /*****************************************************************************/
+    188          /*****************************************************************************/
+    189          /****                        ISR routines                                  ***/
+    190          /****                 UART DATA HANDLING ROUTINES                          ***/
+    191          /*****************************************************************************/
+    192          /*****************************************************************************/
+    193          
+    194          /*****************************************************************************
+    195            *   GetResponseFromGS1011                                                  *
+    196            *                                                                          *
+    197            *   Checks the input from the GS1011 for OK or ERROR                       *                                                  *
+    198            *       and returns the status to the calling routine                      *
+    199            *****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    200          void GetResponseFromGS1011(void){
+    201            if (GS1011_Rvcr_Count > 6)
+   \                     GetResponseFromGS1011:
+   \   000000 CE ....      LDW       X, L:GS1011_Rvcr_Count
+   \   000003 A3 0007      CPW       X, #0x7
+   \   000006 25 07        JRC       L:??GetResponseFromGS1011_0
+    202                FindGS1011Chars(OKAYmsg);
+   \   000008 AE ....      LDW       X, #OKAYmsg
+   \   00000B 8D ......    CALLF     FindGS1011Chars
+    203                
+    204                if (GS1011_String_Found == 0)
+   \                     ??GetResponseFromGS1011_0:
+   \   00000F C6 ....      LD        A, L:GS1011_String_Found
+   \   000012 A1 00        CP        A, #0x0
+   \   000014 26 07        JRNE      L:??GetResponseFromGS1011_1
+    205                  FindGS1011Chars(WSTATECONNECTEDmsg);
+   \   000016 AE ....      LDW       X, #WSTATECONNECTEDmsg
+   \   000019 8D ......    CALLF     FindGS1011Chars
+    206          }
+   \                     ??GetResponseFromGS1011_1:
+   \   00001D 87           RETF
+
+   \                                 In section .far_func.text, align 1
+    207          void GetNSTAT_ResponseFromGS1011(void){
+    208            if (GS1011_Rvcr_Count > 295){
+   \                     GetNSTAT_ResponseFromGS1011:
+   \   000000 CE ....      LDW       X, L:GS1011_Rvcr_Count
+   \   000003 A3 0128      CPW       X, #0x128
+   \   000006 25 15        JRC       L:??GetNSTAT_ResponseFromGS1011_0
+    209                FindGS1011Chars(OKAYmsg);
+   \   000008 AE ....      LDW       X, #OKAYmsg
+   \   00000B 8D ......    CALLF     FindGS1011Chars
+    210                
+    211                if (GS1011_String_Found == 0)
+   \   00000F C6 ....      LD        A, L:GS1011_String_Found
+   \   000012 A1 00        CP        A, #0x0
+   \   000014 26 07        JRNE      L:??GetNSTAT_ResponseFromGS1011_0
+    212                  FindGS1011Chars(WSTATECONNECTEDmsg);
+   \   000016 AE ....      LDW       X, #WSTATECONNECTEDmsg
+   \   000019 8D ......    CALLF     FindGS1011Chars
+    213            }
+    214          }
+   \                     ??GetNSTAT_ResponseFromGS1011_0:
+   \   00001D 87           RETF
+    215          
+    216          /*****************************************************************************
+    217            *   Handle_GS1011_Received_Data                                              *
+    218            *                                                                            *
+    219            *   Get a character from the data register.                                  *
+    220            *         Set a timer for x seconds(timer value is dependent upon command.   *
+    221            *                                                                            *
+    222            *   If the timer expires check if the response matches the command.          *
+    223            *                                                                            *
+    224            *   If the command was an update, and the response was status:good then      *
+    225            *             Send the stock ACK message to the device                       *
+    226            *                                                                            *
+    227            *****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    228          void GS1011_Received_Data_Handler(void){
+    229           GS1011_Rcvr_Char = UART1->DR;
+   \                     GS1011_Received_Data_Handler:
+   \   000000 C6 5231      LD        A, L:0x5231
+   \   000003 C7 ....      LD        L:GS1011_Rcvr_Char, A
+    230           GS1011_Receiver_Buffer[GS1011_Rcvr_InPtr] = GS1011_Rcvr_Char;
+   \   000006 CE ....      LDW       X, L:GS1011_Rcvr_InPtr
+   \   000009 C6 ....      LD        A, L:GS1011_Rcvr_Char
+   \   00000C D7 ....      LD        (L:GS1011_Receiver_Buffer,X), A
+    231           GS1011_Rcvr_InPtr++;
+   \   00000F CE ....      LDW       X, L:GS1011_Rcvr_InPtr
+   \   000012 5C           INCW      X
+   \   000013 CF ....      LDW       L:GS1011_Rcvr_InPtr, X
+    232           GS1011_Rvcr_Count++;
+   \   000016 CE ....      LDW       X, L:GS1011_Rvcr_Count
+   \   000019 5C           INCW      X
+   \   00001A CF ....      LDW       L:GS1011_Rvcr_Count, X
+    233           GS1011_Rcvr_Pointer++;
+   \   00001D CE ....      LDW       X, L:GS1011_Rcvr_Pointer
+   \   000020 5C           INCW      X
+   \   000021 CF ....      LDW       L:GS1011_Rcvr_Pointer, X
+    234          }
+   \   000024 87           RETF
+    235           /******************************************************************************
+    236            *   Start_GS1011_Send                                                        *
+    237            *                                                                            *
+    238            *   This routine is passed a pointer to a buffer to send to the GS1011       *
+    239            *                                                                            *
+    240            *   Gets the first character and sets the buffer count and pointer.          *
+    241            *   It sends the first character then the interupts take over.               *
+    242            *                                                                            *
+    243            *****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    244          void Start_GS1011_Send(void){
+    245            GS1011_Xmit_Pointer = 0;
+   \                     Start_GS1011_Send:
+   \   000000 35 00 ....   MOV       L:GS1011_Xmit_Pointer, #0x0
+    246            GS1011_Xmit_Char = GS1011_Xmit_Buffer[GS1011_Xmit_Pointer];
+   \   000004 C6 ....      LD        A, L:GS1011_Xmit_Pointer
+   \   000007 5F           CLRW      X
+   \   000008 97           LD        XL, A
+   \   000009 D6 ....      LD        A, (L:GS1011_Xmit_Buffer,X)
+   \   00000C C7 ....      LD        L:GS1011_Xmit_Char, A
+    247            GS1011_Xmit_Pointer++;
+   \   00000F C6 ....      LD        A, L:GS1011_Xmit_Pointer
+   \   000012 AB 01        ADD       A, #0x1
+   \   000014 C7 ....      LD        L:GS1011_Xmit_Pointer, A
+    248            GS1011_Xmit_Char_Count--;
+   \   000017 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   00001A AB FF        ADD       A, #0xff
+   \   00001C C7 ....      LD        L:GS1011_Xmit_Char_Count, A
+    249            UART1->DR = GS1011_Xmit_Char;
+   \   00001F C6 ....      LD        A, L:GS1011_Xmit_Char
+   \   000022 C7 5231      LD        L:0x5231, A
+    250            UART1->CR2 |= ((uint8_t)UART1_CR2_TCIEN | UART1_CR2_TCIEN | UART1_CR2_TIEN);
+   \   000025 C6 5235      LD        A, L:0x5235
+   \   000028 AA C0        OR        A, #0xc0
+   \   00002A C7 5235      LD        L:0x5235, A
+    251            }
+   \   00002D 87           RETF
+    252             
+    253            /*****************************************************************************
+    254            *   Handle_Sending_GS1011_Data                                               *
+    255            *                                                                            *
+    256            *   Send a character to the data register.                                   *
+    257            *         Continue till count = 00                                           *
+    258            *                                                                            *
+    259            *****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    260          void Sending_GS1011_Data_Handler(void){
+    261              if (UART1->SR &= UART3_FLAG_TXE){
+   \                     Sending_GS1011_Data_Handler:
+   \   000000 C6 5230      LD        A, L:0x5230
+   \   000003 A4 80        AND       A, #0x80
+   \   000005 C7 5230      LD        L:0x5230, A
+   \   000008 4D           TNZ       A
+   \   000009 27 32        JREQ      L:??Sending_GS1011_Data_Handler_0
+    262          
+    263            GS1011_Xmit_Char = GS1011_Xmit_Buffer[GS1011_Xmit_Pointer];
+   \   00000B C6 ....      LD        A, L:GS1011_Xmit_Pointer
+   \   00000E 5F           CLRW      X
+   \   00000F 97           LD        XL, A
+   \   000010 D6 ....      LD        A, (L:GS1011_Xmit_Buffer,X)
+   \   000013 C7 ....      LD        L:GS1011_Xmit_Char, A
+    264            if (GS1011_Xmit_Char != 0x00){
+   \   000016 C6 ....      LD        A, L:GS1011_Xmit_Char
+   \   000019 A1 00        CP        A, #0x0
+   \   00001B 27 18        JREQ      L:??Sending_GS1011_Data_Handler_1
+    265                UART1->DR= GS1011_Xmit_Char;
+   \   00001D C6 ....      LD        A, L:GS1011_Xmit_Char
+   \   000020 C7 5231      LD        L:0x5231, A
+    266                GS1011_Xmit_Pointer++;
+   \   000023 C6 ....      LD        A, L:GS1011_Xmit_Pointer
+   \   000026 AB 01        ADD       A, #0x1
+   \   000028 C7 ....      LD        L:GS1011_Xmit_Pointer, A
+    267                GS1011_Xmit_Char_Count--;}
+   \   00002B C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   00002E AB FF        ADD       A, #0xff
+   \   000030 C7 ....      LD        L:GS1011_Xmit_Char_Count, A
+   \   000033 20 08        JRA       L:??Sending_GS1011_Data_Handler_0
+    268            else UART1->CR2 &= (uint8_t)~(UART1_CR2_TCIEN | UART1_CR2_TIEN);     
+   \                     ??Sending_GS1011_Data_Handler_1:
+   \   000035 C6 5235      LD        A, L:0x5235
+   \   000038 A4 3F        AND       A, #0x3f
+   \   00003A C7 5235      LD        L:0x5235, A
+    269           }
+    270          }
+   \                     ??Sending_GS1011_Data_Handler_0:
+   \   00003D 87           RETF
+
+   \                                 In section .far_func.text, align 1
+    271          void Initialize_GS011_Xmit_buffer(void){
+    272            FillBuffer (GS1011_Xmit_Buffer,0x00, BFRSIZE);
+   \                     Initialize_GS011_Xmit_buffer:
+   \   000000 CE ....      LDW       X, L:BFRSIZE
+   \   000003 41           EXG       A, XL
+   \   000004 B7 ..        LD        S:?b0, A
+   \   000006 41           EXG       A, XL
+   \   000007 4F           CLR       A
+   \   000008 AE ....      LDW       X, #GS1011_Xmit_Buffer
+   \   00000B 8D ......    CALLF     FillBuffer
+    273            GS1011_Xmit_Pointer = 0;
+   \   00000F 35 00 ....   MOV       L:GS1011_Xmit_Pointer, #0x0
+    274            GS1011_Xmit_Char_Count = 0;
+   \   000013 35 00 ....   MOV       L:GS1011_Xmit_Char_Count, #0x0
+    275          }
+   \   000017 87           RETF
+    276          /*****************************************************************************/
+    277          /*****************************************************************************/
+    278          /*****        GS1011 Initialize/DeInit                                   *****/
+    279          /*****************************************************************************/
+    280          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    281          void InitGS1011UART(void){
+    282            UART1_Init(9600,  UART1_WORDLENGTH_8D, UART1_STOPBITS_1,
+    283            UART1_PARITY_NO, UART1_SYNCMODE_CLOCK_DISABLE,  UART1_MODE_TXRX_ENABLE);
+   \                     InitGS1011UART:
+   \   000000 35 0C ....   MOV       S:?b7, #0xc
+   \   000004 35 80 ....   MOV       S:?b6, #0x80
+   \   000008 3F ..        CLR       S:?b5
+   \   00000A 3F ..        CLR       S:?b4
+   \   00000C 4F           CLR       A
+   \   00000D AE 2580      LDW       X, #0x2580
+   \   000010 BF ..        LDW       S:?w1, X
+   \   000012 5F           CLRW      X
+   \   000013 BF ..        LDW       S:?w0, X
+   \   000015 8D ......    CALLF     UART1_Init
+    284          }
+   \   000019 87           RETF
+    285          
+    286          /*****************************************************************************/
+    287          /*****                          UART1_DeInit                              ****/
+    288          /***** Clear the Idle Line Detected bit in the status rerister by a read  ****/
+    289          /***** to the UART3_SR register followed by a Read to the UART1_DR register **/
+    290          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    291          void UART1_DeInit(void)
+    292          {
+    293              /* Clear the Idle Line Detected bit in the status rerister by a read
+    294                 to the UART1_SR register followed by a Read to the UART1_DR register */
+    295              (void)UART1->SR;
+   \                     UART1_DeInit:
+   \   000000 C6 5230      LD        A, L:0x5230
+   \   000003 B7 ..        LD        S:?b0, A
+    296              (void)UART1->DR;
+   \   000005 C6 5231      LD        A, L:0x5231
+    297          
+    298              UART1->BRR2 = UART1_BRR2_RESET_VALUE;  /* Set UART1_BRR2 to reset value 0x00 */
+   \   000008 35 00 5233   MOV       L:0x5233, #0x0
+    299              UART1->BRR1 = UART1_BRR1_RESET_VALUE;  /* Set UART1_BRR1 to reset value 0x00 */
+   \   00000C 35 00 5232   MOV       L:0x5232, #0x0
+    300          
+    301              UART1->CR1 = UART1_CR1_RESET_VALUE;  /* Set UART1_CR1 to reset value 0x00 */
+   \   000010 35 00 5234   MOV       L:0x5234, #0x0
+    302              UART1->CR2 = UART1_CR2_RESET_VALUE;  /* Set UART1_CR2 to reset value 0x00 */
+   \   000014 35 00 5235   MOV       L:0x5235, #0x0
+    303              UART1->CR3 = UART1_CR3_RESET_VALUE;  /* Set UART1_CR3 to reset value 0x00 */
+   \   000018 35 00 5236   MOV       L:0x5236, #0x0
+    304              UART1->CR4 = UART1_CR4_RESET_VALUE;  /* Set UART1_CR4 to reset value 0x00 */
+   \   00001C 35 00 5237   MOV       L:0x5237, #0x0
+    305              UART1->CR5 = UART1_CR5_RESET_VALUE;  /* Set UART1_CR5 to reset value 0x00 */
+   \   000020 35 00 5238   MOV       L:0x5238, #0x0
+    306          
+    307              UART1->GTR = UART1_GTR_RESET_VALUE;
+   \   000024 35 00 5239   MOV       L:0x5239, #0x0
+    308              UART1->PSCR = UART1_PSCR_RESET_VALUE;
+   \   000028 35 00 523A   MOV       L:0x523a, #0x0
+    309          }
+   \   00002C 87           RETF
+    310          
+    311          
+    312          /*****************************************************************************/
+    313          /*****                          UART1_Init                                ****/
+    314          /*****************************************************************************/
+    315          /**
+    316            * @brief  Initializes the UART1 according to the specified parameters.
+    317            * @note   Configure in Push Pull or Open Drain mode the Tx pin by setting the
+    318            *         correct I/O Port register according the product package and line
+    319            *         configuration
+    320            * @param  BaudRate: The baudrate.
+    321            * @param  WordLength : This parameter can be any of the 
+    322            *         @ref UART1_WordLength_TypeDef enumeration.
+    323            * @param  StopBits: This parameter can be any of the 
+    324            *         @ref UART1_StopBits_TypeDef enumeration.
+    325            * @param  Parity: This parameter can be any of the 
+    326            *         @ref UART1_Parity_TypeDef enumeration.
+    327            * @param  SyncMode: This parameter can be any of the 
+    328            *         @ref UART1_SyncMode_TypeDef values.
+    329            * @param  Mode: This parameter can be any of the @ref UART1_Mode_TypeDef values
+    330            * @retval None
+    331            */
+
+   \                                 In section .far_func.text, align 1
+    332          void UART1_Init(uint32_t BaudRate, UART1_WordLength_TypeDef WordLength, 
+    333                          UART1_StopBits_TypeDef StopBits, UART1_Parity_TypeDef Parity, 
+    334                          UART1_SyncMode_TypeDef SyncMode, UART1_Mode_TypeDef Mode)
+    335          {
+   \                     UART1_Init:
+   \   000000 8D ......    CALLF     L:?push_l2
+   \   000004 8D ......    CALLF     L:?push_l3
+   \   000008 88           PUSH      A
+   \   000009 3B ....      PUSH      S:?b4
+   \   00000C 3B ....      PUSH      S:?b5
+   \   00000F 3B ....      PUSH      S:?b6
+   \   000012 3B ....      PUSH      S:?b7
+   \   000015 52 05        SUB       SP, #0x5
+   \   000017 8D ......    CALLF     L:?mov_l2_l0
+    336              uint32_t BaudRate_Mantissa = 0, BaudRate_Mantissa100 = 0;
+   \   00001B 5F           CLRW      X
+   \   00001C BF ..        LDW       S:?w7, X
+   \   00001E BF ..        LDW       S:?w6, X
+   \   000020 AE 0000      LDW       X, #0x0
+   \   000023 1F 02        LDW       (0x2,SP), X
+   \   000025 AE 0000      LDW       X, #0x0
+   \   000028 1F 04        LDW       (0x4,SP), X
+    337          
+    338              /* Check the parameters */
+    339              assert_param(IS_UART1_BAUDRATE_OK(BaudRate));
+   \   00002A BE ..        LDW       X, S:?w4
+   \   00002C A3 0009      CPW       X, #0x9
+   \   00002F 26 05        JRNE      L:??UART1_Init_0
+   \   000031 BE ..        LDW       X, S:?w5
+   \   000033 A3 8969      CPW       X, #0x8969
+   \                     ??UART1_Init_0:
+   \   000036 25 0F        JRC       L:??UART1_Init_1
+   \   000038 AE 0153      LDW       X, #0x153
+   \   00003B BF ..        LDW       S:?w1, X
+   \   00003D 5F           CLRW      X
+   \   00003E BF ..        LDW       S:?w0, X
+   \   000040 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   000043 8D ......    CALLF     assert_failed
+    340              assert_param(IS_UART1_WORDLENGTH_OK(WordLength));
+   \                     ??UART1_Init_1:
+   \   000047 0D 0A        TNZ       (0xa,SP)
+   \   000049 27 15        JREQ      L:??UART1_Init_2
+   \   00004B 7B 0A        LD        A, (0xa,SP)
+   \   00004D A1 10        CP        A, #0x10
+   \   00004F 27 0F        JREQ      L:??UART1_Init_2
+   \   000051 AE 0154      LDW       X, #0x154
+   \   000054 BF ..        LDW       S:?w1, X
+   \   000056 5F           CLRW      X
+   \   000057 BF ..        LDW       S:?w0, X
+   \   000059 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   00005C 8D ......    CALLF     assert_failed
+    341              assert_param(IS_UART1_STOPBITS_OK(StopBits));
+   \                     ??UART1_Init_2:
+   \   000060 0D 09        TNZ       (0x9,SP)
+   \   000062 27 21        JREQ      L:??UART1_Init_3
+   \   000064 7B 09        LD        A, (0x9,SP)
+   \   000066 A1 10        CP        A, #0x10
+   \   000068 27 1B        JREQ      L:??UART1_Init_3
+   \   00006A 7B 09        LD        A, (0x9,SP)
+   \   00006C A1 20        CP        A, #0x20
+   \   00006E 27 15        JREQ      L:??UART1_Init_3
+   \   000070 7B 09        LD        A, (0x9,SP)
+   \   000072 A1 30        CP        A, #0x30
+   \   000074 27 0F        JREQ      L:??UART1_Init_3
+   \   000076 AE 0155      LDW       X, #0x155
+   \   000079 BF ..        LDW       S:?w1, X
+   \   00007B 5F           CLRW      X
+   \   00007C BF ..        LDW       S:?w0, X
+   \   00007E AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   000081 8D ......    CALLF     assert_failed
+    342              assert_param(IS_UART1_PARITY_OK(Parity));
+   \                     ??UART1_Init_3:
+   \   000085 0D 08        TNZ       (0x8,SP)
+   \   000087 27 1B        JREQ      L:??UART1_Init_4
+   \   000089 7B 08        LD        A, (0x8,SP)
+   \   00008B A1 04        CP        A, #0x4
+   \   00008D 27 15        JREQ      L:??UART1_Init_4
+   \   00008F 7B 08        LD        A, (0x8,SP)
+   \   000091 A1 06        CP        A, #0x6
+   \   000093 27 0F        JREQ      L:??UART1_Init_4
+   \   000095 AE 0156      LDW       X, #0x156
+   \   000098 BF ..        LDW       S:?w1, X
+   \   00009A 5F           CLRW      X
+   \   00009B BF ..        LDW       S:?w0, X
+   \   00009D AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   0000A0 8D ......    CALLF     assert_failed
+    343              assert_param(IS_UART1_MODE_OK((uint8_t)Mode));
+   \                     ??UART1_Init_4:
+   \   0000A4 7B 06        LD        A, (0x6,SP)
+   \   0000A6 A1 08        CP        A, #0x8
+   \   0000A8 27 3F        JREQ      L:??UART1_Init_5
+   \   0000AA 7B 06        LD        A, (0x6,SP)
+   \   0000AC A1 40        CP        A, #0x40
+   \   0000AE 27 39        JREQ      L:??UART1_Init_5
+   \   0000B0 7B 06        LD        A, (0x6,SP)
+   \   0000B2 A1 04        CP        A, #0x4
+   \   0000B4 27 33        JREQ      L:??UART1_Init_5
+   \   0000B6 7B 06        LD        A, (0x6,SP)
+   \   0000B8 A1 80        CP        A, #0x80
+   \   0000BA 27 2D        JREQ      L:??UART1_Init_5
+   \   0000BC 7B 06        LD        A, (0x6,SP)
+   \   0000BE A1 0C        CP        A, #0xc
+   \   0000C0 27 27        JREQ      L:??UART1_Init_5
+   \   0000C2 7B 06        LD        A, (0x6,SP)
+   \   0000C4 A1 0C        CP        A, #0xc
+   \   0000C6 27 21        JREQ      L:??UART1_Init_5
+   \   0000C8 7B 06        LD        A, (0x6,SP)
+   \   0000CA A1 44        CP        A, #0x44
+   \   0000CC 27 1B        JREQ      L:??UART1_Init_5
+   \   0000CE 7B 06        LD        A, (0x6,SP)
+   \   0000D0 A1 C0        CP        A, #0xc0
+   \   0000D2 27 15        JREQ      L:??UART1_Init_5
+   \   0000D4 7B 06        LD        A, (0x6,SP)
+   \   0000D6 A1 88        CP        A, #0x88
+   \   0000D8 27 0F        JREQ      L:??UART1_Init_5
+   \   0000DA AE 0157      LDW       X, #0x157
+   \   0000DD BF ..        LDW       S:?w1, X
+   \   0000DF 5F           CLRW      X
+   \   0000E0 BF ..        LDW       S:?w0, X
+   \   0000E2 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   0000E5 8D ......    CALLF     assert_failed
+    344              assert_param(IS_UART1_SYNCMODE_OK((uint8_t)SyncMode));
+   \                     ??UART1_Init_5:
+   \   0000E9 7B 07        LD        A, (0x7,SP)
+   \   0000EB A4 88        AND       A, #0x88
+   \   0000ED A1 88        CP        A, #0x88
+   \   0000EF 27 18        JREQ      L:??UART1_Init_6
+   \   0000F1 7B 07        LD        A, (0x7,SP)
+   \   0000F3 A4 44        AND       A, #0x44
+   \   0000F5 A1 44        CP        A, #0x44
+   \   0000F7 27 10        JREQ      L:??UART1_Init_6
+   \   0000F9 7B 07        LD        A, (0x7,SP)
+   \   0000FB A4 22        AND       A, #0x22
+   \   0000FD A1 22        CP        A, #0x22
+   \   0000FF 27 08        JREQ      L:??UART1_Init_6
+   \   000101 7B 07        LD        A, (0x7,SP)
+   \   000103 A4 11        AND       A, #0x11
+   \   000105 A1 11        CP        A, #0x11
+   \   000107 26 0F        JRNE      L:??UART1_Init_7
+   \                     ??UART1_Init_6:
+   \   000109 AE 0158      LDW       X, #0x158
+   \   00010C BF ..        LDW       S:?w1, X
+   \   00010E 5F           CLRW      X
+   \   00010F BF ..        LDW       S:?w0, X
+   \   000111 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   000114 8D ......    CALLF     assert_failed
+    345          
+    346              /* Clear the word length bit */
+    347              UART1->CR1 &= (uint8_t)(~UART1_CR1_M);  
+   \                     ??UART1_Init_7:
+   \   000118 7219 5234    BRES      L:0x5234, #0x4
+    348              
+    349               /* Set the word length bit according to UART1_WordLength value */
+    350              UART1->CR1 |= (uint8_t)WordLength;
+   \   00011C 7B 0A        LD        A, (0xa,SP)
+   \   00011E CA 5234      OR        A, L:0x5234
+   \   000121 C7 5234      LD        L:0x5234, A
+    351          
+    352              /* Clear the STOP bits */
+    353              UART1->CR3 &= (uint8_t)(~UART1_CR3_STOP);  
+   \   000124 C6 5236      LD        A, L:0x5236
+   \   000127 A4 CF        AND       A, #0xcf
+   \   000129 C7 5236      LD        L:0x5236, A
+    354              /* Set the STOP bits number according to UART1_StopBits value  */
+    355              UART1->CR3 |= (uint8_t)StopBits;  
+   \   00012C 7B 09        LD        A, (0x9,SP)
+   \   00012E CA 5236      OR        A, L:0x5236
+   \   000131 C7 5236      LD        L:0x5236, A
+    356          
+    357              /* Clear the Parity Control bit */
+    358              UART1->CR1 &= (uint8_t)(~(UART1_CR1_PCEN | UART1_CR1_PS  ));  
+   \   000134 C6 5234      LD        A, L:0x5234
+   \   000137 A4 F9        AND       A, #0xf9
+   \   000139 C7 5234      LD        L:0x5234, A
+    359              /* Set the Parity Control bit to UART1_Parity value */
+    360              UART1->CR1 |= (uint8_t)Parity;  
+   \   00013C 7B 08        LD        A, (0x8,SP)
+   \   00013E CA 5234      OR        A, L:0x5234
+   \   000141 C7 5234      LD        L:0x5234, A
+    361          
+    362              /* Clear the LSB mantissa of UART1DIV  */
+    363              UART1->BRR1 &= (uint8_t)(~UART1_BRR1_DIVM);  
+   \   000144 C6 5232      LD        A, L:0x5232
+   \   000147 6B 01        LD        (0x1,SP), A
+   \   000149 35 00 5232   MOV       L:0x5232, #0x0
+    364              /* Clear the MSB mantissa of UART1DIV  */
+    365              UART1->BRR2 &= (uint8_t)(~UART1_BRR2_DIVM);  
+   \   00014D C6 5233      LD        A, L:0x5233
+   \   000150 A4 0F        AND       A, #0xf
+   \   000152 C7 5233      LD        L:0x5233, A
+    366              /* Clear the Fraction bits of UART1DIV */
+    367              UART1->BRR2 &= (uint8_t)(~UART1_BRR2_DIVF);  
+   \   000155 C6 5233      LD        A, L:0x5233
+   \   000158 A4 F0        AND       A, #0xf0
+   \   00015A C7 5233      LD        L:0x5233, A
+    368          
+    369              /* Set the UART1 BaudRates in BRR1 and BRR2 registers according to UART1_BaudRate value */
+    370              BaudRate_Mantissa    = ((uint32_t)CLK_GetClockFreq() / (BaudRate << 4));
+   \   00015D 8D ......    CALLF     L:?mov_l0_l2
+   \   000161 A6 04        LD        A, #0x4
+   \   000163 8D ......    CALLF     L:?sll32_l0_l0_a
+   \   000167 8D ......    CALLF     L:?push_l0
+   \   00016B 8D ......    CALLF     CLK_GetClockFreq
+   \   00016F 8D ......    CALLF     L:?pop_l1
+   \   000173 8D ......    CALLF     L:?udiv32_l0_l0_l1
+   \   000177 8D ......    CALLF     L:?mov_l3_l0
+    371              BaudRate_Mantissa100 = (((uint32_t)CLK_GetClockFreq() * 100) / (BaudRate << 4));
+   \   00017B 8D ......    CALLF     L:?mov_l0_l2
+   \   00017F A6 04        LD        A, #0x4
+   \   000181 8D ......    CALLF     L:?sll32_l0_l0_a
+   \   000185 8D ......    CALLF     L:?push_l0
+   \   000189 8D ......    CALLF     CLK_GetClockFreq
+   \   00018D 8D ......    CALLF     L:?mov_l1_l0
+   \   000191 AE 0064      LDW       X, #0x64
+   \   000194 BF ..        LDW       S:?w1, X
+   \   000196 5F           CLRW      X
+   \   000197 BF ..        LDW       S:?w0, X
+   \   000199 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   00019D 8D ......    CALLF     L:?pop_l1
+   \   0001A1 8D ......    CALLF     L:?udiv32_l0_l0_l1
+   \   0001A5 AE 0002      LDW       X, #0x2
+   \   0001A8 8D ......    CALLF     L:?load32_xsp_l0
+    372              /* Set the fraction of UART1DIV  */
+    373              UART1->BRR2 |= (uint8_t)((uint8_t)(((BaudRate_Mantissa100 - (BaudRate_Mantissa * 100)) << 4) / 100) & (uint8_t)0x0F); 
+   \   0001AC AE 0064      LDW       X, #0x64
+   \   0001AF BF ..        LDW       S:?w3, X
+   \   0001B1 5F           CLRW      X
+   \   0001B2 BF ..        LDW       S:?w2, X
+   \   0001B4 8D ......    CALLF     L:?mov_l0_l3
+   \   0001B8 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   0001BC 8D ......    CALLF     L:?mov_l1_l0
+   \   0001C0 8D ......    CALLF     L:?load32_l0_dbsp
+   \   0001C4 02           DC8       0x2
+   \   0001C5 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   0001C9 A6 04        LD        A, #0x4
+   \   0001CB 8D ......    CALLF     L:?sll32_l0_l0_a
+   \   0001CF 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   0001D3 00000064     DC32      0x64
+   \   0001D7 B6 ..        LD        A, S:?b3
+   \   0001D9 A4 0F        AND       A, #0xf
+   \   0001DB CA 5233      OR        A, L:0x5233
+   \   0001DE C7 5233      LD        L:0x5233, A
+    374              /* Set the MSB mantissa of UART1DIV  */
+    375              UART1->BRR2 |= (uint8_t)((BaudRate_Mantissa >> 4) & (uint8_t)0xF0); 
+   \   0001E1 BE ..        LDW       X, S:?w7
+   \   0001E3 54           SRLW      X
+   \   0001E4 54           SRLW      X
+   \   0001E5 54           SRLW      X
+   \   0001E6 54           SRLW      X
+   \   0001E7 9F           LD        A, XL
+   \   0001E8 A4 F0        AND       A, #0xf0
+   \   0001EA CA 5233      OR        A, L:0x5233
+   \   0001ED C7 5233      LD        L:0x5233, A
+    376              /* Set the LSB mantissa of UART1DIV  */
+    377              UART1->BRR1 |= (uint8_t)BaudRate_Mantissa;           
+   \   0001F0 B6 ..        LD        A, S:?b15
+   \   0001F2 CA 5232      OR        A, L:0x5232
+   \   0001F5 C7 5232      LD        L:0x5232, A
+    378          
+    379              /* Disable the Transmitter and Receiver before seting the LBCL, CPOL and CPHA bits */
+    380              UART1->CR2 &= (uint8_t)~(UART1_CR2_TEN | UART1_CR2_REN); 
+   \   0001F8 C6 5235      LD        A, L:0x5235
+   \   0001FB A4 F3        AND       A, #0xf3
+   \   0001FD C7 5235      LD        L:0x5235, A
+    381              /* Clear the Clock Polarity, lock Phase, Last Bit Clock pulse */
+    382              UART1->CR3 &= (uint8_t)~(UART1_CR3_CPOL | UART1_CR3_CPHA | UART1_CR3_LBCL); 
+   \   000200 C6 5236      LD        A, L:0x5236
+   \   000203 A4 F8        AND       A, #0xf8
+   \   000205 C7 5236      LD        L:0x5236, A
+    383              /* Set the Clock Polarity, lock Phase, Last Bit Clock pulse */
+    384              UART1->CR3 |= (uint8_t)((uint8_t)SyncMode & (uint8_t)(UART1_CR3_CPOL | 
+    385                                                        UART1_CR3_CPHA | UART1_CR3_LBCL));  
+   \   000208 7B 07        LD        A, (0x7,SP)
+   \   00020A A4 07        AND       A, #0x7
+   \   00020C CA 5236      OR        A, L:0x5236
+   \   00020F C7 5236      LD        L:0x5236, A
+    386          
+    387              if ((uint8_t)(Mode & UART1_MODE_TX_ENABLE))
+   \   000212 7B 06        LD        A, (0x6,SP)
+   \   000214 A4 04        AND       A, #0x4
+   \   000216 A1 00        CP        A, #0x0
+   \   000218 27 06        JREQ      L:??UART1_Init_8
+    388              {
+    389                  /* Set the Transmitter Enable bit */
+    390                  UART1->CR2 |= (uint8_t)UART1_CR2_TEN;  
+   \   00021A 7216 5235    BSET      L:0x5235, #0x3
+   \   00021E 20 04        JRA       L:??UART1_Init_9
+    391              }
+    392              else
+    393              {
+    394                  /* Clear the Transmitter Disable bit */
+    395                  UART1->CR2 &= (uint8_t)(~UART1_CR2_TEN);  
+   \                     ??UART1_Init_8:
+   \   000220 7217 5235    BRES      L:0x5235, #0x3
+    396              }
+    397              if ((uint8_t)(Mode & UART1_MODE_RX_ENABLE))
+   \                     ??UART1_Init_9:
+   \   000224 7B 06        LD        A, (0x6,SP)
+   \   000226 A4 08        AND       A, #0x8
+   \   000228 A1 00        CP        A, #0x0
+   \   00022A 27 16        JREQ      L:??UART1_Init_10
+    398              {
+    399                  /* Set the Receiver Enable bit */
+    400                  GS1011_Rcvr_Char = UART1->DR;
+   \   00022C C6 5231      LD        A, L:0x5231
+   \   00022F C7 ....      LD        L:GS1011_Rcvr_Char, A
+    401                  GS1011_Rcvr_Char = UART1->DR;
+   \   000232 C6 5231      LD        A, L:0x5231
+   \   000235 C7 ....      LD        L:GS1011_Rcvr_Char, A
+    402                  UART1->CR2 |= ((uint8_t)UART1_CR2_REN | UART1_CR2_RIEN);
+   \   000238 C6 5235      LD        A, L:0x5235
+   \   00023B AA 24        OR        A, #0x24
+   \   00023D C7 5235      LD        L:0x5235, A
+   \   000240 20 04        JRA       L:??UART1_Init_11
+    403              }
+    404              else
+    405              {
+    406                  /* Clear the Receiver Disable bit */
+    407                  UART1->CR2 &= (uint8_t)(~UART1_CR2_REN);  
+   \                     ??UART1_Init_10:
+   \   000242 7215 5235    BRES      L:0x5235, #0x2
+    408              }
+    409              /* Set the Clock Enable bit, lock Polarity, lock Phase and Last Bit Clock 
+    410                     pulse bits according to UART1_Mode value */
+    411              if ((uint8_t)(SyncMode & UART1_SYNCMODE_CLOCK_DISABLE))
+   \                     ??UART1_Init_11:
+   \   000246 7B 07        LD        A, (0x7,SP)
+   \   000248 A4 80        AND       A, #0x80
+   \   00024A A1 00        CP        A, #0x0
+   \   00024C 27 06        JREQ      L:??UART1_Init_12
+    412              {
+    413                  /* Clear the Clock Enable bit */
+    414                  UART1->CR3 &= (uint8_t)(~UART1_CR3_CKEN); 
+   \   00024E 7217 5236    BRES      L:0x5236, #0x3
+   \   000252 20 0A        JRA       L:??UART1_Init_13
+    415              }
+    416              else
+    417              {
+    418                  UART1->CR3 |= (uint8_t)((uint8_t)SyncMode & UART1_CR3_CKEN);
+   \                     ??UART1_Init_12:
+   \   000254 7B 07        LD        A, (0x7,SP)
+   \   000256 A4 08        AND       A, #0x8
+   \   000258 CA 5236      OR        A, L:0x5236
+   \   00025B C7 5236      LD        L:0x5236, A
+    419              }
+    420          }
+   \                     ??UART1_Init_13:
+   \   00025E 5B 0A        ADD       SP, #0xa
+   \   000260 AC ......    JPF       L:?epilogue_l2_l3
+
+   \                                 In section .near.rodata, align 1
+   \                     `?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`:
+   \   000000 43 3A 5C 53  DC8 "C:\\SNAP_101\\GS1011_Serial_Handlers.c"
+   \          4E 41 50 5F 
+    421          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      37  ?<Constant "C:\\SNAP_101\\GS1011_Se...">
+       1  Are_You_There_with_Response
+      37  GS1011_Received_Data_Handler
+      30  GetNSTAT_ResponseFromGS1011
+      37  GetNetworkStatusFromGS1011
+      30  GetResponseFromGS1011
+      31  Handle_GS1011_State
+      26  InitGS1011UART
+      24  Initialize_GS011_Xmit_buffer
+       1  Reset_Network_Access
+      23  SendYouThereMessageToGS1011
+       1  Send_Website_Update
+      62  Sending_GS1011_Data_Handler
+      46  Start_GS1011_Send
+      45  UART1_DeInit
+     612  UART1_Init
+
+ 
+ 1 006 bytes in section .far_func.text
+    37 bytes in section .near.rodata
+ 
+ 1 006 bytes of CODE  memory
+    37 bytes of CONST memory
+
+Errors: none
+Warnings: none

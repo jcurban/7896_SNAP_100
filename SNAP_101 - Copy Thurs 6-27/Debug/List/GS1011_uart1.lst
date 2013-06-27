@@ -1,0 +1,1672 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             11/Jun/2013  09:41:46 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\SNAP\7896_SNAP\GS1011_uart1.c                         #
+#    Command line =  C:\SNAP\7896_SNAP\GS1011_uart1.c -e --enable_multibytes  #
+#                    -Oh --debug --code_model medium --data_model medium -o   #
+#                    C:\SNAP\7896_SNAP\Debug\Obj\ --dlib_config "C:\Program   #
+#                    Files\IAR Systems\Embedded Workbench                     #
+#                    6.5\stm8\LIB\dlstm8mmn.h" -D STM8S007 -lC                #
+#                    C:\SNAP\7896_SNAP\Debug\List\ -I .\                      #
+#                    --require_prototypes --vregs 16                          #
+#    List file    =  C:\SNAP\7896_SNAP\Debug\List\GS1011_uart1.lst            #
+#    Object file  =  C:\SNAP\7896_SNAP\Debug\Obj\GS1011_uart1.o               #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+C:\SNAP\7896_SNAP\GS1011_uart1.c
+      1          /**
+      2            ******************************************************************************
+      3            * UART 1 is the GS1011 UART
+      4            * @file    stm8s_uart1.c
+      5            * @author  MCD Application Team
+      6            * @version V2.1.0
+      7            * @date    18-November-2011
+      8            * @brief   This file contains all the functions for the UART1 peripheral.
+      9            ******************************************************************************
+     10              
+     11            ******************************************************************************
+     12            *                                                                            *
+     13            *  This file contains the Initialization, and ISR routines for the GS1011    *
+     14            *     The initialization sets the port to:                                   *
+     15            *             9600 baud, 8 bits, no parity, 1 stop                           *
+     16            *     The RX ISR gets the resposes from the GS1011                           *
+     17            *     The TX ISR sends commands and device updates to the GS1011             *
+     18            *                                                                            *
+     19            *     The update data is formatted after it comes in from the device.        *
+     20            *     The ACK message is sent if the status:good is returned from the GS1011 *
+     21            *                                                                            *
+     22            *                                                                            *
+     23            *****************************************************************************/
+     24          
+     25          /* Includes ------------------------------------------------------------------*/
+     26          #include "stm8s_uart1.h"
+     27          
+     28          extern u8 GS1011_Xmit_Char;
+     29          extern int GS1011_Xmit_Char_Count;
+     30          extern char * GS1011_Xmit_Pointer;
+     31          
+     32          extern char GS1011_Rcvr_Char;
+     33          extern int GS1011_Rvcr_Count;
+     34          extern int GS1011_Rcvr_Pointer;
+     35          extern char GS1011_Receiver_Buffer;
+     36          
+     37          extern int Add_Char_to_Buffer (char *bufr, int ptr, char chr);
+     38          
+     39          /* local routine definitions */
+     40          void Sending_GS1011_Data_Handler(void);
+     41          void GS1011_Received_Data_Handler(void);
+     42          void Start_GS1011_Send(void);
+     43          
+     44          /*****************************************************************************/
+     45          /*****************************************************************************/
+     46          /****                        ISR routines                                  ***/
+     47          /*****************************************************************************/
+     48          /*****************************************************************************/
+     49            /*****************************************************************************
+     50            *   Handle_GS1011_Received_Data                                              *
+     51            *                                                                            *
+     52            *   Get a character from the data register.                                  *
+     53            *         Set a timer for x seconds(timer value is dependent upon command.   *
+     54            *                                                                            *
+     55            *   If the timer expires check if the response matches the command.          *
+     56            *                                                                            *
+     57            *   If the command was an update, and the response was status:good then      *
+     58            *             Send the stock ACK message to the device                       *
+     59            *                                                                            *
+     60            *****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+     61          void GS1011_Received_Data_Handler(void){
+     62           GS1011_Rcvr_Char = UART1->DR;
+   \                     GS1011_Received_Data_Handler:
+   \   000000 C6 5231      LD        A, L:0x5231
+   \   000003 C7 ....      LD        L:GS1011_Rcvr_Char, A
+     63           GS1011_Rvcr_Count++;
+   \   000006 CE ....      LDW       X, L:GS1011_Rvcr_Count
+   \   000009 5C           INCW      X
+   \   00000A CF ....      LDW       L:GS1011_Rvcr_Count, X
+     64           GS1011_Rcvr_Pointer = Add_Char_to_Buffer(&GS1011_Receiver_Buffer, GS1011_Rcvr_Pointer, GS1011_Rcvr_Char);
+   \   00000D 90CE ....    LDW       Y, L:GS1011_Rcvr_Pointer
+   \   000011 AE ....      LDW       X, #GS1011_Receiver_Buffer
+   \   000014 8D ......    CALLF     Add_Char_to_Buffer
+   \   000018 CF ....      LDW       L:GS1011_Rcvr_Pointer, X
+     65            
+     66          }
+   \   00001B 87           RETF
+     67           /******************************************************************************
+     68            *   Start_GS1011_Send                                                        *
+     69            *                                                                            *
+     70            *   This routine is passed a pointer to a buffer to send to the GS1011       *
+     71            *                                                                            *
+     72            *   Gets the first character and sets the buffer count and pointer.          *
+     73            *   It sends the first character then the interupts take over.               *
+     74            *                                                                            *
+     75            *****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+     76          void Start_GS1011_Send(void){
+     77            if (GS1011_Xmit_Char_Count){
+   \                     Start_GS1011_Send:
+   \   000000 CE ....      LDW       X, L:GS1011_Xmit_Char_Count
+   \   000003 27 1B        JREQ      L:??Start_GS1011_Send_0
+     78            GS1011_Xmit_Char = *GS1011_Xmit_Pointer;
+   \   000005 72C6 ....    LD        A, [L:GS1011_Xmit_Pointer.w]
+   \   000009 C7 ....      LD        L:GS1011_Xmit_Char, A
+     79            GS1011_Xmit_Pointer++;
+   \   00000C 8D ......    CALLF     ?Subroutine2
+     80            GS1011_Xmit_Char_Count--;
+     81            UART1->DR = GS1011_Xmit_Char;
+   \                     ??CrossCallReturnLabel_25:
+   \   000010 C7 5231      LD        L:0x5231, A
+     82            UART1->CR2 |= (uint8_t)UART1_CR2_TEN | UART1_CR2_TIEN;
+   \   000013 C6 5235      LD        A, L:0x5235
+   \   000016 AA 88        OR        A, #0x88
+   \   000018 C7 5235      LD        L:0x5235, A
+     83            UART1->CR1 |= 0x0040;
+   \   00001B 721C 5234    BSET      L:0x5234, #0x6
+   \   00001F 87           RETF
+     84            }
+     85            else
+     86             UART1->CR2 &= ((uint8_t)UART1_CR2_TEN ^0xff); 
+   \                     ??Start_GS1011_Send_0:
+   \   000020 7217 5235    BRES      L:0x5235, #0x3
+     87          
+     88          
+     89          }  
+   \   000024 87           RETF
+
+   \                                 In section .far_func.text, align 1
+   \                     ?Subroutine2:
+   \   000000 CE ....      LDW       X, L:GS1011_Xmit_Pointer
+   \   000003 5C           INCW      X
+   \   000004 CF ....      LDW       L:GS1011_Xmit_Pointer, X
+   \   000007 CE ....      LDW       X, L:GS1011_Xmit_Char_Count
+   \   00000A 5A           DECW      X
+   \   00000B CF ....      LDW       L:GS1011_Xmit_Char_Count, X
+   \   00000E 87           RETF
+     90            /*****************************************************************************
+     91            *   Handle_Sending_GS1011_Data                                               *
+     92            *                                                                            *
+     93            *   Send a character to the data register.                                   *
+     94            *         Continue till count = 00                                           *
+     95            *                                                                            *
+     96            *****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+     97          void Sending_GS1011_Data_Handler(void){
+     98            if (GS1011_Xmit_Char_Count != 0){
+   \                     Sending_GS1011_Data_Handler:
+   \   000000 CE ....      LDW       X, L:GS1011_Xmit_Char_Count
+   \   000003 27 0F        JREQ      L:??Sending_GS1011_Data_Handler_0
+     99                GS1011_Xmit_Char = *GS1011_Xmit_Pointer;
+   \   000005 72C6 ....    LD        A, [L:GS1011_Xmit_Pointer.w]
+   \   000009 C7 ....      LD        L:GS1011_Xmit_Char, A
+    100                UART1->DR= GS1011_Xmit_Char;
+   \   00000C C7 5231      LD        L:0x5231, A
+    101                GS1011_Xmit_Pointer++;
+   \   00000F 8D ......    CALLF     ?Subroutine2
+    102                GS1011_Xmit_Char_Count--;}
+   \                     ??CrossCallReturnLabel_24:
+   \   000013 87           RETF
+    103            else UART1->CR2 &= (uint8_t)~(UART1_CR2_TEN);     
+   \                     ??Sending_GS1011_Data_Handler_0:
+   \   000014 7217 5235    BRES      L:0x5235, #0x3
+    104          }
+   \   000018 87           RETF
+    105          
+    106          
+    107          /**
+    108            * @brief  Deinitializes the UART peripheral.
+    109            * @param  None
+    110            * @retval None
+    111          */
+
+   \                                 In section .far_func.text, align 1
+    112          void UART1_DeInit(void)
+    113          {
+    114              /* Clear the Idle Line Detected bit in the status rerister by a read
+    115                 to the UART1_SR register followed by a Read to the UART1_DR register */
+    116              (void)UART1->SR;
+   \                     UART1_DeInit:
+   \   000000 C6 5230      LD        A, L:0x5230
+    117              (void)UART1->DR;
+   \   000003 C6 5231      LD        A, L:0x5231
+    118          
+    119              UART1->BRR2 = UART1_BRR2_RESET_VALUE;  /* Set UART1_BRR2 to reset value 0x00 */
+   \   000006 725F 5233    CLR       L:0x5233
+    120              UART1->BRR1 = UART1_BRR1_RESET_VALUE;  /* Set UART1_BRR1 to reset value 0x00 */
+   \   00000A 725F 5232    CLR       L:0x5232
+    121          
+    122              UART1->CR1 = UART1_CR1_RESET_VALUE;  /* Set UART1_CR1 to reset value 0x00 */
+   \   00000E 725F 5234    CLR       L:0x5234
+    123              UART1->CR2 = UART1_CR2_RESET_VALUE;  /* Set UART1_CR2 to reset value 0x00 */
+   \   000012 725F 5235    CLR       L:0x5235
+    124              UART1->CR3 = UART1_CR3_RESET_VALUE;  /* Set UART1_CR3 to reset value 0x00 */
+   \   000016 725F 5236    CLR       L:0x5236
+    125              UART1->CR4 = UART1_CR4_RESET_VALUE;  /* Set UART1_CR4 to reset value 0x00 */
+   \   00001A 725F 5237    CLR       L:0x5237
+    126              UART1->CR5 = UART1_CR5_RESET_VALUE;  /* Set UART1_CR5 to reset value 0x00 */
+   \   00001E 725F 5238    CLR       L:0x5238
+    127          
+    128              UART1->GTR = UART1_GTR_RESET_VALUE;
+   \   000022 725F 5239    CLR       L:0x5239
+    129              UART1->PSCR = UART1_PSCR_RESET_VALUE;
+   \   000026 725F 523A    CLR       L:0x523a
+    130          }
+   \   00002A 87           RETF
+    131          
+    132          /**
+    133            * @brief  Initializes the UART1 according to the specified parameters.
+    134            * @note   Configure in Push Pull or Open Drain mode the Tx pin by setting the
+    135            *         correct I/O Port register according the product package and line
+    136            *         configuration
+    137            * @param  BaudRate: The baudrate.
+    138            * @param  WordLength : This parameter can be any of the 
+    139            *         @ref UART1_WordLength_TypeDef enumeration.
+    140            * @param  StopBits: This parameter can be any of the 
+    141            *         @ref UART1_StopBits_TypeDef enumeration.
+    142            * @param  Parity: This parameter can be any of the 
+    143            *         @ref UART1_Parity_TypeDef enumeration.
+    144            * @param  SyncMode: This parameter can be any of the 
+    145            *         @ref UART1_SyncMode_TypeDef values.
+    146            * @param  Mode: This parameter can be any of the @ref UART1_Mode_TypeDef values
+    147            * @retval None
+    148            */
+
+   \                                 In section .far_func.text, align 1
+   \                     ?Subroutine3:
+   \   000000 CA 5234      OR        A, L:0x5234
+   \   000003 C7 5234      LD        L:0x5234, A
+   \   000006 87           RETF
+
+   \                                 In section .far_func.text, align 1
+   \                     ?Subroutine0:
+   \   000000 BF ..        LDW       S:?w1, X
+   \   000002 5F           CLRW      X
+   \   000003 BF ..        LDW       S:?w0, X
+   \   000005 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP\\\\7896_SNAP\\\\GS1...">`
+   \   000008 AC ......    JPF       assert_failed
+
+   \                                 In section .far_func.text, align 1
+    149          void UART1_Init(uint32_t BaudRate, UART1_WordLength_TypeDef WordLength, 
+    150                          UART1_StopBits_TypeDef StopBits, UART1_Parity_TypeDef Parity, 
+    151                          UART1_SyncMode_TypeDef SyncMode, UART1_Mode_TypeDef Mode)
+    152          {
+   \                     UART1_Init:
+   \   000000 8D ......    CALLF     L:?push_l2
+   \   000004 8D ......    CALLF     L:?push_l3
+   \   000008 3B ....      PUSH      S:?b6
+   \   00000B 3B ....      PUSH      S:?b7
+   \   00000E 8D ......    CALLF     L:?mov_l2_l0
+   \   000012 B7 ..        LD        S:?b14, A
+   \   000014 45 .. ..     MOV       S:?b12, S:?b4
+   \   000017 45 .. ..     MOV       S:?b13, S:?b5
+    153              uint32_t BaudRate_Mantissa = 0, BaudRate_Mantissa100 = 0;
+    154          
+    155              /* Check the parameters */
+    156              assert_param(IS_UART1_BAUDRATE_OK(BaudRate));
+   \   00001A BE ..        LDW       X, S:?w4
+   \   00001C A3 0009      CPW       X, #0x9
+   \   00001F 26 05        JRNE      L:??UART1_Init_0
+   \   000021 BE ..        LDW       X, S:?w5
+   \   000023 A3 8969      CPW       X, #0x8969
+   \                     ??UART1_Init_0:
+   \   000026 25 07        JRC       L:??CrossCallReturnLabel_5
+   \   000028 AE 009C      LDW       X, #0x9c
+   \   00002B 8D ......    CALLF     ?Subroutine0
+    157              assert_param(IS_UART1_WORDLENGTH_OK(WordLength));
+   \                     ??CrossCallReturnLabel_5:
+   \   00002F 3D ..        TNZ       S:?b14
+   \   000031 27 0D        JREQ      L:??CrossCallReturnLabel_4
+   \   000033 B6 ..        LD        A, S:?b14
+   \   000035 A1 10        CP        A, #0x10
+   \   000037 27 07        JREQ      L:??CrossCallReturnLabel_4
+   \   000039 AE 009D      LDW       X, #0x9d
+   \   00003C 8D ......    CALLF     ?Subroutine0
+    158              assert_param(IS_UART1_STOPBITS_OK(StopBits));
+   \                     ??CrossCallReturnLabel_4:
+   \   000040 3D ..        TNZ       S:?b12
+   \   000042 27 15        JREQ      L:??CrossCallReturnLabel_3
+   \   000044 B6 ..        LD        A, S:?b12
+   \   000046 A1 10        CP        A, #0x10
+   \   000048 27 0F        JREQ      L:??CrossCallReturnLabel_3
+   \   00004A A1 20        CP        A, #0x20
+   \   00004C 27 0B        JREQ      L:??CrossCallReturnLabel_3
+   \   00004E A1 30        CP        A, #0x30
+   \   000050 27 07        JREQ      L:??CrossCallReturnLabel_3
+   \   000052 AE 009E      LDW       X, #0x9e
+   \   000055 8D ......    CALLF     ?Subroutine0
+    159              assert_param(IS_UART1_PARITY_OK(Parity));
+   \                     ??CrossCallReturnLabel_3:
+   \   000059 3D ..        TNZ       S:?b13
+   \   00005B 27 11        JREQ      L:??CrossCallReturnLabel_2
+   \   00005D B6 ..        LD        A, S:?b13
+   \   00005F A1 04        CP        A, #0x4
+   \   000061 27 0B        JREQ      L:??CrossCallReturnLabel_2
+   \   000063 A1 06        CP        A, #0x6
+   \   000065 27 07        JREQ      L:??CrossCallReturnLabel_2
+   \   000067 AE 009F      LDW       X, #0x9f
+   \   00006A 8D ......    CALLF     ?Subroutine0
+    160              assert_param(IS_UART1_MODE_OK((uint8_t)Mode));
+   \                     ??CrossCallReturnLabel_2:
+   \   00006E 7B 01        LD        A, (0x1,SP)
+   \   000070 A1 08        CP        A, #0x8
+   \   000072 27 23        JREQ      L:??CrossCallReturnLabel_1
+   \   000074 A1 40        CP        A, #0x40
+   \   000076 27 1F        JREQ      L:??CrossCallReturnLabel_1
+   \   000078 A1 04        CP        A, #0x4
+   \   00007A 27 1B        JREQ      L:??CrossCallReturnLabel_1
+   \   00007C A1 80        CP        A, #0x80
+   \   00007E 27 17        JREQ      L:??CrossCallReturnLabel_1
+   \   000080 A1 0C        CP        A, #0xc
+   \   000082 27 13        JREQ      L:??CrossCallReturnLabel_1
+   \   000084 A1 44        CP        A, #0x44
+   \   000086 27 0F        JREQ      L:??CrossCallReturnLabel_1
+   \   000088 A1 C0        CP        A, #0xc0
+   \   00008A 27 0B        JREQ      L:??CrossCallReturnLabel_1
+   \   00008C A1 88        CP        A, #0x88
+   \   00008E 27 07        JREQ      L:??CrossCallReturnLabel_1
+   \   000090 AE 00A0      LDW       X, #0xa0
+   \   000093 8D ......    CALLF     ?Subroutine0
+    161              assert_param(IS_UART1_SYNCMODE_OK((uint8_t)SyncMode));
+   \                     ??CrossCallReturnLabel_1:
+   \   000097 7B 02        LD        A, (0x2,SP)
+   \   000099 A4 88        AND       A, #0x88
+   \   00009B A1 88        CP        A, #0x88
+   \   00009D 27 18        JREQ      L:??UART1_Init_1
+   \   00009F 7B 02        LD        A, (0x2,SP)
+   \   0000A1 A4 44        AND       A, #0x44
+   \   0000A3 A1 44        CP        A, #0x44
+   \   0000A5 27 10        JREQ      L:??UART1_Init_1
+   \   0000A7 7B 02        LD        A, (0x2,SP)
+   \   0000A9 A4 22        AND       A, #0x22
+   \   0000AB A1 22        CP        A, #0x22
+   \   0000AD 27 08        JREQ      L:??UART1_Init_1
+   \   0000AF 7B 02        LD        A, (0x2,SP)
+   \   0000B1 A4 11        AND       A, #0x11
+   \   0000B3 A1 11        CP        A, #0x11
+   \   0000B5 26 07        JRNE      L:??CrossCallReturnLabel_0
+   \                     ??UART1_Init_1:
+   \   0000B7 AE 00A1      LDW       X, #0xa1
+   \   0000BA 8D ......    CALLF     ?Subroutine0
+    162          
+    163              /* Clear the word length bit */
+    164              UART1->CR1 &= (uint8_t)(~UART1_CR1_M);  
+   \                     ??CrossCallReturnLabel_0:
+   \   0000BE 7219 5234    BRES      L:0x5234, #0x4
+    165              
+    166               /* Set the word length bit according to UART1_WordLength value */
+    167              UART1->CR1 |= (uint8_t)WordLength;
+   \   0000C2 B6 ..        LD        A, S:?b14
+   \   0000C4 8D ......    CALLF     ?Subroutine3
+    168          
+    169              /* Clear the STOP bits */
+    170              UART1->CR3 &= (uint8_t)(~UART1_CR3_STOP);  
+   \                     ??CrossCallReturnLabel_28:
+   \   0000C8 C6 5236      LD        A, L:0x5236
+   \   0000CB A4 CF        AND       A, #0xcf
+   \   0000CD C7 5236      LD        L:0x5236, A
+    171              /* Set the STOP bits number according to UART1_StopBits value  */
+    172              UART1->CR3 |= (uint8_t)StopBits;  
+   \   0000D0 B6 ..        LD        A, S:?b12
+   \   0000D2 CA 5236      OR        A, L:0x5236
+   \   0000D5 C7 5236      LD        L:0x5236, A
+    173          
+    174              /* Clear the Parity Control bit */
+    175              UART1->CR1 &= (uint8_t)(~(UART1_CR1_PCEN | UART1_CR1_PS  ));  
+   \   0000D8 C6 5234      LD        A, L:0x5234
+   \   0000DB A4 F9        AND       A, #0xf9
+   \   0000DD C7 5234      LD        L:0x5234, A
+    176              /* Set the Parity Control bit to UART1_Parity value */
+    177              UART1->CR1 |= (uint8_t)Parity;  
+   \   0000E0 B6 ..        LD        A, S:?b13
+   \   0000E2 8D ......    CALLF     ?Subroutine3
+    178          
+    179              /* Clear the LSB mantissa of UART1DIV  */
+    180              UART1->BRR1 &= (uint8_t)(~UART1_BRR1_DIVM);  
+   \                     ??CrossCallReturnLabel_29:
+   \   0000E6 C6 5232      LD        A, L:0x5232
+   \   0000E9 725F 5232    CLR       L:0x5232
+    181              /* Clear the MSB mantissa of UART1DIV  */
+    182              UART1->BRR2 &= (uint8_t)(~UART1_BRR2_DIVM);  
+   \   0000ED C6 5233      LD        A, L:0x5233
+   \   0000F0 A4 0F        AND       A, #0xf
+   \   0000F2 C7 5233      LD        L:0x5233, A
+    183              /* Clear the Fraction bits of UART1DIV */
+    184              UART1->BRR2 &= (uint8_t)(~UART1_BRR2_DIVF);  
+   \   0000F5 C6 5233      LD        A, L:0x5233
+   \   0000F8 A4 F0        AND       A, #0xf0
+   \   0000FA C7 5233      LD        L:0x5233, A
+    185          
+    186              /* Set the UART1 BaudRates in BRR1 and BRR2 registers according to UART1_BaudRate value */
+    187              BaudRate_Mantissa    = ((uint32_t)CLK_GetClockFreq() / (BaudRate << 4));
+   \   0000FD 8D ......    CALLF     L:?mov_l0_l2
+   \   000101 A6 04        LD        A, #0x4
+   \   000103 8D ......    CALLF     L:?sll32_l0_l0_a
+   \   000107 8D ......    CALLF     L:?mov_l2_l0
+   \   00010B 8D ......    CALLF     CLK_GetClockFreq
+   \   00010F 8D ......    CALLF     L:?mov_l1_l2
+   \   000113 8D ......    CALLF     L:?udiv32_l0_l0_l1
+   \   000117 8D ......    CALLF     L:?mov_l3_l0
+    188              BaudRate_Mantissa100 = (((uint32_t)CLK_GetClockFreq() * 100) / (BaudRate << 4));
+    189              /* Set the fraction of UART1DIV  */
+    190              UART1->BRR2 |= (uint8_t)((uint8_t)(((BaudRate_Mantissa100 - (BaudRate_Mantissa * 100)) << 4) / 100) & (uint8_t)0x0F); 
+   \   00011B 8D ......    CALLF     ?Subroutine4
+   \                     ??CrossCallReturnLabel_30:
+   \   00011F 8D ......    CALLF     L:?push_l0
+   \   000123 8D ......    CALLF     CLK_GetClockFreq
+   \   000127 8D ......    CALLF     ?Subroutine4
+   \                     ??CrossCallReturnLabel_31:
+   \   00012B 8D ......    CALLF     L:?mov_l1_l2
+   \   00012F 8D ......    CALLF     L:?udiv32_l0_l0_l1
+   \   000133 8D ......    CALLF     L:?pop_l1
+   \   000137 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   00013B A6 04        LD        A, #0x4
+   \   00013D 8D ......    CALLF     L:?sll32_l0_l0_a
+   \   000141 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   000145 00000064     DC32      0x64
+   \   000149 B6 ..        LD        A, S:?b3
+   \   00014B A4 0F        AND       A, #0xf
+   \   00014D CA 5233      OR        A, L:0x5233
+   \   000150 C7 5233      LD        L:0x5233, A
+    191              /* Set the MSB mantissa of UART1DIV  */
+    192              UART1->BRR2 |= (uint8_t)((BaudRate_Mantissa >> 4) & (uint8_t)0xF0); 
+   \   000153 BE ..        LDW       X, S:?w7
+   \   000155 54           SRLW      X
+   \   000156 54           SRLW      X
+   \   000157 54           SRLW      X
+   \   000158 54           SRLW      X
+   \   000159 9F           LD        A, XL
+   \   00015A A4 F0        AND       A, #0xf0
+   \   00015C CA 5233      OR        A, L:0x5233
+   \   00015F C7 5233      LD        L:0x5233, A
+    193              /* Set the LSB mantissa of UART1DIV  */
+    194              UART1->BRR1 |= (uint8_t)BaudRate_Mantissa;           
+   \   000162 B6 ..        LD        A, S:?b15
+   \   000164 CA 5232      OR        A, L:0x5232
+   \   000167 C7 5232      LD        L:0x5232, A
+    195          
+    196              /* Disable the Transmitter and Receiver before seting the LBCL, CPOL and CPHA bits */
+    197              UART1->CR2 &= (uint8_t)~(UART1_CR2_TEN | UART1_CR2_REN); 
+   \   00016A C6 5235      LD        A, L:0x5235
+   \   00016D A4 F3        AND       A, #0xf3
+   \   00016F C7 5235      LD        L:0x5235, A
+    198              /* Clear the Clock Polarity, lock Phase, Last Bit Clock pulse */
+    199              UART1->CR3 &= (uint8_t)~(UART1_CR3_CPOL | UART1_CR3_CPHA | UART1_CR3_LBCL); 
+   \   000172 C6 5236      LD        A, L:0x5236
+   \   000175 A4 F8        AND       A, #0xf8
+   \   000177 C7 5236      LD        L:0x5236, A
+    200              /* Set the Clock Polarity, lock Phase, Last Bit Clock pulse */
+    201              UART1->CR3 |= (uint8_t)((uint8_t)SyncMode & (uint8_t)(UART1_CR3_CPOL | 
+    202                                                        UART1_CR3_CPHA | UART1_CR3_LBCL));  
+   \   00017A 7B 02        LD        A, (0x2,SP)
+   \   00017C A4 07        AND       A, #0x7
+   \   00017E CA 5236      OR        A, L:0x5236
+   \   000181 C7 5236      LD        L:0x5236, A
+    203          
+    204              if ((uint8_t)(Mode & UART1_MODE_TX_ENABLE))
+   \   000184 7B 01        LD        A, (0x1,SP)
+   \   000186 A5 04        BCP       A, #0x4
+   \   000188 27 06        JREQ      L:??UART1_Init_2
+    205              {
+    206                  /* Set the Transmitter Enable bit */
+    207                  UART1->CR2 |= (uint8_t)UART1_CR2_TEN;  
+   \   00018A 7216 5235    BSET      L:0x5235, #0x3
+   \   00018E 20 04        JRA       L:??UART1_Init_3
+    208              }
+    209              else
+    210              {
+    211                  /* Clear the Transmitter Disable bit */
+    212                  UART1->CR2 &= (uint8_t)(~UART1_CR2_TEN);  
+   \                     ??UART1_Init_2:
+   \   000190 7217 5235    BRES      L:0x5235, #0x3
+    213              }
+    214              if ((uint8_t)(Mode & UART1_MODE_RX_ENABLE))
+   \                     ??UART1_Init_3:
+   \   000194 7B 01        LD        A, (0x1,SP)
+   \   000196 A5 08        BCP       A, #0x8
+   \   000198 27 06        JREQ      L:??UART1_Init_4
+    215              {
+    216                  /* Set the Receiver Enable bit */
+    217                  UART1->CR2 |= (uint8_t)UART1_CR2_REN;  
+   \   00019A 7214 5235    BSET      L:0x5235, #0x2
+   \   00019E 20 04        JRA       L:??UART1_Init_5
+    218              }
+    219              else
+    220              {
+    221                  /* Clear the Receiver Disable bit */
+    222                  UART1->CR2 &= (uint8_t)(~UART1_CR2_REN);  
+   \                     ??UART1_Init_4:
+   \   0001A0 7215 5235    BRES      L:0x5235, #0x2
+    223              }
+    224              /* Set the Clock Enable bit, lock Polarity, lock Phase and Last Bit Clock 
+    225                     pulse bits according to UART1_Mode value */
+    226              if ((uint8_t)(SyncMode & UART1_SYNCMODE_CLOCK_DISABLE))
+   \                     ??UART1_Init_5:
+   \   0001A4 7B 02        LD        A, (0x2,SP)
+   \   0001A6 A5 80        BCP       A, #0x80
+   \   0001A8 27 06        JREQ      L:??UART1_Init_6
+    227              {
+    228                  /* Clear the Clock Enable bit */
+    229                  UART1->CR3 &= (uint8_t)(~UART1_CR3_CKEN); 
+   \   0001AA 7217 5236    BRES      L:0x5236, #0x3
+   \   0001AE 20 0A        JRA       L:??UART1_Init_7
+    230              }
+    231              else
+    232              {
+    233                  UART1->CR3 |= (uint8_t)((uint8_t)SyncMode & UART1_CR3_CKEN);
+   \                     ??UART1_Init_6:
+   \   0001B0 7B 02        LD        A, (0x2,SP)
+   \   0001B2 A4 08        AND       A, #0x8
+   \   0001B4 CA 5236      OR        A, L:0x5236
+   \   0001B7 C7 5236      LD        L:0x5236, A
+    234              }
+    235          }
+   \                     ??UART1_Init_7:
+   \   0001BA 5B 02        ADD       SP, #0x2
+   \   0001BC AC ......    JPF       L:?epilogue_l2_l3
+
+   \                                 In section .far_func.text, align 1
+   \                     ?Subroutine4:
+   \   000000 AE 0064      LDW       X, #0x64
+   \   000003 BF ..        LDW       S:?w3, X
+   \   000005 5F           CLRW      X
+   \   000006 BF ..        LDW       S:?w2, X
+   \   000008 AC ......    JPF       L:?mul32_l0_l0_l1
+    236          
+    237          /**
+    238            * @brief  Enable the UART1 peripheral.
+    239            * @param  NewState : The new state of the UART Communication.
+    240            *         This parameter can be any of the @ref FunctionalState enumeration.
+    241            * @retval None
+    242            */
+
+   \                                 In section .far_func.text, align 1
+    243          void UART1_Cmd(FunctionalState NewState)
+    244          {
+    245              if (NewState != DISABLE)
+   \                     UART1_Cmd:
+   \   000000 4D           TNZ       A
+   \   000001 27 05        JREQ      L:??UART1_Cmd_0
+    246              {
+    247                  /* UART1 Enable */
+    248                  UART1->CR1 &= (uint8_t)(~UART1_CR1_UARTD); 
+   \   000003 721B 5234    BRES      L:0x5234, #0x5
+   \   000007 87           RETF
+    249              }
+    250              else
+    251              {
+    252                  /* UART Disable */
+    253                  UART1->CR1 |= UART1_CR1_UARTD;  
+   \                     ??UART1_Cmd_0:
+   \   000008 721A 5234    BSET      L:0x5234, #0x5
+    254              }
+    255          }
+   \   00000C 87           RETF
+    256          
+    257          /**
+    258            * @brief  Enables or disables the specified USART interrupts.
+    259            * @param  UART1_IT specifies the USART interrupt sources to be enabled or disabled.
+    260            *         This parameter can be one of the following values:
+    261            *         - UART1_IT_TXE:  Tansmit Data Register empty interrupt
+    262            *         - UART1_IT_TC:   Transmission complete interrupt
+    263            *         - UART1_IT_RXNE: Receive Data register not empty interrupt
+    264            *         - UART1_IT_OR: Overrun error interrupt
+    265            *         - UART1_IT_IDLE: Idle line detection interrupt
+    266            *         - USRT1_IT_ERR:  Error interrupt
+    267            * @param  NewState new state of the specified USART interrupts.
+    268            *         This parameter can be: ENABLE or DISABLE.
+    269            * @retval None
+    270            */
+
+   \                                 In section .far_func.text, align 1
+    271          void UART1_ITConfig(UART1_IT_TypeDef UART1_IT, FunctionalState NewState)
+    272          {
+   \                     UART1_ITConfig:
+   \   000000 8D ......    CALLF     L:?push_w4
+   \   000004 3B ....      PUSH      S:?b10
+   \   000007 BF ..        LDW       S:?w4, X
+   \   000009 B7 ..        LD        S:?b10, A
+    273              uint8_t uartreg = 0, itpos = 0x00;
+    274              
+    275              /* Check the parameters */
+    276              assert_param(IS_UART1_CONFIG_IT_OK(UART1_IT));
+   \   00000B A3 0100      CPW       X, #0x100
+   \   00000E 27 20        JREQ      L:??CrossCallReturnLabel_7
+   \   000010 A3 0277      CPW       X, #0x277
+   \   000013 27 1B        JREQ      L:??CrossCallReturnLabel_7
+   \   000015 A3 0266      CPW       X, #0x266
+   \   000018 27 16        JREQ      L:??CrossCallReturnLabel_7
+   \   00001A A3 0205      CPW       X, #0x205
+   \   00001D 27 11        JREQ      L:??CrossCallReturnLabel_7
+   \   00001F A3 0244      CPW       X, #0x244
+   \   000022 27 0C        JREQ      L:??CrossCallReturnLabel_7
+   \   000024 A3 0346      CPW       X, #0x346
+   \   000027 27 07        JREQ      L:??CrossCallReturnLabel_7
+   \   000029 AE 0114      LDW       X, #0x114
+   \   00002C 8D ......    CALLF     ?Subroutine0
+    277              assert_param(IS_FUNCTIONALSTATE_OK(NewState));
+   \                     ??CrossCallReturnLabel_7:
+   \   000030 3D ..        TNZ       S:?b10
+   \   000032 27 0D        JREQ      L:??CrossCallReturnLabel_6
+   \   000034 B6 ..        LD        A, S:?b10
+   \   000036 A1 01        CP        A, #0x1
+   \   000038 27 07        JREQ      L:??CrossCallReturnLabel_6
+   \   00003A AE 0115      LDW       X, #0x115
+   \   00003D 8D ......    CALLF     ?Subroutine0
+    278          
+    279              /* Get the UART1 register index */
+    280              uartreg = (uint8_t)((uint16_t)UART1_IT >> 0x08);
+   \                     ??CrossCallReturnLabel_6:
+   \   000041 BE ..        LDW       X, S:?w4
+   \   000043 4F           CLR       A
+   \   000044 01           RRWA      X, A
+   \   000045 41           EXG       A, XL
+   \   000046 B7 ..        LD        S:?b1, A
+   \   000048 41           EXG       A, XL
+    281              /* Get the UART1 IT index */
+    282              itpos = (uint8_t)((uint8_t)1 << (uint8_t)((uint8_t)UART1_IT & (uint8_t)0x0F));
+   \   000049 8D ......    CALLF     ?Subroutine1
+    283          
+    284              if (NewState != DISABLE)
+   \                     ??CrossCallReturnLabel_23:
+   \   00004D 3D ..        TNZ       S:?b10
+   \   00004F 27 1F        JREQ      L:??UART1_ITConfig_0
+    285              {
+    286                  /**< Enable the Interrupt bits according to UART1_IT mask */
+    287                  if (uartreg == 0x01)
+   \   000051 B6 ..        LD        A, S:?b1
+   \   000053 A1 01        CP        A, #0x1
+   \   000055 26 07        JRNE      L:??UART1_ITConfig_1
+    288                  {
+    289                      UART1->CR1 |= itpos;
+   \   000057 B6 ..        LD        A, S:?b0
+   \   000059 CA 5234      OR        A, L:0x5234
+   \   00005C 20 1F        JRA       ??UART1_ITConfig_2
+    290                  }
+    291                  else if (uartreg == 0x02)
+   \                     ??UART1_ITConfig_1:
+   \   00005E A1 02        CP        A, #0x2
+   \   000060 26 07        JRNE      L:??UART1_ITConfig_3
+    292                  {
+    293                      UART1->CR2 |= itpos;
+   \   000062 B6 ..        LD        A, S:?b0
+   \   000064 CA 5235      OR        A, L:0x5235
+   \   000067 20 22        JRA       ??UART1_ITConfig_4
+    294                  }
+    295                  else
+    296                  {
+    297                      UART1->CR4 |= itpos;
+   \                     ??UART1_ITConfig_3:
+   \   000069 B6 ..        LD        A, S:?b0
+   \   00006B CA 5237      OR        A, L:0x5237
+   \   00006E 20 25        JRA       ??UART1_ITConfig_5
+    298                  }
+    299              }
+    300              else
+    301              {
+    302                  /**< Disable the interrupt bits according to UART1_IT mask */
+    303                  if (uartreg == 0x01)
+   \                     ??UART1_ITConfig_0:
+   \   000070 33 ..        CPL       S:?b0
+   \   000072 B6 ..        LD        A, S:?b1
+   \   000074 A1 01        CP        A, #0x1
+   \   000076 26 0A        JRNE      L:??UART1_ITConfig_6
+    304                  {
+    305                      UART1->CR1 &= (uint8_t)(~itpos);
+   \   000078 B6 ..        LD        A, S:?b0
+   \   00007A C4 5234      AND       A, L:0x5234
+   \                     ??UART1_ITConfig_2:
+   \   00007D C7 5234      LD        L:0x5234, A
+   \   000080 20 16        JRA       L:??UART1_ITConfig_7
+    306                  }
+    307                  else if (uartreg == 0x02)
+   \                     ??UART1_ITConfig_6:
+   \   000082 A1 02        CP        A, #0x2
+   \   000084 26 0A        JRNE      L:??UART1_ITConfig_8
+    308                  {
+    309                      UART1->CR2 &= (uint8_t)(~itpos);
+   \   000086 B6 ..        LD        A, S:?b0
+   \   000088 C4 5235      AND       A, L:0x5235
+   \                     ??UART1_ITConfig_4:
+   \   00008B C7 5235      LD        L:0x5235, A
+   \   00008E 20 08        JRA       L:??UART1_ITConfig_7
+    310                  }
+    311                  else
+    312                  {
+    313                      UART1->CR4 &= (uint8_t)(~itpos);
+   \                     ??UART1_ITConfig_8:
+   \   000090 B6 ..        LD        A, S:?b0
+   \   000092 C4 5237      AND       A, L:0x5237
+   \                     ??UART1_ITConfig_5:
+   \   000095 C7 5237      LD        L:0x5237, A
+    314                  }
+    315              }
+    316          
+    317          }
+   \                     ??UART1_ITConfig_7:
+   \   000098 32 ....      POP       S:?b10
+   \   00009B AC ......    JPF       L:?epilogue_w4
+
+   \                                 In section .far_func.text, align 1
+   \                     ?Subroutine1:
+   \   000000 A4 0F        AND       A, #0xf
+   \   000002 5F           CLRW      X
+   \   000003 5C           INCW      X
+   \   000004 8D ......    CALLF     L:?sll16_x_x_a
+   \   000008 41           EXG       A, XL
+   \   000009 B7 ..        LD        S:?b0, A
+   \   00000B 87           RETF
+    318          /**
+    319            * @brief  Enables or disables the UART’s Half Duplex communication.
+    320            * @param  NewState new state of the UART Communication.
+    321            *         This parameter can be: ENABLE or DISABLE.
+    322            * @retval None
+    323            */
+
+   \                                 In section .far_func.text, align 1
+    324          void UART1_HalfDuplexCmd(FunctionalState NewState)
+    325          {
+    326              assert_param(IS_FUNCTIONALSTATE_OK(NewState));
+   \                     UART1_HalfDuplexCmd:
+   \   000000 4D           TNZ       A
+   \   000001 27 10        JREQ      L:??UART1_HalfDuplexCmd_0
+   \   000003 A1 01        CP        A, #0x1
+   \   000005 27 07        JREQ      L:??CrossCallReturnLabel_8
+   \   000007 AE 0146      LDW       X, #0x146
+   \   00000A 8D ......    CALLF     ?Subroutine0
+    327          
+    328              if (NewState != DISABLE)
+    329              {
+    330                  UART1->CR5 |= UART1_CR5_HDSEL;  /**< UART1 Half Duplex Enable  */
+   \                     ??CrossCallReturnLabel_8:
+   \   00000E 7216 5238    BSET      L:0x5238, #0x3
+   \   000012 87           RETF
+    331              }
+    332              else
+    333              {
+    334                  UART1->CR5 &= (uint8_t)~UART1_CR5_HDSEL; /**< UART1 Half Duplex Disable */
+   \                     ??UART1_HalfDuplexCmd_0:
+   \   000013 7217 5238    BRES      L:0x5238, #0x3
+    335              }
+    336          }
+   \   000017 87           RETF
+    337          
+    338          /**
+    339            * @brief  Configures the UART’s IrDA interface.
+    340            * @param  UART1_IrDAMode specifies the IrDA mode.
+    341            *         This parameter can be any of the @ref UART1_IrDAMode_TypeDef values.
+    342            * @retval None
+    343            */
+
+   \                                 In section .far_func.text, align 1
+    344          void UART1_IrDAConfig(UART1_IrDAMode_TypeDef UART1_IrDAMode)
+    345          {
+    346              assert_param(IS_UART1_IRDAMODE_OK(UART1_IrDAMode));
+   \                     UART1_IrDAConfig:
+   \   000000 A1 01        CP        A, #0x1
+   \   000002 27 0A        JREQ      L:??CrossCallReturnLabel_9
+   \   000004 4D           TNZ       A
+   \   000005 27 0C        JREQ      L:??UART1_IrDAConfig_0
+   \   000007 AE 015A      LDW       X, #0x15a
+   \   00000A 8D ......    CALLF     ?Subroutine0
+    347          
+    348              if (UART1_IrDAMode != UART1_IRDAMODE_NORMAL)
+    349              {
+    350                  UART1->CR5 |= UART1_CR5_IRLP;
+   \                     ??CrossCallReturnLabel_9:
+   \   00000E 7214 5238    BSET      L:0x5238, #0x2
+   \   000012 87           RETF
+    351              }
+    352              else
+    353              {
+    354                  UART1->CR5 &= ((uint8_t)~UART1_CR5_IRLP);
+   \                     ??UART1_IrDAConfig_0:
+   \   000013 7215 5238    BRES      L:0x5238, #0x2
+    355              }
+    356          }
+   \   000017 87           RETF
+    357          
+    358          /**
+    359            * @brief  Enables or disables the UART’s IrDA interface.
+    360            * @param  NewState new state of the IrDA mode.
+    361            *         This parameter can be: ENABLE or DISABLE.
+    362            * @retval None
+    363            */
+
+   \                                 In section .far_func.text, align 1
+    364          void UART1_IrDACmd(FunctionalState NewState)
+    365          {
+    366          
+    367              /* Check parameters */
+    368              assert_param(IS_FUNCTIONALSTATE_OK(NewState));
+   \                     UART1_IrDACmd:
+   \   000000 4D           TNZ       A
+   \   000001 27 10        JREQ      L:??UART1_IrDACmd_0
+   \   000003 A1 01        CP        A, #0x1
+   \   000005 27 07        JREQ      L:??CrossCallReturnLabel_10
+   \   000007 AE 0170      LDW       X, #0x170
+   \   00000A 8D ......    CALLF     ?Subroutine0
+    369          
+    370              if (NewState != DISABLE)
+    371              {
+    372                  /* Enable the IrDA mode by setting the IREN bit in the CR3 register */
+    373                  UART1->CR5 |= UART1_CR5_IREN;
+   \                     ??CrossCallReturnLabel_10:
+   \   00000E 7212 5238    BSET      L:0x5238, #0x1
+   \   000012 87           RETF
+    374              }
+    375              else
+    376              {
+    377                  /* Disable the IrDA mode by clearing the IREN bit in the CR3 register */
+    378                  UART1->CR5 &= ((uint8_t)~UART1_CR5_IREN);
+   \                     ??UART1_IrDACmd_0:
+   \   000013 7213 5238    BRES      L:0x5238, #0x1
+    379              }
+    380          }
+   \   000017 87           RETF
+    381          
+    382          /**
+    383            * @brief  Sets the UART1 LIN Break detection length.
+    384            * @param  UART1_LINBreakDetectionLength specifies the LIN break detection length.
+    385            *         This parameter can be any of the
+    386            *         @ref UART1_LINBreakDetectionLength_TypeDef values.
+    387            * @retval None
+    388            */
+
+   \                                 In section .far_func.text, align 1
+    389          void UART1_LINBreakDetectionConfig(UART1_LINBreakDetectionLength_TypeDef UART1_LINBreakDetectionLength)
+    390          {
+    391              assert_param(IS_UART1_LINBREAKDETECTIONLENGTH_OK(UART1_LINBreakDetectionLength));
+   \                     UART1_LINBreakDetectionConfig:
+   \   000000 4D           TNZ       A
+   \   000001 27 10        JREQ      L:??UART1_LINBreakDetectionConfig_0
+   \   000003 A1 01        CP        A, #0x1
+   \   000005 27 07        JREQ      L:??CrossCallReturnLabel_11
+   \   000007 AE 0187      LDW       X, #0x187
+   \   00000A 8D ......    CALLF     ?Subroutine0
+    392          
+    393              if (UART1_LINBreakDetectionLength != UART1_LINBREAKDETECTIONLENGTH_10BITS)
+    394              {
+    395                  UART1->CR4 |= UART1_CR4_LBDL;
+   \                     ??CrossCallReturnLabel_11:
+   \   00000E 721A 5237    BSET      L:0x5237, #0x5
+   \   000012 87           RETF
+    396              }
+    397              else
+    398              {
+    399                  UART1->CR4 &= ((uint8_t)~UART1_CR4_LBDL);
+   \                     ??UART1_LINBreakDetectionConfig_0:
+   \   000013 721B 5237    BRES      L:0x5237, #0x5
+    400              }
+    401          }
+   \   000017 87           RETF
+    402          
+    403          /**
+    404            * @brief  Enables or disables the UART1’s LIN mode.
+    405            * @param  NewState is new state of the UART1 LIN mode.
+    406            *         This parameter can be: ENABLE or DISABLE.
+    407            * @retval None
+    408            */
+
+   \                                 In section .far_func.text, align 1
+    409          void UART1_LINCmd(FunctionalState NewState)
+    410          {
+    411              assert_param(IS_FUNCTIONALSTATE_OK(NewState));
+   \                     UART1_LINCmd:
+   \   000000 4D           TNZ       A
+   \   000001 27 10        JREQ      L:??UART1_LINCmd_0
+   \   000003 A1 01        CP        A, #0x1
+   \   000005 27 07        JREQ      L:??CrossCallReturnLabel_12
+   \   000007 AE 019B      LDW       X, #0x19b
+   \   00000A 8D ......    CALLF     ?Subroutine0
+    412          
+    413              if (NewState != DISABLE)
+    414              {
+    415                  /* Enable the LIN mode by setting the LINE bit in the CR2 register */
+    416                  UART1->CR3 |= UART1_CR3_LINEN;
+   \                     ??CrossCallReturnLabel_12:
+   \   00000E 721C 5236    BSET      L:0x5236, #0x6
+   \   000012 87           RETF
+    417              }
+    418              else
+    419              {
+    420                  /* Disable the LIN mode by clearing the LINE bit in the CR2 register */
+    421                  UART1->CR3 &= ((uint8_t)~UART1_CR3_LINEN);
+   \                     ??UART1_LINCmd_0:
+   \   000013 721D 5236    BRES      L:0x5236, #0x6
+    422              }
+    423          }
+   \   000017 87           RETF
+    424          /**
+    425            * @brief  Enables or disables the UART1 Smart Card mode.
+    426            * @param  NewState: new state of the Smart Card mode.
+    427            * This parameter can be: ENABLE or DISABLE.
+    428            * @retval None
+    429            */
+
+   \                                 In section .far_func.text, align 1
+    430          void UART1_SmartCardCmd(FunctionalState NewState)
+    431          {
+    432              assert_param(IS_FUNCTIONALSTATE_OK(NewState));
+   \                     UART1_SmartCardCmd:
+   \   000000 4D           TNZ       A
+   \   000001 27 10        JREQ      L:??UART1_SmartCardCmd_0
+   \   000003 A1 01        CP        A, #0x1
+   \   000005 27 07        JREQ      L:??CrossCallReturnLabel_13
+   \   000007 AE 01B0      LDW       X, #0x1b0
+   \   00000A 8D ......    CALLF     ?Subroutine0
+    433          
+    434              if (NewState != DISABLE)
+    435              {
+    436                  /* Enable the SC mode by setting the SCEN bit in the CR5 register */
+    437                  UART1->CR5 |= UART1_CR5_SCEN;
+   \                     ??CrossCallReturnLabel_13:
+   \   00000E 721A 5238    BSET      L:0x5238, #0x5
+   \   000012 87           RETF
+    438              }
+    439              else
+    440              {
+    441                  /* Disable the SC mode by clearing the SCEN bit in the CR5 register */
+    442                  UART1->CR5 &= ((uint8_t)(~UART1_CR5_SCEN));
+   \                     ??UART1_SmartCardCmd_0:
+   \   000013 721B 5238    BRES      L:0x5238, #0x5
+    443              }
+    444          }
+   \   000017 87           RETF
+    445          
+    446          /**
+    447            * @brief  Enables or disables NACK transmission.
+    448            * @note   This function is valid only for UART1 because is related to SmartCard mode.
+    449            * @param  NewState: new state of the Smart Card mode.
+    450            *         This parameter can be: ENABLE or DISABLE.
+    451            * @retval None
+    452            */
+
+   \                                 In section .far_func.text, align 1
+    453          void UART1_SmartCardNACKCmd(FunctionalState NewState)
+    454          {
+    455              assert_param(IS_FUNCTIONALSTATE_OK(NewState));
+   \                     UART1_SmartCardNACKCmd:
+   \   000000 4D           TNZ       A
+   \   000001 27 10        JREQ      L:??UART1_SmartCardNACKCmd_0
+   \   000003 A1 01        CP        A, #0x1
+   \   000005 27 07        JREQ      L:??CrossCallReturnLabel_14
+   \   000007 AE 01C7      LDW       X, #0x1c7
+   \   00000A 8D ......    CALLF     ?Subroutine0
+    456          
+    457              if (NewState != DISABLE)
+    458              {
+    459                  /* Enable the NACK transmission by setting the NACK bit in the CR5 register */
+    460                  UART1->CR5 |= UART1_CR5_NACK;
+   \                     ??CrossCallReturnLabel_14:
+   \   00000E 7218 5238    BSET      L:0x5238, #0x4
+   \   000012 87           RETF
+    461              }
+    462              else
+    463              {
+    464                  /* Disable the NACK transmission by clearing the NACK bit in the CR5 register */
+    465                  UART1->CR5 &= ((uint8_t)~(UART1_CR5_NACK));
+   \                     ??UART1_SmartCardNACKCmd_0:
+   \   000013 7219 5238    BRES      L:0x5238, #0x4
+    466              }
+    467          }
+   \   000017 87           RETF
+    468          
+    469          /**
+    470            * @brief  Selects the UART1 WakeUp method.
+    471            * @param  UART1_WakeUp: specifies the UART1 wakeup method.
+    472            *         This parameter can be any of the @ref UART1_WakeUp_TypeDef values.
+    473            * @retval None
+    474            */
+
+   \                                 In section .far_func.text, align 1
+    475          void UART1_WakeUpConfig(UART1_WakeUp_TypeDef UART1_WakeUp)
+    476          {
+   \                     UART1_WakeUpConfig:
+   \   000000 3B ....      PUSH      S:?b8
+   \   000003 B7 ..        LD        S:?b8, A
+    477              assert_param(IS_UART1_WAKEUP_OK(UART1_WakeUp));
+   \   000005 27 0B        JREQ      L:??CrossCallReturnLabel_15
+   \   000007 A1 08        CP        A, #0x8
+   \   000009 27 07        JREQ      L:??CrossCallReturnLabel_15
+   \   00000B AE 01DD      LDW       X, #0x1dd
+   \   00000E 8D ......    CALLF     ?Subroutine0
+    478          
+    479              UART1->CR1 &= ((uint8_t)~UART1_CR1_WAKE);
+   \                     ??CrossCallReturnLabel_15:
+   \   000012 7217 5234    BRES      L:0x5234, #0x3
+    480              UART1->CR1 |= (uint8_t)UART1_WakeUp;
+   \   000016 B6 ..        LD        A, S:?b8
+   \   000018 8D ......    CALLF     ?Subroutine3
+    481          }
+   \                     ??CrossCallReturnLabel_27:
+   \   00001C 32 ....      POP       S:?b8
+   \   00001F 87           RETF
+    482          /**
+    483            * @brief  Determines if the UART1 is in mute mode or not.
+    484            * @param  NewState: new state of the UART1 mode.
+    485            *         This parameter can be: ENABLE or DISABLE.
+    486            * @retval None
+    487            */
+
+   \                                 In section .far_func.text, align 1
+    488          void UART1_ReceiverWakeUpCmd(FunctionalState NewState)
+    489          {
+    490              assert_param(IS_FUNCTIONALSTATE_OK(NewState));
+   \                     UART1_ReceiverWakeUpCmd:
+   \   000000 4D           TNZ       A
+   \   000001 27 10        JREQ      L:??UART1_ReceiverWakeUpCmd_0
+   \   000003 A1 01        CP        A, #0x1
+   \   000005 27 07        JREQ      L:??CrossCallReturnLabel_16
+   \   000007 AE 01EA      LDW       X, #0x1ea
+   \   00000A 8D ......    CALLF     ?Subroutine0
+    491          
+    492              if (NewState != DISABLE)
+    493              {
+    494                  /* Enable the mute mode UART1 by setting the RWU bit in the CR2 register */
+    495                  UART1->CR2 |= UART1_CR2_RWU;
+   \                     ??CrossCallReturnLabel_16:
+   \   00000E 7212 5235    BSET      L:0x5235, #0x1
+   \   000012 87           RETF
+    496              }
+    497              else
+    498              {
+    499                  /* Disable the mute mode UART1 by clearing the RWU bit in the CR1 register */
+    500                  UART1->CR2 &= ((uint8_t)~UART1_CR2_RWU);
+   \                     ??UART1_ReceiverWakeUpCmd_0:
+   \   000013 7213 5235    BRES      L:0x5235, #0x1
+    501              }
+    502          }
+   \   000017 87           RETF
+    503          
+    504          /**
+    505            * @brief  Returns the most recent received data by the UART1 peripheral.
+    506            * @param  None
+    507            * @retval The received data.
+    508            */
+
+   \                                 In section .far_func.text, align 1
+    509          uint8_t UART1_ReceiveData8(void)
+    510          {
+    511              return ((uint8_t)UART1->DR);
+   \                     UART1_ReceiveData8:
+   \   000000 C6 5231      LD        A, L:0x5231
+   \   000003 87           RETF
+    512          }
+    513          
+    514          /**
+    515            * @brief  Returns the most recent received data by the UART1 peripheral.
+    516            * @param  None
+    517            * @retval The received data.
+    518            */
+
+   \                                 In section .far_func.text, align 1
+    519          uint16_t UART1_ReceiveData9(void)
+    520          {
+    521            uint16_t temp = 0;
+    522            
+    523            temp = (uint16_t)(((uint16_t)( (uint16_t)UART1->CR1 & (uint16_t)UART1_CR1_R8)) << 1);
+   \                     UART1_ReceiveData9:
+   \   000000 C6 5234      LD        A, L:0x5234
+    524            return (uint16_t)( (((uint16_t) UART1->DR) | temp ) & ((uint16_t)0x01FF));
+   \   000003 5F           CLRW      X
+   \   000004 97           LD        XL, A
+   \   000005 01           RRWA      X, A
+   \   000006 A4 80        AND       A, #0x80
+   \   000008 02           RLWA      X, A
+   \   000009 58           SLLW      X
+   \   00000A C6 5231      LD        A, L:0x5231
+   \   00000D 905F         CLRW      Y
+   \   00000F 9097         LD        YL, A
+   \   000011 BF ..        LDW       S:?w0, X
+   \   000013 93           LDW       X, Y
+   \   000014 02           RLWA      X, A
+   \   000015 BA ..        OR        A, S:?b0
+   \   000017 01           RRWA      X, A
+   \   000018 87           RETF
+    525          }
+    526          
+    527          /**
+    528            * @brief  Transmits 8 bit data through the UART1 peripheral.
+    529            * @param  Data: The data to transmit.
+    530            * @retval None
+    531            */
+
+   \                                 In section .far_func.text, align 1
+    532          void UART1_SendData8(uint8_t Data)
+    533          {
+    534              /* Transmit Data */
+    535              UART1->DR = Data;
+   \                     UART1_SendData8:
+   \   000000 C7 5231      LD        L:0x5231, A
+    536          }
+   \   000003 87           RETF
+    537          
+    538          /**
+    539            * @brief  Transmits 9 bit data through the UART peripheral.
+    540            * @param  Data : The data to transmit.
+    541            *         This parameter should be lower than 0x1FF.
+    542            * @retval None
+    543            */
+
+   \                                 In section .far_func.text, align 1
+    544          void UART1_SendData9(uint16_t Data)
+    545          {
+   \                     UART1_SendData9:
+   \   000000 9093         LDW       Y, X
+    546              /**< Clear the transmit data bit 8 [8]  */
+    547              UART1->CR1 &= ((uint8_t)~UART1_CR1_T8);
+   \   000002 721D 5234    BRES      L:0x5234, #0x6
+    548              /**< Write the transmit data bit [8]  */
+    549              UART1->CR1 |= (uint8_t)(((uint8_t)(Data >> 2)) & UART1_CR1_T8);
+   \   000006 54           SRLW      X
+   \   000007 54           SRLW      X
+   \   000008 9F           LD        A, XL
+   \   000009 A4 40        AND       A, #0x40
+   \   00000B 8D ......    CALLF     ?Subroutine3
+    550              /**< Write the transmit data bit [0:7] */
+    551              UART1->DR   = (uint8_t)(Data);
+   \                     ??CrossCallReturnLabel_26:
+   \   00000F 909F         LD        A, YL
+   \   000011 C7 5231      LD        L:0x5231, A
+    552          }
+   \   000014 87           RETF
+    553          
+    554          /**
+    555            * @brief  Transmits break characters.
+    556            * @param  None
+    557            * @retval None
+    558            */
+
+   \                                 In section .far_func.text, align 1
+    559          void UART1_SendBreak(void)
+    560          {
+    561              UART1->CR2 |= UART1_CR2_SBK;
+   \                     UART1_SendBreak:
+   \   000000 7210 5235    BSET      L:0x5235, #0x0
+    562          }
+   \   000004 87           RETF
+    563          
+    564          /**
+    565            * @brief  Sets the address of the UART1 node.
+    566            * @param  UART1_Address: Indicates the address of the UART1 node.
+    567            * @retval None
+    568            */
+
+   \                                 In section .far_func.text, align 1
+    569          void UART1_SetAddress(uint8_t UART1_Address)
+    570          {
+   \                     UART1_SetAddress:
+   \   000000 3B ....      PUSH      S:?b8
+   \   000003 B7 ..        LD        S:?b8, A
+    571              /*assert_param for UART1_Address*/
+    572              assert_param(IS_UART1_ADDRESS_OK(UART1_Address));
+   \   000005 A1 10        CP        A, #0x10
+   \   000007 25 07        JRC       L:??CrossCallReturnLabel_17
+   \   000009 AE 023C      LDW       X, #0x23c
+   \   00000C 8D ......    CALLF     ?Subroutine0
+    573          
+    574              /* Clear the UART1 address */
+    575              UART1->CR4 &= ((uint8_t)~UART1_CR4_ADD);
+   \                     ??CrossCallReturnLabel_17:
+   \   000010 C6 5237      LD        A, L:0x5237
+   \   000013 A4 F0        AND       A, #0xf0
+   \   000015 C7 5237      LD        L:0x5237, A
+    576              /* Set the UART1 address node */
+    577              UART1->CR4 |= UART1_Address;
+   \   000018 B6 ..        LD        A, S:?b8
+   \   00001A CA 5237      OR        A, L:0x5237
+   \   00001D C7 5237      LD        L:0x5237, A
+    578          }
+   \   000020 32 ....      POP       S:?b8
+   \   000023 87           RETF
+    579          
+    580          /**
+    581            * @brief  Sets the specified UART guard time.
+    582            * @note   SmartCard Mode should be Enabled
+    583            * @param  UART1_GuardTime: specifies the guard time.
+    584            * @retval None
+    585            */
+
+   \                                 In section .far_func.text, align 1
+    586          void UART1_SetGuardTime(uint8_t UART1_GuardTime)
+    587          {
+    588              /* Set the UART1 guard time */
+    589              UART1->GTR = UART1_GuardTime;
+   \                     UART1_SetGuardTime:
+   \   000000 C7 5239      LD        L:0x5239, A
+    590          }
+   \   000003 87           RETF
+    591          
+    592          /**
+    593            * @brief  Sets the system clock prescaler.
+    594            * @note   IrDA Low Power mode or smartcard mode should be enabled
+    595            * @note   This function is related to SmartCard and IrDa mode.
+    596            * @param  UART1_Prescaler: specifies the prescaler clock.
+    597            *         This parameter can be one of the following values:
+    598            *         @par IrDA Low Power Mode
+    599            *         The clock source is divided by the value given in the register (8 bits)
+    600            *         - 0000 0000 Reserved
+    601            *         - 0000 0001 divides the clock source by 1
+    602            *         - 0000 0010 divides the clock source by 2
+    603            *         - ...........................................................
+    604            *        @par Smart Card Mode
+    605            *        The clock source is divided by the value given in the register
+    606            *        (5 significant bits) multiplied by 2
+    607            *         - 0 0000 Reserved
+    608            *         - 0 0001 divides the clock source by 2
+    609            *         - 0 0010 divides the clock source by 4
+    610            *         - 0 0011 divides the clock source by 6
+    611            *         - ...........................................................
+    612            * @retval None
+    613            */
+
+   \                                 In section .far_func.text, align 1
+    614          void UART1_SetPrescaler(uint8_t UART1_Prescaler)
+    615          {
+    616              /* Load the UART1 prescaler value*/
+    617              UART1->PSCR = UART1_Prescaler;
+   \                     UART1_SetPrescaler:
+   \   000000 C7 523A      LD        L:0x523a, A
+    618          }
+   \   000003 87           RETF
+    619          
+    620          /**
+    621            * @brief  Checks whether the specified UART1 flag is set or not.
+    622            * @param  UART1_FLAG specifies the flag to check.
+    623            *         This parameter can be any of the @ref UART1_Flag_TypeDef enumeration.
+    624            * @retval FlagStatus (SET or RESET)
+    625            */
+
+   \                                 In section .far_func.text, align 1
+    626          FlagStatus UART1_GetFlagStatus(UART1_Flag_TypeDef UART1_FLAG)
+    627          {
+   \                     UART1_GetFlagStatus:
+   \   000000 8D ......    CALLF     L:?push_w4
+   \   000004 3B ....      PUSH      S:?b10
+   \   000007 BF ..        LDW       S:?w4, X
+    628              FlagStatus status = RESET;
+   \   000009 3F ..        CLR       S:?b10
+    629          
+    630              /* Check parameters */
+    631              assert_param(IS_UART1_FLAG_OK(UART1_FLAG));
+   \   00000B A3 0080      CPW       X, #0x80
+   \   00000E 27 34        JREQ      L:??CrossCallReturnLabel_18
+   \   000010 A3 0040      CPW       X, #0x40
+   \   000013 27 2F        JREQ      L:??CrossCallReturnLabel_18
+   \   000015 A3 0020      CPW       X, #0x20
+   \   000018 27 2A        JREQ      L:??CrossCallReturnLabel_18
+   \   00001A A3 0010      CPW       X, #0x10
+   \   00001D 27 25        JREQ      L:??CrossCallReturnLabel_18
+   \   00001F A3 0008      CPW       X, #0x8
+   \   000022 27 20        JREQ      L:??CrossCallReturnLabel_18
+   \   000024 A3 0004      CPW       X, #0x4
+   \   000027 27 1B        JREQ      L:??CrossCallReturnLabel_18
+   \   000029 A3 0002      CPW       X, #0x2
+   \   00002C 27 16        JREQ      L:??CrossCallReturnLabel_18
+   \   00002E A3 0001      CPW       X, #0x1
+   \   000031 27 11        JREQ      L:??CrossCallReturnLabel_18
+   \   000033 A3 0101      CPW       X, #0x101
+   \   000036 27 27        JREQ      L:??UART1_GetFlagStatus_0
+   \   000038 A3 0210      CPW       X, #0x210
+   \   00003B 27 1B        JREQ      L:??UART1_GetFlagStatus_1
+   \   00003D AE 0277      LDW       X, #0x277
+   \   000040 8D ......    CALLF     ?Subroutine0
+    632          
+    633          
+    634              /* Check the status of the specified UART1 flag*/
+    635              if (UART1_FLAG == UART1_FLAG_LBDF)
+    636              {
+    637                  if ((UART1->CR4 & (uint8_t)UART1_FLAG) != (uint8_t)0x00)
+    638                  {
+    639                      /* UART1_FLAG is set*/
+    640                      status = SET;
+    641                  }
+    642                  else
+    643                  {
+    644                      /* UART1_FLAG is reset*/
+    645                      status = RESET;
+    646                  }
+    647              }
+    648              else if (UART1_FLAG == UART1_FLAG_SBK)
+    649              {
+    650                  if ((UART1->CR2 & (uint8_t)UART1_FLAG) != (uint8_t)0x00)
+    651                  {
+    652                      /* UART1_FLAG is set*/
+    653                      status = SET;
+    654                  }
+    655                  else
+    656                  {
+    657                      /* UART1_FLAG is reset*/
+    658                      status = RESET;
+    659                  }
+    660              }
+    661              else
+    662              {
+    663                  if ((UART1->SR & (uint8_t)UART1_FLAG) != (uint8_t)0x00)
+   \                     ??CrossCallReturnLabel_18:
+   \   000044 B6 ..        LD        A, S:?b9
+   \   000046 C5 5230      BCP       A, L:0x5230
+   \   000049 27 04        JREQ      L:??UART1_GetFlagStatus_2
+    664                  {
+    665                      /* UART1_FLAG is set*/
+    666                      status = SET;
+   \                     ??UART1_GetFlagStatus_3:
+   \   00004B 35 01 ....   MOV       S:?b10, #0x1
+    667                  }
+    668                  else
+    669                  {
+    670                      /* UART1_FLAG is reset*/
+    671                      status = RESET;
+    672                  }
+    673              }
+    674              /* Return the UART1_FLAG status*/
+    675              return status;
+   \                     ??UART1_GetFlagStatus_2:
+   \   00004F B6 ..        LD        A, S:?b10
+   \   000051 32 ....      POP       S:?b10
+   \   000054 AC ......    JPF       L:?epilogue_w4
+   \                     ??UART1_GetFlagStatus_1:
+   \   000058 7208 5237 EE BTJT      L:0x5237, #0x4, L:??UART1_GetFlagStatus_3
+   \   00005D 20 F0        JRA       L:??UART1_GetFlagStatus_2
+   \                     ??UART1_GetFlagStatus_0:
+   \   00005F 7200 5235 E7 BTJT      L:0x5235, #0x0, L:??UART1_GetFlagStatus_3
+   \   000064 20 E9        JRA       L:??UART1_GetFlagStatus_2
+    676          }
+    677          
+    678          /**
+    679            * @brief  Clears the UART1 flags.
+    680            * @param  UART1_FLAG specifies the flag to clear
+    681            *         This parameter can be any combination of the following values:
+    682            *         - UART1_FLAG_LBDF: LIN Break detection flag.
+    683            *         - UART1_FLAG_RXNE: Receive data register not empty flag.
+    684            * @note
+    685            *         - PE (Parity error), FE (Framing error), NE (Noise error), 
+    686            *         OR (OverRun error) and IDLE (Idle line detected) flags are 
+    687            *         cleared by software sequence: a read operation to UART1_SR register
+    688            *         (UART1_GetFlagStatus())followed by a read operation to UART1_DR 
+    689            *         register(UART1_ReceiveData8() or UART1_ReceiveData9()).
+    690            *           
+    691            *         - RXNE flag can be also cleared by a read to the UART1_DR register
+    692            *         (UART1_ReceiveData8()or UART1_ReceiveData9()).
+    693            *           
+    694            *         - TC flag can be also cleared by software sequence: a read operation
+    695            *         to UART1_SR register (UART1_GetFlagStatus()) followed by a write 
+    696            *         operation to UART1_DR register (UART1_SendData8() or UART1_SendData9()).
+    697            *           
+    698            *         - TXE flag is cleared only by a write to the UART1_DR register 
+    699            *         (UART1_SendData8() or UART1_SendData9()).
+    700            *           
+    701            *         - SBK flag is cleared during the stop bit of break.
+    702            * @retval None
+    703            */
+    704          
+
+   \                                 In section .far_func.text, align 1
+    705          void UART1_ClearFlag(UART1_Flag_TypeDef UART1_FLAG)
+    706          {
+    707              assert_param(IS_UART1_CLEAR_FLAG_OK(UART1_FLAG));
+   \                     UART1_ClearFlag:
+   \   000000 A3 0020      CPW       X, #0x20
+   \   000003 27 11        JREQ      L:??UART1_ClearFlag_0
+   \   000005 A3 0210      CPW       X, #0x210
+   \   000008 27 07        JREQ      L:??CrossCallReturnLabel_19
+   \   00000A AE 02C3      LDW       X, #0x2c3
+   \   00000D 8D ......    CALLF     ?Subroutine0
+    708          
+    709              /* Clear the Receive Register Not Empty flag */
+    710              if (UART1_FLAG == UART1_FLAG_RXNE)
+    711              {
+    712                  UART1->SR = (uint8_t)~(UART1_SR_RXNE);
+    713              }
+    714              /* Clear the LIN Break Detection flag */
+    715              else
+    716              {
+    717                  UART1->CR4 &= (uint8_t)~(UART1_CR4_LBDF);
+   \                     ??CrossCallReturnLabel_19:
+   \   000011 7219 5237    BRES      L:0x5237, #0x4
+    718              }
+    719          }
+   \   000015 87           RETF
+   \                     ??UART1_ClearFlag_0:
+   \   000016 35 DF 5230   MOV       L:0x5230, #0xdf
+   \   00001A 87           RETF
+    720          
+    721          /**
+    722            * @brief  Checks whether the specified UART1 interrupt has occurred or not.
+    723            * @param  UART1_IT: Specifies the UART1 interrupt pending bit to check.
+    724            *         This parameter can be one of the following values:
+    725            *         - UART1_IT_LBDF:  LIN Break detection interrupt
+    726            *         - UART1_IT_TXE:  Tansmit Data Register empty interrupt
+    727            *         - UART1_IT_TC:   Transmission complete interrupt
+    728            *         - UART1_IT_RXNE: Receive Data register not empty interrupt
+    729            *         - UART1_IT_IDLE: Idle line detection interrupt
+    730            *         - UART1_IT_OR:  OverRun Error interrupt
+    731            *         - UART1_IT_PE:   Parity Error interrupt
+    732            * @retval The new state of UART1_IT (SET or RESET).
+    733            */
+
+   \                                 In section .far_func.text, align 1
+    734          ITStatus UART1_GetITStatus(UART1_IT_TypeDef UART1_IT)
+    735          {
+   \                     UART1_GetITStatus:
+   \   000000 8D ......    CALLF     L:?push_w4
+   \   000004 3B ....      PUSH      S:?b10
+   \   000007 BF ..        LDW       S:?w4, X
+    736              ITStatus pendingbitstatus = RESET;
+   \   000009 3F ..        CLR       S:?b10
+    737              uint8_t itpos = 0;
+    738              uint8_t itmask1 = 0;
+    739              uint8_t itmask2 = 0;
+    740              uint8_t enablestatus = 0;
+    741          
+    742              /* Check parameters */
+    743              assert_param(IS_UART1_GET_IT_OK(UART1_IT));
+   \   00000B A3 0277      CPW       X, #0x277
+   \   00000E 27 25        JREQ      L:??CrossCallReturnLabel_20
+   \   000010 A3 0266      CPW       X, #0x266
+   \   000013 27 20        JREQ      L:??CrossCallReturnLabel_20
+   \   000015 A3 0255      CPW       X, #0x255
+   \   000018 27 1B        JREQ      L:??CrossCallReturnLabel_20
+   \   00001A A3 0244      CPW       X, #0x244
+   \   00001D 27 16        JREQ      L:??CrossCallReturnLabel_20
+   \   00001F A3 0235      CPW       X, #0x235
+   \   000022 27 11        JREQ      L:??CrossCallReturnLabel_20
+   \   000024 A3 0346      CPW       X, #0x346
+   \   000027 27 0C        JREQ      L:??CrossCallReturnLabel_20
+   \   000029 A3 0100      CPW       X, #0x100
+   \   00002C 27 07        JREQ      L:??CrossCallReturnLabel_20
+   \   00002E AE 02E7      LDW       X, #0x2e7
+   \   000031 8D ......    CALLF     ?Subroutine0
+    744          
+    745              /* Get the UART1 IT index */
+    746              itpos = (uint8_t)((uint8_t)1 << (uint8_t)((uint8_t)UART1_IT & (uint8_t)0x0F));
+   \                     ??CrossCallReturnLabel_20:
+   \   000035 B6 ..        LD        A, S:?b9
+   \   000037 8D ......    CALLF     ?Subroutine1
+    747              /* Get the UART1 IT index */
+    748              itmask1 = (uint8_t)((uint8_t)UART1_IT >> (uint8_t)4);
+    749              /* Set the IT mask*/
+    750              itmask2 = (uint8_t)((uint8_t)1 << itmask1);
+   \                     ??CrossCallReturnLabel_22:
+   \   00003B B6 ..        LD        A, S:?b9
+   \   00003D 4E           SWAP      A
+   \   00003E A4 0F        AND       A, #0xf
+   \   000040 5F           CLRW      X
+   \   000041 5C           INCW      X
+   \   000042 8D ......    CALLF     L:?sll16_x_x_a
+   \   000046 9F           LD        A, XL
+    751          
+    752          
+    753              /* Check the status of the specified UART1 pending bit*/
+    754              if (UART1_IT == UART1_IT_PE)
+   \   000047 BE ..        LDW       X, S:?w4
+   \   000049 A3 0100      CPW       X, #0x100
+   \   00004C 26 0C        JRNE      L:??UART1_GetITStatus_0
+    755              {
+    756                  /* Get the UART1_IT enable bit status*/
+    757                  enablestatus = (uint8_t)((uint8_t)UART1->CR1 & itmask2);
+   \   00004E C4 5234      AND       A, L:0x5234
+   \   000051 B7 ..        LD        S:?b1, A
+    758                  /* Check the status of the specified UART1 interrupt*/
+    759          
+    760                  if (((UART1->SR & itpos) != (uint8_t)0x00) && enablestatus)
+   \   000053 B6 ..        LD        A, S:?b0
+   \   000055 C4 5230      AND       A, L:0x5230
+   \   000058 20 0F        JRA       ??UART1_GetITStatus_1
+    761                  {
+    762                      /* Interrupt occurred*/
+    763                      pendingbitstatus = SET;
+    764                  }
+    765                  else
+    766                  {
+    767                      /* Interrupt not occurred*/
+    768                      pendingbitstatus = RESET;
+    769                  }
+    770              }
+    771          
+    772              else if (UART1_IT == UART1_IT_LBDF)
+   \                     ??UART1_GetITStatus_0:
+   \   00005A A3 0346      CPW       X, #0x346
+   \   00005D 26 10        JRNE      L:??UART1_GetITStatus_2
+    773              {
+    774                  /* Get the UART1_IT enable bit status*/
+    775                  enablestatus = (uint8_t)((uint8_t)UART1->CR4 & itmask2);
+   \   00005F C4 5237      AND       A, L:0x5237
+   \   000062 B7 ..        LD        S:?b1, A
+    776                  /* Check the status of the specified UART1 interrupt*/
+    777                  if (((UART1->CR4 & itpos) != (uint8_t)0x00) && enablestatus)
+   \   000064 B6 ..        LD        A, S:?b0
+   \   000066 C4 5237      AND       A, L:0x5237
+   \                     ??UART1_GetITStatus_1:
+   \   000069 A1 00        CP        A, #0x0
+   \   00006B 26 0E        JRNE      L:??UART1_GetITStatus_3
+   \   00006D 20 14        JRA       L:??UART1_GetITStatus_4
+    778                  {
+    779                      /* Interrupt occurred*/
+    780                      pendingbitstatus = SET;
+    781                  }
+    782                  else
+    783                  {
+    784                      /* Interrupt not occurred*/
+    785                      pendingbitstatus = RESET;
+    786                  }
+    787              }
+    788              else
+    789              {
+    790                  /* Get the UART1_IT enable bit status*/
+    791                  enablestatus = (uint8_t)((uint8_t)UART1->CR2 & itmask2);
+   \                     ??UART1_GetITStatus_2:
+   \   00006F C4 5235      AND       A, L:0x5235
+   \   000072 B7 ..        LD        S:?b1, A
+    792                  /* Check the status of the specified UART1 interrupt*/
+    793                  if (((UART1->SR & itpos) != (uint8_t)0x00) && enablestatus)
+   \   000074 B6 ..        LD        A, S:?b0
+   \   000076 C5 5230      BCP       A, L:0x5230
+   \   000079 27 08        JREQ      L:??UART1_GetITStatus_4
+   \                     ??UART1_GetITStatus_3:
+   \   00007B 3D ..        TNZ       S:?b1
+   \   00007D 27 04        JREQ      L:??UART1_GetITStatus_4
+    794                  {
+    795                      /* Interrupt occurred*/
+    796                      pendingbitstatus = SET;
+   \   00007F 35 01 ....   MOV       S:?b10, #0x1
+    797                  }
+    798                  else
+    799                  {
+    800                      /* Interrupt not occurred*/
+    801                      pendingbitstatus = RESET;
+    802                  }
+    803              }
+    804          
+    805              /* Return the UART1_IT status*/
+    806              return  pendingbitstatus;
+   \                     ??UART1_GetITStatus_4:
+   \   000083 B6 ..        LD        A, S:?b10
+   \   000085 32 ....      POP       S:?b10
+   \   000088 AC ......    JPF       L:?epilogue_w4
+    807          }
+    808          
+    809          /**
+    810            * @brief  Clears the UART1 pending flags.
+    811            * @param  UART1_IT specifies the pending bit to clear
+    812            *         This parameter can be one of the following values:
+    813            *         - UART1_IT_LBDF:  LIN Break detection interrupt
+    814            *         - UART1_IT_RXNE: Receive Data register not empty interrupt.
+    815            * @note
+    816            *         - PE (Parity error), FE (Framing error), NE (Noise error), 
+    817            *           OR (OverRun error) and IDLE (Idle line detected) pending bits are 
+    818            *           cleared by software sequence: a read operation to UART1_SR register
+    819            *           (UART1_GetITStatus()) followed by a read operation to UART1_DR register
+    820            *           (UART1_ReceiveData8() or UART1_ReceiveData9()).
+    821            *   
+    822            *         - RXNE pending bit can be also cleared by a read to the UART1_DR register
+    823            *           (UART1_ReceiveData8() or UART1_ReceiveData9()).
+    824            * 
+    825            *         - TC (Transmit complete) pending bit can be cleared by software 
+    826            *           sequence: a read operation to UART1_SR register (UART1_GetITStatus())
+    827            *           followed by a write operation to UART1_DR register (UART1_SendData8()
+    828            *           or UART1_SendData9()).
+    829            *             
+    830            *         - TXE pending bit is cleared only by a write to the UART1_DR register
+    831            *           (UART1_SendData8() or UART1_SendData9()).
+    832            * @retval None
+    833            */
+
+   \                                 In section .far_func.text, align 1
+    834          void UART1_ClearITPendingBit(UART1_IT_TypeDef UART1_IT)
+    835          {
+    836              assert_param(IS_UART1_CLEAR_IT_OK(UART1_IT));
+   \                     UART1_ClearITPendingBit:
+   \   000000 A3 0255      CPW       X, #0x255
+   \   000003 27 11        JREQ      L:??UART1_ClearITPendingBit_0
+   \   000005 A3 0346      CPW       X, #0x346
+   \   000008 27 07        JREQ      L:??CrossCallReturnLabel_21
+   \   00000A AE 0344      LDW       X, #0x344
+   \   00000D 8D ......    CALLF     ?Subroutine0
+    837          
+    838              /* Clear the Receive Register Not Empty pending bit */
+    839              if (UART1_IT == UART1_IT_RXNE)
+    840              {
+    841                  UART1->SR = (uint8_t)~(UART1_SR_RXNE);
+    842              }
+    843              /* Clear the LIN Break Detection pending bit */
+    844              else
+    845              {
+    846                  UART1->CR4 &= (uint8_t)~(UART1_CR4_LBDF);
+   \                     ??CrossCallReturnLabel_21:
+   \   000011 7219 5237    BRES      L:0x5237, #0x4
+    847              }
+    848          }
+   \   000015 87           RETF
+   \                     ??UART1_ClearITPendingBit_0:
+   \   000016 35 DF 5230   MOV       L:0x5230, #0xdf
+   \   00001A 87           RETF
+
+   \                                 In section .near.rodata, align 1
+   \                     `?<Constant "C:\\\\SNAP\\\\7896_SNAP\\\\GS1...">`:
+   \   000000 43 3A 5C 53  DC8 "C:\\SNAP\\7896_SNAP\\GS1011_uart1.c"
+   \          4E 41 50 5C 
+    849          
+    850          /**
+    851            * @}
+    852            */
+    853            
+    854          /**
+    855            * @}
+    856            */
+    857            
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      33  ?<Constant "C:\\SNAP\\7896_SNAP\\GS1...">
+      12  ?Subroutine0
+      12  ?Subroutine1
+      15  ?Subroutine2
+       7  ?Subroutine3
+      12  ?Subroutine4
+      28  GS1011_Received_Data_Handler
+      25  Sending_GS1011_Data_Handler
+      37  Start_GS1011_Send
+      27  UART1_ClearFlag
+      27  UART1_ClearITPendingBit
+      13  UART1_Cmd
+      43  UART1_DeInit
+     102  UART1_GetFlagStatus
+     140  UART1_GetITStatus
+      24  UART1_HalfDuplexCmd
+     159  UART1_ITConfig
+     448  UART1_Init
+      24  UART1_IrDACmd
+      24  UART1_IrDAConfig
+      24  UART1_LINBreakDetectionConfig
+      24  UART1_LINCmd
+       4  UART1_ReceiveData8
+      25  UART1_ReceiveData9
+      24  UART1_ReceiverWakeUpCmd
+       5  UART1_SendBreak
+       4  UART1_SendData8
+      21  UART1_SendData9
+      36  UART1_SetAddress
+       4  UART1_SetGuardTime
+       4  UART1_SetPrescaler
+      24  UART1_SmartCardCmd
+      24  UART1_SmartCardNACKCmd
+      32  UART1_WakeUpConfig
+
+ 
+ 1 434 bytes in section .far_func.text
+    33 bytes in section .near.rodata
+ 
+ 1 434 bytes of CODE  memory
+    33 bytes of CONST memory
+
+Errors: none
+Warnings: none

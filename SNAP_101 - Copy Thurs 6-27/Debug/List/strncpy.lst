@@ -1,0 +1,425 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             04/Jun/2013  12:19:11 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\SNAP\SNAP_100\strncpy.c                               #
+#    Command line =  C:\SNAP\SNAP_100\strncpy.c -e --enable_multibytes -Oh    #
+#                    --debug --code_model medium --data_model medium -o       #
+#                    C:\SNAP\SNAP_100\Debug\Obj\ --dlib_config "C:\Program    #
+#                    Files\IAR Systems\Embedded Workbench                     #
+#                    6.5\stm8\LIB\dlstm8mmn.h" -D STM8S007 -lC                #
+#                    C:\SNAP\SNAP_100\Debug\List\ -I .\ --require_prototypes  #
+#                    --vregs 16                                               #
+#    List file    =  C:\SNAP\SNAP_100\Debug\List\strncpy.lst                  #
+#    Object file  =  C:\SNAP\SNAP_100\Debug\Obj\strncpy.o                     #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+C:\SNAP\SNAP_100\strncpy.c
+      1          /* strncpy function */
+      2          /* Copyright 2005-2010 IAR Systems AB. */
+      3          #include <yvals.h>
+      4          #define _STRING_MORE_INLINES
+      5          #include <string.h>
+
+  __EFF_NENW1NW2   __ATTRIBUTES int        memcmp(const void *, const void *,
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",26  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1NW2   __ATTRIBUTES int        memcmp(const void *, const void *,
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",26  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENR1NW2R1 __ATTRIBUTES void *     memcpy(void *_Restrict, 
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",28  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENR1NW2R1 __ATTRIBUTES void *     memcpy(void *_Restrict, 
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",28  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENR1NW2R1 __ATTRIBUTES void *     memmove(void *, const void *, size_t);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",30  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENR1NW2R1 __ATTRIBUTES void *     memmove(void *, const void *, size_t);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",30  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENR1R1    __ATTRIBUTES void *     memset(void *, int, size_t);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",31  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENR1R1    __ATTRIBUTES void *     memset(void *, int, size_t);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",31  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW2R1    __ATTRIBUTES char *     strcat(char *_Restrict, 
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",32  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW2R1    __ATTRIBUTES char *     strcat(char *_Restrict, 
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",32  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1NW2   __ATTRIBUTES int        strcmp(const char *, const char *);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",34  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1NW2   __ATTRIBUTES int        strcmp(const char *, const char *);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",34  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NW1NW2     __ATTRIBUTES int        strcoll(const char *, const char *);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",35  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NW1NW2     __ATTRIBUTES int        strcoll(const char *, const char *);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",35  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENR1NW2R1 __ATTRIBUTES char *     strcpy(char *_Restrict, 
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",36  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENR1NW2R1 __ATTRIBUTES char *     strcpy(char *_Restrict, 
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",36  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1NW2   __ATTRIBUTES size_t     strcspn(const char *, const char *);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",38  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1NW2   __ATTRIBUTES size_t     strcspn(const char *, const char *);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",38  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1      __ATTRIBUTES size_t     strlen(const char *);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",40  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1      __ATTRIBUTES size_t     strlen(const char *);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",40  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW2R1    __ATTRIBUTES char *     strncat(char *_Restrict, 
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",41  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW2R1    __ATTRIBUTES char *     strncat(char *_Restrict, 
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",41  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1NW2   __ATTRIBUTES int        strncmp(const char *, const char *, 
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",43  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1NW2   __ATTRIBUTES int        strncmp(const char *, const char *, 
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",43  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENR1NW2R1 __ATTRIBUTES char *     strncpy(char *_Restrict, 
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",45  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENR1NW2R1 __ATTRIBUTES char *     strncpy(char *_Restrict, 
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",45  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1NW2   __ATTRIBUTES size_t     strspn(const char *, const char *);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",47  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1NW2   __ATTRIBUTES size_t     strspn(const char *, const char *);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",47  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NW2        __ATTRIBUTES char *     strtok(char *_Restrict, 
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",48  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NW2        __ATTRIBUTES char *     strtok(char *_Restrict, 
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",48  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NW2        __ATTRIBUTES size_t     strxfrm(char *_Restrict, 
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",50  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NW2        __ATTRIBUTES size_t     strxfrm(char *_Restrict, 
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",50  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NW1      __ATTRIBUTES char *   strdup(const char *);
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",54  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NW1      __ATTRIBUTES char *   strdup(const char *);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",54  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NW1NW2   __ATTRIBUTES int      strcasecmp(const char *, const char *);
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",55  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NW1NW2   __ATTRIBUTES int      strcasecmp(const char *, const char *);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",55  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NW1NW2   __ATTRIBUTES int      strncasecmp(const char *, const char *, 
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",56  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NW1NW2   __ATTRIBUTES int      strncasecmp(const char *, const char *, 
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",56  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NENW2    __ATTRIBUTES char *   strtok_r(char *, const char *, char **);
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",58  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NENW2    __ATTRIBUTES char *   strtok_r(char *, const char *, char **);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",58  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NENW1    __ATTRIBUTES size_t   strnlen(char const *, size_t);
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",59  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NENW1    __ATTRIBUTES size_t   strnlen(char const *, size_t);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",59  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NENW1    __ATTRIBUTES void *memchr(const void *_S, int _C, size_t _N);
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",81  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NENW1    __ATTRIBUTES void *memchr(const void *_S, int _C, size_t _N);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",81  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NENW1    __ATTRIBUTES char *strchr(const char *_S, int _C);
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",82  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NENW1    __ATTRIBUTES char *strchr(const char *_S, int _C);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",82  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NENW1NW2 __ATTRIBUTES char *strpbrk(const char *_S, const char *_P);
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",83  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NENW1NW2 __ATTRIBUTES char *strpbrk(const char *_S, const char *_P);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",83  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NENW1    __ATTRIBUTES char *strrchr(const char *_S, int _C);
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",84  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NENW1    __ATTRIBUTES char *strrchr(const char *_S, int _C);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",84  Error[Pe065]: 
+          expected a ";"
+
+    __EFF_NENW1NW2 __ATTRIBUTES char *strstr(const char *_S, const char *_P);
+    ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",85  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+    __EFF_NENW1NW2 __ATTRIBUTES char *strstr(const char *_S, const char *_P);
+                   ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",85  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1    __ATTRIBUTES void *__iar_Memchr(const void *, int, size_t);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",95  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1    __ATTRIBUTES void *__iar_Memchr(const void *, int, size_t);
+                 ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",95  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1    __ATTRIBUTES char *__iar_Strchr(const char *, int);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",96  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1    __ATTRIBUTES char *__iar_Strchr(const char *, int);
+                 ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",96  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1NW2 __ATTRIBUTES char *__iar_Strpbrk(const char *, const char *);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",98  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1NW2 __ATTRIBUTES char *__iar_Strpbrk(const char *, const char *);
+                 ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",98  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1    __ATTRIBUTES char *__iar_Strrchr(const char *, int);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",99  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1    __ATTRIBUTES char *__iar_Strrchr(const char *, int);
+                 ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",99  Error[Pe065]: 
+          expected a ";"
+
+  __EFF_NENW1NW2 __ATTRIBUTES char *__iar_Strstr(const char *, const char *);
+  ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",100  Error[Pe077]: 
+          this declaration has no storage class or type specifier
+
+  __EFF_NENW1NW2 __ATTRIBUTES char *__iar_Strstr(const char *, const char *);
+                 ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",100  Error[Pe065]: 
+          expected a ";"
+
+        return (__iar_Memchr(_S, _C, _N));
+                ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",172  Error[Pe223]: 
+          function "__iar_Memchr" declared implicitly
+
+        return (__iar_Memchr(_S, _C, _N));
+               ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",172  Error[Pe120]: 
+          return value type ("int") does not match the function type ("void *")
+
+        return (__iar_Strchr(_S, _C));
+                ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",178  Error[Pe223]: 
+          function "__iar_Strchr" declared implicitly
+
+        return (__iar_Strchr(_S, _C));
+               ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",178  Error[Pe120]: 
+          return value type ("int") does not match the function type ("char *")
+
+        return (__iar_Strpbrk(_S, _P));
+                ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",184  Error[Pe223]: 
+          function "__iar_Strpbrk" declared implicitly
+
+        return (__iar_Strpbrk(_S, _P));
+               ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",184  Error[Pe120]: 
+          return value type ("int") does not match the function type ("char *")
+
+        return (__iar_Strrchr(_S, _C));
+                ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",190  Error[Pe223]: 
+          function "__iar_Strrchr" declared implicitly
+
+        return (__iar_Strrchr(_S, _C));
+               ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",190  Error[Pe120]: 
+          return value type ("int") does not match the function type ("char *")
+
+        return (__iar_Strstr(_S, _P));
+                ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",196  Error[Pe223]: 
+          function "__iar_Strstr" declared implicitly
+
+        return (__iar_Strstr(_S, _P));
+               ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",196  Error[Pe120]: 
+          return value type ("int") does not match the function type ("char *")
+
+        void *__iar_Memchr(const void *s, int c, size_t n)
+              ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",373  Error[Pe159]: 
+          declaration is incompatible with previous "__iar_Memchr" (declared
+          at line 172)
+
+        char *__iar_Strchr(const char *s, int c)
+              ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",387  Error[Pe159]: 
+          declaration is incompatible with previous "__iar_Strchr" (declared
+          at line 178)
+
+        char *__iar_Strpbrk(const char *s1, const char *s2)
+              ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",400  Error[Pe159]: 
+          declaration is incompatible with previous "__iar_Strpbrk" (declared
+          at line 184)
+
+        char *__iar_Strrchr(const char *s, int c)
+              ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",414  Error[Pe159]: 
+          declaration is incompatible with previous "__iar_Strrchr" (declared
+          at line 190)
+
+        char *__iar_Strstr(const char *s1, const char *s2)
+              ^
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\inc\c\string.h",431  Error[Pe159]: 
+          declaration is incompatible with previous "__iar_Strstr" (declared
+          at line 196)
+      6          #include "xinstantiate.h"
+      7          
+      8          _STD_BEGIN
+      9          
+     10          _INSTANTIATE(strncpy);
+     11          
+     12          _STD_END
+
+Errors: 77
+Warnings: none

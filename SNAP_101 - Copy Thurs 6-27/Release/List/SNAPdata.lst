@@ -1,0 +1,99 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             28/May/2013  13:15:19 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\SNAP\SNAP_100\SNAPdata.c                              #
+#    Command line =  C:\SNAP\SNAP_100\SNAPdata.c -e -Oh --code_model small    #
+#                    --data_model small -o C:\SNAP\SNAP_100\Release\Obj\      #
+#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#                    Workbench 6.5\stm8\LIB\dlstm8ssn.h" -D NDEBUG -D         #
+#                    STM8S007 -lC C:\SNAP\SNAP_100\Release\List\ -I .\        #
+#                    --no_system_include --vregs 16                           #
+#    List file    =  C:\SNAP\SNAP_100\Release\List\SNAPdata.lst               #
+#    Object file  =  C:\SNAP\SNAP_100\Release\Obj\SNAPdata.o                  #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+
+   \                                 In section .tiny.bss, align 1
+C:\SNAP\SNAP_100\SNAPdata.c
+      1          char* Device_Xmit_Pointer;
+   \                     Device_Xmit_Pointer:
+   \   000000              DS8 2
+
+   \                                 In section .tiny.bss, align 1
+      2          char* Device_Rcvr_Pointer;
+   \                     Device_Rcvr_Pointer:
+   \   000000              DS8 2
+
+   \                                 In section .tiny.bss, align 1
+      3          unsigned char Device_Receiver_Buffer[255];
+   \                     Device_Receiver_Buffer:
+   \   000000              DS8 255
+
+   \                                 In section .tiny.bss, align 1
+      4          unsigned char Device_Processed_Buffer[255];
+   \                     Device_Processed_Buffer:
+   \   000000              DS8 255
+
+   \                                 In section .tiny.bss, align 1
+      5          unsigned char Device_Xmit_Buffer[255];
+   \                     Device_Xmit_Buffer:
+   \   000000              DS8 255
+      6          
+
+   \                                 In section .tiny.bss, align 1
+      7          char* GS1011_Xmit_Pointer;
+   \                     GS1011_Xmit_Pointer:
+   \   000000              DS8 2
+
+   \                                 In section .tiny.bss, align 1
+      8          char *GS1011_Rcvr_Pointer;
+   \                     GS1011_Rcvr_Pointer:
+   \   000000              DS8 2
+
+   \                                 In section .tiny.bss, align 1
+      9          unsigned char GS1011_Xmit_Char_Count;
+   \                     GS1011_Xmit_Char_Count:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     10          unsigned char GS1011_Xmit_Char;
+   \                     GS1011_Xmit_Char:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     11          unsigned char GS1011_Receiver_Buffer[255];
+   \                     GS1011_Receiver_Buffer:
+   \   000000              DS8 255
+
+   \                                 In section .tiny.bss, align 1
+     12          unsigned char GS1011_Xmit_Buffer[255];
+   \                     GS1011_Xmit_Buffer:
+   \   000000              DS8 255
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+     255  Device_Processed_Buffer
+       2  Device_Rcvr_Pointer
+     255  Device_Receiver_Buffer
+     255  Device_Xmit_Buffer
+       2  Device_Xmit_Pointer
+       2  GS1011_Rcvr_Pointer
+     255  GS1011_Receiver_Buffer
+     255  GS1011_Xmit_Buffer
+       1  GS1011_Xmit_Char
+       1  GS1011_Xmit_Char_Count
+       2  GS1011_Xmit_Pointer
+
+ 
+ 1 285 bytes in section .tiny.bss
+ 
+ 1 285 bytes of DATA memory
+
+Errors: none
+Warnings: none

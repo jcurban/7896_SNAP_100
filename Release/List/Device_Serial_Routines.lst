@@ -1,0 +1,70 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             28/May/2013  13:15:19 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\SNAP\SNAP_100\Device_Serial_Routines.c                #
+#    Command line =  C:\SNAP\SNAP_100\Device_Serial_Routines.c -e -Oh         #
+#                    --code_model small --data_model small -o                 #
+#                    C:\SNAP\SNAP_100\Release\Obj\ --dlib_config "C:\Program  #
+#                    Files\IAR Systems\Embedded Workbench                     #
+#                    6.5\stm8\LIB\dlstm8ssn.h" -D NDEBUG -D STM8S007 -lC      #
+#                    C:\SNAP\SNAP_100\Release\List\ -I .\                     #
+#                    --no_system_include --vregs 16                           #
+#    List file    =  C:\SNAP\SNAP_100\Release\List\Device_Serial_Routines.lst #
+#    Object file  =  C:\SNAP\SNAP_100\Release\Obj\Device_Serial_Routines.o    #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+C:\SNAP\SNAP_100\Device_Serial_Routines.c
+      1          
+      2            /*****************************************************************************
+      3            * Device Serial Handlers
+      4            * @file    stm8s_uart1.c
+      5            * @author  MCD Application Team
+      6            * @version V2.1.0
+      7            * @date    18-November-2011
+      8            * @brief   This file contains all the functions for the UART1 peripheral.
+      9            *****************************************************************************/
+     10          /* Includes ------------------------------------------------------------------*/
+     11          /* definitions ---------------------------------------------------------------*/
+     12          void GetRawUpdateFromDevice(void);
+     13          void ConvertRawUpdateToWebsiteFormat(void);
+     14          void ReportStatusToDevice(void);
+     15          /* Stock messages ------------------------------------------------------------*/
+     16          /* Routines ------------------------------------------------------------------*/
+
+   \                                 In section .near_func.text, align 1
+     17          void GetRawUpdateFromDevice(){
+     18          }
+   \                     GetRawUpdateFromDevice:
+   \   000000 81           RET
+
+   \                                 In section .near_func.text, align 1
+     19          void ConvertRawUpdateToWebsiteFormat(){
+     20          }
+   \                     ConvertRawUpdateToWebsiteFormat:
+   \   000000 81           RET
+
+   \                                 In section .near_func.text, align 1
+     21          void ReportStatusToDevice(){
+     22          }
+   \                     ReportStatusToDevice:
+   \   000000 81           RET
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       1  ConvertRawUpdateToWebsiteFormat
+       1  GetRawUpdateFromDevice
+       1  ReportStatusToDevice
+
+ 
+ 3 bytes in section .near_func.text
+ 
+ 3 bytes of CODE memory
+
+Errors: none
+Warnings: none

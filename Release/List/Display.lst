@@ -1,0 +1,439 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             16/May/2013  10:11:42 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\SNAP\VER_204\Display.c                                #
+#    Command line =  C:\SNAP\VER_204\Display.c -e -Oh --code_model small      #
+#                    --data_model small -o C:\SNAP\VER_204\Release\Obj\       #
+#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#                    Workbench 6.5\stm8\LIB\dlstm8ssn.h" -D NDEBUG -D         #
+#                    STM8S005 -lC C:\SNAP\VER_204\Release\List\ -I .\         #
+#                    --no_system_include --vregs 16                           #
+#    List file    =  C:\SNAP\VER_204\Release\List\Display.lst                 #
+#    Object file  =  C:\SNAP\VER_204\Release\Obj\Display.o                    #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+C:\SNAP\VER_204\Display.c
+      1          
+      2          /* Includes ------------------------------------------------------------------*/
+      3          #include "DISPLAY.h"
+      4          
+      5          /* Private function prototypes -----------------------------------------------*/
+      6          
+      7          /* local variables -----------------------------------------------------------*/
+
+   \                                 In section .tiny.bss, align 1
+      8          u8 RunDisplaySeq;
+   \                     RunDisplaySeq:
+   \   000000              DS8 1
+      9          
+     10          /* local defines  ------------------------------------------------------------*/
+     11          
+     12          /*LED DISPLAY MAPS                                                            */
+     13          /*index gives numbers 0,1,2,3,4,5,6,7,8,9,blank,F,C,E                         */
+     14          /*for DIGIT1 and DIGIT2. L1 and L2 added at run time*/
+
+   \                                 In section .near.rodata, align 1
+     15          const u8 DIG12[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D,
+   \                     DIG12:
+   \   000000 3F 06 5B 4F  DC8 63, 6, 91, 79, 102, 109, 124, 7, 127, 111, 0, 113, 57, 121
+   \          66 6D 7C 07 
+     16                            0x7C, 0x07, 0x7F, 0x6F, 0x00, 0x71, 0x39, 0x79};
+     17          /*index gives digit blank with no colon(0), 1 with no colon(1), */
+     18          /*blank with colon(2), 1 with colon(3).                       */
+
+   \                                 In section .near.rodata, align 1
+     19          const u8 DIG0[] = {0x00, 0x03, 0x0C, 0x0F};
+   \                     DIG0:
+   \   000000 00 03 0C 0F  DC8 0, 3, 12, 15
+     20          
+
+   \                                 In section .tiny.bss, align 1
+     21          u8 DIGIT0_DATA; /*0-3 see above */
+   \                     DIGIT0_DATA:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     22          u8 DIGIT1_DATA; /*0-9 10=blank  */
+   \                     DIGIT1_DATA:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     23          u8 DIGIT2_DATA; /*0-9 10=blank  */
+   \                     DIGIT2_DATA:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     24          u8 L1L2_OPTION; /*0=NONE, 1=L1, 2=L2, 3=L1+L2 */
+   \                     L1L2_OPTION:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     25          u8 Dmode;       /*display mode could be 'T', 'F', 'C', 'E'x(error),
+   \                     Dmode:
+   \   000000              DS8 1
+     26                          'S'(set temp mode)*/
+     27          
+     28          /*******************************************************************************
+     29          * Function Name  : RunDisplay
+     30          * Description    : Multiplex the Display at 200hz and display the data 
+     31          *                   in DIGIT0_DATA, DIGIT1_DATA, DIGIT2_DATA, L1L2_OPTION
+     32          * Input          : NONE
+     33          * Output         : DISPLAY 
+     34          * Return         : None
+     35          * Called from 5ms interrupt
+     36          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1
+     37          void RunDisplay(void){
+     38            u8 LocalDig;
+     39            GPIOA->ODR &= 0x8F;    /*all strobes off*/
+   \                     RunDisplay:
+   \   000000 C6 5000      LD        A, L:0x5000
+   \   000003 A4 8F        AND       A, #0x8f
+   \   000005 C7 5000      LD        L:0x5000, A
+     40            switch (RunDisplaySeq){
+   \   000008 B6 ..        LD        A, S:RunDisplaySeq
+   \   00000A 27 07        JREQ      L:??RunDisplay_0
+   \   00000C 4A           DEC       A
+   \   00000D 27 33        JREQ      L:??RunDisplay_1
+   \   00000F 4A           DEC       A
+   \   000010 27 5F        JREQ      L:??RunDisplay_2
+   \   000012 81           RET
+     41              case 00:{   /*DISP_K1 STROBE*/
+     42                LocalDig = DIGIT1_DATA;
+   \                     ??RunDisplay_0:
+   \   000013 B6 ..        LD        A, S:DIGIT1_DATA
+   \   000015 B7 ..        LD        S:?b0, A
+     43                if (LocalDig & 0x01){ /*SET PE0 BIT*/
+   \   000017 A5 01        BCP       A, #0x1
+   \   000019 27 06        JREQ      L:??RunDisplay_3
+     44                  GPIOE->ODR |= 0x01;
+   \   00001B 7210 5014    BSET      L:0x5014, #0x0
+   \   00001F 20 04        JRA       L:??RunDisplay_4
+     45                }
+     46                else{
+     47                  GPIOE->ODR &= 0xFE;
+   \                     ??RunDisplay_3:
+   \   000021 7211 5014    BRES      L:0x5014, #0x0
+     48                }
+     49                LocalDig &= 0x7E;   /*clr bit 0*/
+   \                     ??RunDisplay_4:
+   \   000025 B6 ..        LD        A, S:?b0
+   \   000027 A4 7E        AND       A, #0x7e
+   \   000029 B7 ..        LD        S:?b0, A
+     50                if(L1L2_OPTION & 0x02){ /*chk for L2 on*/
+   \   00002B 7203 .... 04 BTJF      S:L1L2_OPTION, #0x1, L:??RunDisplay_5
+     51                  LocalDig |= 0x80;
+   \   000030 AA 80        OR        A, #0x80
+   \   000032 B7 ..        LD        S:?b0, A
+     52                }
+     53                GPIOC->ODR = LocalDig;
+   \                     ??RunDisplay_5:
+   \   000034 B6 ..        LD        A, S:?b0
+   \   000036 C7 500A      LD        L:0x500a, A
+     54                GPIOA->ODR |= 0x10;   /*TURN ON STROBE K1*/
+   \   000039 7218 5000    BSET      L:0x5000, #0x4
+     55                RunDisplaySeq = 1;
+   \   00003D 35 01 ....   MOV       S:RunDisplaySeq, #0x1
+     56              break;      
+   \   000041 81           RET
+     57              }
+     58                
+     59              case 01:{   /*DISP_K2 STROBE*/
+     60                LocalDig = DIGIT2_DATA;
+   \                     ??RunDisplay_1:
+   \   000042 B6 ..        LD        A, S:DIGIT2_DATA
+   \   000044 B7 ..        LD        S:?b0, A
+     61                if (LocalDig & 0x01){ /*SET PE0 BIT*/
+   \   000046 A5 01        BCP       A, #0x1
+   \   000048 27 06        JREQ      L:??RunDisplay_6
+     62                  GPIOE->ODR |= 0x01;
+   \   00004A 7210 5014    BSET      L:0x5014, #0x0
+   \   00004E 20 04        JRA       L:??RunDisplay_7
+     63                }
+     64                else{
+     65                  GPIOE->ODR &= 0xFE;
+   \                     ??RunDisplay_6:
+   \   000050 7211 5014    BRES      L:0x5014, #0x0
+     66                }
+     67                LocalDig &= 0x7E;   /*clr bit 0*/
+   \                     ??RunDisplay_7:
+   \   000054 B6 ..        LD        A, S:?b0
+   \   000056 A4 7E        AND       A, #0x7e
+   \   000058 B7 ..        LD        S:?b0, A
+     68                if(L1L2_OPTION & 0x01){ /*chk for L1 on*/
+   \   00005A 7201 .... 04 BTJF      S:L1L2_OPTION, #0x0, L:??RunDisplay_8
+     69                  LocalDig |= 0x80;
+   \   00005F AA 80        OR        A, #0x80
+   \   000061 B7 ..        LD        S:?b0, A
+     70                }
+     71                GPIOC->ODR = LocalDig;
+   \                     ??RunDisplay_8:
+   \   000063 B6 ..        LD        A, S:?b0
+   \   000065 C7 500A      LD        L:0x500a, A
+     72                GPIOA->ODR |= 0x20;   /*TURN ON STROBE K2*/
+   \   000068 721A 5000    BSET      L:0x5000, #0x5
+     73                RunDisplaySeq = 2;
+   \   00006C 35 02 ....   MOV       S:RunDisplaySeq, #0x2
+     74              break;      
+   \   000070 81           RET
+     75              }
+     76              
+     77              case 02:{   /*DISP_K3 STROBE*/
+     78                LocalDig = DIGIT0_DATA;
+   \                     ??RunDisplay_2:
+   \   000071 B6 ..        LD        A, S:DIGIT0_DATA
+   \   000073 B7 ..        LD        S:?b0, A
+     79                if (LocalDig & 0x01){ /*SET PE0 BIT*/
+   \   000075 A5 01        BCP       A, #0x1
+   \   000077 27 06        JREQ      L:??RunDisplay_9
+     80                  GPIOE->ODR |= 0x01;
+   \   000079 7210 5014    BSET      L:0x5014, #0x0
+   \   00007D 20 04        JRA       L:??RunDisplay_10
+     81                }
+     82                else{
+     83                  GPIOE->ODR &= 0xFE;
+   \                     ??RunDisplay_9:
+   \   00007F 7211 5014    BRES      L:0x5014, #0x0
+     84                }
+     85                GPIOC->ODR = LocalDig;
+   \                     ??RunDisplay_10:
+   \   000083 B6 ..        LD        A, S:?b0
+   \   000085 C7 500A      LD        L:0x500a, A
+     86                GPIOA->ODR |= 0x40;   /*TURN ON STROBE K3*/
+   \   000088 721C 5000    BSET      L:0x5000, #0x6
+     87                RunDisplaySeq = 0;
+   \   00008C 3F ..        CLR       S:RunDisplaySeq
+     88              break;      
+     89              }
+     90            }
+     91          }
+   \   00008E 81           RET
+     92          
+     93          
+     94          /*******************************************************************************
+     95          * Function Name  : SelectDisplay
+     96          * Description    : Select the display contents
+     97          * Input          : DispMode: F, C, T, E
+     98          * Output         : DISPLAY 
+     99          * Return         : None
+    100          * Called from main
+    101          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1
+    102          void SelectDisplay(void){
+    103            if(Dmode == 'F'){
+   \                     SelectDisplay:
+   \   000000 B6 ..        LD        A, S:Dmode
+   \   000002 A1 46        CP        A, #0x46
+   \   000004 26 06        JRNE      L:??SelectDisplay_0
+    104              DIGIT1_DATA = DIG12[11];  /*deg F*/
+   \   000006 35 71 ....   MOV       S:DIGIT1_DATA, #0x71
+    105              DIGIT2_DATA = DIG12[10];  /*blank*/
+   \   00000A 20 08        JRA       L:??SelectDisplay_1
+    106              DIGIT0_DATA = DIG0[0];    /*blank*/
+    107              return;
+    108            }
+    109            if(Dmode == 'C'){
+   \                     ??SelectDisplay_0:
+   \   00000C A1 43        CP        A, #0x43
+   \   00000E 26 09        JRNE      L:??SelectDisplay_2
+    110              DIGIT1_DATA = DIG12[12];  /*deg C*/
+   \   000010 35 39 ....   MOV       S:DIGIT1_DATA, #0x39
+    111              DIGIT2_DATA = DIG12[10];  /*blank*/
+   \                     ??SelectDisplay_1:
+   \   000014 3F ..        CLR       S:DIGIT2_DATA
+    112              DIGIT0_DATA = DIG0[0];    /*blank*/
+   \   000016 3F ..        CLR       S:DIGIT0_DATA
+    113              return;
+   \   000018 81           RET
+    114            }
+    115            if(Dmode == 'E'){
+   \                     ??SelectDisplay_2:
+   \   000019 A1 45        CP        A, #0x45
+   \   00001B 26 19        JRNE      L:??SelectDisplay_3
+    116              DIGIT1_DATA = DIG12[13];  /*E*/
+   \   00001D 35 79 ....   MOV       S:DIGIT1_DATA, #0x79
+    117              DIGIT0_DATA = DIG0[0];    /*blank*/
+   \   000021 3F ..        CLR       S:DIGIT0_DATA
+    118              if(SysError & 0x01){
+   \   000023 7201 .... 04 BTJF      S:SysError, #0x0, L:??SelectDisplay_4
+    119                DIGIT2_DATA = DIG12[1];  /*Error 1 */
+   \   000028 35 06 ....   MOV       S:DIGIT2_DATA, #0x6
+    120              }
+    121              if(SysError & 0x02){
+   \                     ??SelectDisplay_4:
+   \   00002C 7203 .... 21 BTJF      S:SysError, #0x1, L:??SelectDisplay_5
+    122                DIGIT2_DATA = DIG12[6];  /*Error 6 */
+   \   000031 35 7C ....   MOV       S:DIGIT2_DATA, #0x7c
+    123              }
+    124              return;
+   \   000035 81           RET
+    125            }
+    126            if(SysOn == 0){    /*system not on blank display */
+   \                     ??SelectDisplay_3:
+   \   000036 3D ..        TNZ       S:SysOn
+   \   000038 26 03        JRNE      L:??SelectDisplay_6
+    127              BlankDisplay();
+   \   00003A CD ....      CALL      L:BlankDisplay
+    128            }
+    129            if(Dmode == 'S'){   /*if set temp mode is active*/
+   \                     ??SelectDisplay_6:
+   \   00003D B6 ..        LD        A, S:Dmode
+   \   00003F A1 53        CP        A, #0x53
+   \   000041 27 0F        JREQ      L:??SelectDisplay_5
+    130              return;
+    131            }
+    132            if (Dmode =='T'){
+   \   000043 A1 54        CP        A, #0x54
+   \   000045 26 0B        JRNE      L:??SelectDisplay_5
+    133              /*choose the display values*/
+    134              if(NewTempAvail){
+   \   000047 3D ..        TNZ       S:NewTempAvail
+   \   000049 27 07        JREQ      L:??SelectDisplay_5
+    135               NewTempAvail = 0;
+   \   00004B 3F ..        CLR       S:NewTempAvail
+    136               SetLedData(TempInt_FC);
+   \   00004D B6 ..        LD        A, S:TempInt_FC
+   \   00004F CD ....      CALL      L:SetLedData
+    137              }
+    138            }
+    139          }
+   \                     ??SelectDisplay_5:
+   \   000052 81           RET
+    140          
+    141          /*******************************************************************************
+    142          * Function Name  : SetLedData
+    143          * Description    : Set LED data to display buffer
+    144          * Input          : Data to set
+    145          * Output         : LED data buffers
+    146          * Return         : None
+    147          * Called on demand
+    148          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1
+    149          void SetLedData(u8 LEDDat){
+   \                     SetLedData:
+   \   000000 B7 ..        LD        S:?b1, A
+    150            u8 Local = 0;
+   \   000002 3F ..        CLR       S:?b0
+    151            if (LEDDat > 99){
+   \   000004 A1 64        CP        A, #0x64
+   \   000006 25 1E        JRC       L:??SetLedData_0
+    152              Local = LEDDat / 100;
+   \   000008 A6 64        LD        A, #0x64
+   \   00000A CD ....      CALL      L:?Subroutine0
+    153              LEDDat -= Local * 100;
+   \                     ??CrossCallReturnLabel_0:
+   \   00000D A6 64        LD        A, #0x64
+   \   00000F 97           LD        XL, A
+   \   000010 B6 ..        LD        A, S:?b0
+   \   000012 42           MUL       X, A
+   \   000013 41           EXG       A, XL
+   \   000014 B7 ..        LD        S:?b2, A
+   \   000016 B6 ..        LD        A, S:?b1
+   \   000018 B0 ..        SUB       A, S:?b2
+   \   00001A B7 ..        LD        S:?b1, A
+    154              if(Local > 1){  /*limit index to 0/1 only*/
+   \   00001C B6 ..        LD        A, S:?b0
+   \   00001E A1 02        CP        A, #0x2
+   \   000020 25 04        JRC       L:??SetLedData_0
+    155                Local = 1;
+   \   000022 35 01 ....   MOV       S:?b0, #0x1
+    156              }
+    157            }
+    158            DIGIT0_DATA = DIG0[Local];
+   \                     ??SetLedData_0:
+   \   000026 5F           CLRW      X
+   \   000027 41           EXG       A, XL
+   \   000028 B6 ..        LD        A, S:?b0
+   \   00002A 41           EXG       A, XL
+   \   00002B D6 ....      LD        A, (L:DIG0,X)
+   \   00002E B7 ..        LD        S:DIGIT0_DATA, A
+    159            if (LEDDat > 9){
+   \   000030 B6 ..        LD        A, S:?b1
+   \   000032 A1 0A        CP        A, #0xa
+   \   000034 25 21        JRC       L:??SetLedData_1
+    160              Local = LEDDat / 10;
+   \   000036 A6 0A        LD        A, #0xa
+   \   000038 CD ....      CALL      L:?Subroutine0
+   \                     ??CrossCallReturnLabel_1:
+   \   00003B 41           EXG       A, XL
+    161              DIGIT1_DATA = DIG12[Local];
+   \   00003C 5F           CLRW      X
+   \   00003D 41           EXG       A, XL
+   \   00003E B6 ..        LD        A, S:?b0
+   \   000040 41           EXG       A, XL
+   \   000041 D6 ....      LD        A, (L:DIG12,X)
+   \   000044 B7 ..        LD        S:DIGIT1_DATA, A
+    162              LEDDat -= Local * 10;
+   \   000046 A6 0A        LD        A, #0xa
+   \   000048 97           LD        XL, A
+   \   000049 B6 ..        LD        A, S:?b0
+   \   00004B 42           MUL       X, A
+   \   00004C 41           EXG       A, XL
+   \   00004D B7 ..        LD        S:?b0, A
+   \   00004F B6 ..        LD        A, S:?b1
+   \   000051 B0 ..        SUB       A, S:?b0
+   \   000053 B7 ..        LD        S:?b1, A
+   \   000055 20 04        JRA       L:??SetLedData_2
+    163            }
+    164            else{
+    165              DIGIT1_DATA = DIG12[0]; /*set number to 0*/
+   \                     ??SetLedData_1:
+   \   000057 35 3F ....   MOV       S:DIGIT1_DATA, #0x3f
+    166            }
+    167            DIGIT2_DATA = DIG12[LEDDat];
+   \                     ??SetLedData_2:
+   \   00005B 5F           CLRW      X
+   \   00005C 41           EXG       A, XL
+   \   00005D B6 ..        LD        A, S:?b1
+   \   00005F 41           EXG       A, XL
+   \   000060 D6 ....      LD        A, (L:DIG12,X)
+   \   000063 B7 ..        LD        S:DIGIT2_DATA, A
+    168          }
+   \   000065 81           RET
+
+   \                                 In section .near_func.text, align 1
+   \                     ?Subroutine0:
+   \   000000 5F           CLRW      X
+   \   000001 01           RRWA      X, A
+   \   000002 B6 ..        LD        A, S:?b1
+   \   000004 02           RLWA      X, A
+   \   000005 62           DIV       X, A
+   \   000006 41           EXG       A, XL
+   \   000007 B7 ..        LD        S:?b0, A
+   \   000009 81           RET
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      10  ?Subroutine0
+       4  DIG0
+      14  DIG12
+       1  DIGIT0_DATA
+       1  DIGIT1_DATA
+       1  DIGIT2_DATA
+       1  Dmode
+       1  L1L2_OPTION
+     143  RunDisplay
+       1  RunDisplaySeq
+      83  SelectDisplay
+     102  SetLedData
+
+ 
+  18 bytes in section .near.rodata
+ 338 bytes in section .near_func.text
+   6 bytes in section .tiny.bss
+ 
+ 338 bytes of CODE  memory
+  18 bytes of CONST memory
+   6 bytes of DATA  memory
+
+Errors: none
+Warnings: none

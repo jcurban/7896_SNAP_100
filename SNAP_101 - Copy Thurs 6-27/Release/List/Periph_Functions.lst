@@ -1,0 +1,1951 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             16/May/2013  10:11:42 #
+# Copyright 2010-2013 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  C:\SNAP\VER_204\Periph_Functions.c                       #
+#    Command line =  C:\SNAP\VER_204\Periph_Functions.c -e -Oh --code_model   #
+#                    small --data_model small -o                              #
+#                    C:\SNAP\VER_204\Release\Obj\ --dlib_config "C:\Program   #
+#                    Files\IAR Systems\Embedded Workbench                     #
+#                    6.5\stm8\LIB\dlstm8ssn.h" -D NDEBUG -D STM8S005 -lC      #
+#                    C:\SNAP\VER_204\Release\List\ -I .\ --no_system_include  #
+#                    --vregs 16                                               #
+#    List file    =  C:\SNAP\VER_204\Release\List\Periph_Functions.lst        #
+#    Object file  =  C:\SNAP\VER_204\Release\Obj\Periph_Functions.o           #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+C:\SNAP\VER_204\Periph_Functions.c
+      1          /* Includes ------------------------------------------------------------------*/
+      2          #include "Periph_Functions.h"
+      3          /* Private typedef -----------------------------------------------------------*/
+      4          /* Private define ------------------------------------------------------------*/
+      5          #define PBFiltTime1  20     /*0.1 sec DELAY BASED ON TIMER 5MSEC COUNTDOWN*/
+      6          #define PBFiltTime2  10     /*0.05 sec DELAY BASED ON TIMER 5MSEC COUNTDOWN*/
+      7          #define TDisplayHyst  0.4   /*degrees hysteresis in deg F for Act Temp Display*/
+      8          
+      9          /* Private Function Prototypes*/
+     10          
+     11          /* Private macro -------------------------------------------------------------*/
+     12          /* Private variables ---------------------------------------------------------*/
+
+   \                                 In section .tiny.bss, align 1
+     13          float RValue;
+   \                     RValue:
+   \   000000              DS8 4
+
+   \                                 In section .tiny.bss, align 1
+     14          u8  PBLPVals;      /*Last pass: B0 = On PB; B1 = Up PB; B2 = Dn PB; B3 = SYS_ON*/
+   \                     PBLPVals:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     15          u8  PBResultVals;  /*PB status: B0 = On PB; B1 = UP PB; B2 = Dn PB; B3 = SYS_ON*/
+   \                     PBResultVals:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     16          u8  TmpCmd_C;
+   \                     TmpCmd_C:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     17          u8  TmpCmd_F;
+   \                     TmpCmd_F:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     18          u8  PBOnCtr;
+   \                     PBOnCtr:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     19          u8  PBUpCtr;
+   \                     PBUpCtr:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     20          u8  PBDnCtr;
+   \                     PBDnCtr:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     21          u8  SaveEEDataErr;
+   \                     SaveEEDataErr:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     22          u8  ADCValReady;
+   \                     ADCValReady:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     23          u8  ADCAvgCtr;
+   \                     ADCAvgCtr:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     24          u8  RunOnceDone;  /*if bit 8 = 1 */
+   \                     RunOnceDone:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     25          u8  SetCmdTempFlag;
+   \                     SetCmdTempFlag:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     26          u8  SysOn;        /*1 if Sys on command*/
+   \                     SysOn:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     27          u8  VerDispSeq;
+   \                     VerDispSeq:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     28          u8  NewTempAvail;
+   \                     NewTempAvail:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     29          u8  ControlSteamStateOn;
+   \                     ControlSteamStateOn:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     30          u8  ControlSteamStateOff;
+   \                     ControlSteamStateOff:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.data, align 1
+     31          u8  LastControlOnOff = 1;
+   \                     LastControlOnOff:
+   \   000000 01           DC8 1
+
+   \                                 In section .tiny.bss, align 1
+     32          u8  OnEvent;      /*B0 = 1 going from Off to On */
+   \                     OnEvent:
+   \   000000              DS8 1
+     33                            /*B1 = 1 going fron On to Off */
+     34                            /*B7 = 1 if last pass was On  */
+
+   \                                 In section .tiny.bss, align 1
+     35          u8  *TmpCmdPtr;
+   \                     TmpCmdPtr:
+   \   000000              DS8 2
+
+   \                                 In section .tiny.bss, align 1
+     36          u8  FCMode;
+   \                     FCMode:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     37          u8  TempInt_FC;   /*THIS IS THE DISPLAY TEMP IN C OR F AS REQUIRED*/
+   \                     TempInt_FC:
+   \   000000              DS8 1
+
+   \                                 In section .tiny.bss, align 1
+     38          u16 ADC_Avg_Tmp;  /*local average buffer*/
+   \                     ADC_Avg_Tmp:
+   \   000000              DS8 2
+
+   \                                 In section .tiny.bss, align 1
+     39          u16 ADC_Avg;      /*average result*/
+   \                     ADC_Avg:
+   \   000000              DS8 2
+
+   \                                 In section .tiny.bss, align 1
+     40          float  TdegC_A;   /*read temp in deg C*/
+   \                     TdegC_A:
+   \   000000              DS8 4
+
+   \                                 In section .tiny.bss, align 1
+     41          float  TdegF_A;   /*read temp in deg F*/
+   \                     TdegF_A:
+   \   000000              DS8 4
+
+   \                                 In section .tiny.bss, align 1
+     42          float LastTdisp; /*this is the computed temperature in C or F as required */
+   \                     LastTdisp:
+   \   000000              DS8 4
+     43          void ControlSteam(void);
+     44          void ControlTstat(void);
+     45          
+     46          /*******************************************************************************
+     47          * Function Name  : SystemControl
+     48          * Description    : Control operation of the generator
+     49          * Input          : none
+     50          * Output         : none
+     51          * Return         : None
+     52          * called from main
+     53          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+   \                     ?Subroutine3:
+   \   000000 7217 5014    BRES      L:0x5014, #0x3
+   \   000004 3F ..        CLR       S:L1L2_OPTION
+   \   000006 81           RET
+
+   \                                 In section .near_func.text, align 1
+     54          void SystemControl(void){
+     55            ControlSteam();         /*control the steam generator*/
+   \                     SystemControl:
+   \   000000 CD ....      CALL      L:ControlSteam
+     56            if((ControlSteamStateOn & 0x03) || (ControlSteamStateOff & 0x03)){  /*on or off busy*/
+   \   000003 B6 ..        LD        A, S:ControlSteamStateOn
+   \   000005 A5 03        BCP       A, #0x3
+   \   000007 26 06        JRNE      L:??SystemControl_0
+   \   000009 B6 ..        LD        A, S:ControlSteamStateOff
+   \   00000B A5 03        BCP       A, #0x3
+   \   00000D 27 01        JREQ      L:??SystemControl_1
+     57              return;
+   \                     ??SystemControl_0:
+   \   00000F 81           RET
+     58            }
+     59            /*PROCESS ERROR FLAGS*/
+     60            if(SysError & 0x03){
+   \                     ??SystemControl_1:
+   \   000010 B6 ..        LD        A, S:SysError
+   \   000012 A5 03        BCP       A, #0x3
+   \   000014 27 17        JREQ      L:??SystemControl_2
+     61              Dmode = 'E';
+   \   000016 35 45 ....   MOV       S:Dmode, #0x45
+     62              if(SysOn){
+   \   00001A 3D ..        TNZ       S:SysOn
+   \   00001C 27 04        JREQ      L:??SystemControl_3
+     63                OnEvent = 2;        /*force going off*/
+   \   00001E 35 02 ....   MOV       S:OnEvent, #0x2
+     64              }
+     65              GPIOE->ODR &= 0xF7;   /* tstat out is off*/
+   \                     ??SystemControl_3:
+   \   000022 CD ....      CALL      L:?Subroutine3
+     66              L1L2_OPTION = 0;      /*steam on indicator off*/
+     67              if(SysError & 0x01){  /*error*/
+   \                     ??CrossCallReturnLabel_10:
+   \   000025 7201 .... 03 BTJF      S:SysError, #0x0, ??lb_5
+   \   00002A CC ....      JP        L:??SystemControl_4
+     68                return;           /*if temp error return here*/
+     69              }
+     70            }
+     71            if((Dmode == 'E') && (SysError == 0)){       /*return from Error mode*/
+   \                     ??lb_5:
+   \                     ??SystemControl_2:
+   \   00002D B6 ..        LD        A, S:Dmode
+   \   00002F A1 45        CP        A, #0x45
+   \   000031 26 08        JRNE      L:??SystemControl_5
+   \   000033 3D ..        TNZ       S:SysError
+   \   000035 26 04        JRNE      L:??SystemControl_5
+     72              Dmode = 'T';
+   \   000037 35 54 ....   MOV       S:Dmode, #0x54
+     73            }
+     74            /*process off/on control*/
+     75            if((OnEvent & 0x01) && ((PBResultVals & 0x06) == 0)){ /*OFF TO ON EVENT*/
+   \                     ??SystemControl_5:
+   \   00003B 7201 .... 0E BTJF      S:OnEvent, #0x0, L:??SystemControl_6
+   \   000040 B6 ..        LD        A, S:PBResultVals
+   \   000042 A5 06        BCP       A, #0x6
+   \   000044 26 08        JRNE      L:??SystemControl_6
+     76              OnEvent &= 0xFE;  /*clr Off to On bit*/
+   \   000046 7211 ....    BRES      L:OnEvent, #0x0
+     77              SysOn = 1;
+   \   00004A 35 01 ....   MOV       S:SysOn, #0x1
+     78            }
+     79            if(OnEvent & 0x02){ /*ON TO OFF EVENT*/
+   \                     ??SystemControl_6:
+   \   00004E 7203 .... 08 BTJF      S:OnEvent, #0x1, L:??SystemControl_7
+     80              OnEvent &= 0xFD;  /*clr on to off bit*/
+   \   000053 7213 ....    BRES      L:OnEvent, #0x1
+     81              SetCmdTempFlag = 0; /* stop set temp mode*/
+   \   000057 3F ..        CLR       S:SetCmdTempFlag
+     82              SysOn = 0;
+   \   000059 3F ..        CLR       S:SysOn
+     83            }
+     84            if((SysError == 0) && (SysOn == 0) && (PBResultVals != 0x06) && ((Dmode =='F') || (Dmode == 'C'))){   /*not F/C mode*/
+   \                     ??SystemControl_7:
+   \   00005B 3D ..        TNZ       S:SysError
+   \   00005D 26 1B        JRNE      L:??SystemControl_8
+   \   00005F 3D ..        TNZ       S:SysOn
+   \   000061 26 17        JRNE      L:??SystemControl_8
+   \   000063 B6 ..        LD        A, S:PBResultVals
+   \   000065 A1 06        CP        A, #0x6
+   \   000067 27 1B        JREQ      L:??SystemControl_9
+   \   000069 B6 ..        LD        A, S:Dmode
+   \   00006B A1 46        CP        A, #0x46
+   \   00006D 27 04        JREQ      L:??SystemControl_10
+   \   00006F A1 43        CP        A, #0x43
+   \   000071 26 46        JRNE      L:??SystemControl_4
+     85              Dmode = 'T';
+   \                     ??SystemControl_10:
+   \   000073 35 54 ....   MOV       S:Dmode, #0x54
+     86              FCMode = 0;
+   \   000077 3F ..        CLR       S:FCMode
+   \   000079 81           RET
+     87            }
+     88            if((SysOn == 0) && (PBResultVals == 0x06)){   /*must be set F/C */
+   \                     ??SystemControl_8:
+   \   00007A 3D ..        TNZ       S:SysOn
+   \   00007C 26 5C        JRNE      L:??SystemControl_11
+   \   00007E B6 ..        LD        A, S:PBResultVals
+   \   000080 A1 06        CP        A, #0x6
+   \   000082 26 35        JRNE      L:??SystemControl_4
+     89              switch(FCMode){
+   \                     ??SystemControl_9:
+   \   000084 B6 ..        LD        A, S:FCMode
+   \   000086 27 05        JREQ      L:??SystemControl_12
+   \   000088 4A           DEC       A
+   \   000089 27 2F        JREQ      L:??SystemControl_13
+   \   00008B 20 4D        JRA       L:??SystemControl_11
+     90                case 00:{
+     91                  if(Mode1 & 0x01){
+   \                     ??SystemControl_12:
+   \   00008D 7201 .... 06 BTJF      S:Mode1, #0x0, L:??SystemControl_14
+     92                    Dmode = 'F';  /*PRESENT MODE IS DEG F*/
+   \   000092 35 46 ....   MOV       S:Dmode, #0x46
+   \   000096 20 04        JRA       L:??SystemControl_15
+     93                  }
+     94                  else{
+     95                    Dmode = 'C';  /*PRESENT MODE IS DEG C*/
+   \                     ??SystemControl_14:
+   \   000098 35 43 ....   MOV       S:Dmode, #0x43
+     96                  }
+     97                  FCTimer = DLY_5_sec;
+   \                     ??SystemControl_15:
+   \   00009C AE FC18      LDW       X, #0xfc18
+   \   00009F BF ..        LDW       S:FCTimer, X
+     98                  FCMode = 1;
+   \   0000A1 35 01 ....   MOV       S:FCMode, #0x1
+     99                  break;
+    100                }
+    101                case 01:{
+    102                  if (FCTimer == 0){
+    103                    Mode1 ^= 0x01;    /*toggle to other mode*/
+    104                    if(Mode1 & 0x01){
+    105                      Dmode = 'F';  /*PRESENT MODE IS DEG F*/
+    106                    }
+    107                    else{
+    108                      Dmode = 'C';  /*PRESENT MODE IS DEG C*/
+    109                    }
+    110                    StoreAllData();
+    111                    FCMode = 2;
+    112                  }
+    113                  break;
+    114                }
+    115                case 02:{
+    116                  break;
+    117                }
+    118              }
+    119            }
+    120            if((SysOn == 1) && ((PBResultVals & PB_PRESSED_ON) == 0) && (PBResultVals & PB_PRESSED_UPandDN) && (SetCmdTempFlag == 0)){   /*must be set TempMode */
+    121              SetCmdTempFlag = 1; /*so do it*/
+    122              Dmode = 'S';    /*indicate set temp mode*/
+    123            }
+    124            if((SysOn == 1) && ((PBResultVals & PB_PRESSED_UPandDN) == 0) && (SetCmdTempFlag == 0)){   /*must be regular temp mode */
+   \                     ??SystemControl_16:
+   \   0000A5 B6 ..        LD        A, S:SysOn
+   \   0000A7 A1 01        CP        A, #0x1
+   \   0000A9 26 0E        JRNE      L:??SystemControl_4
+   \                     ??SystemControl_17:
+   \   0000AB B6 ..        LD        A, S:PBResultVals
+   \   0000AD A5 06        BCP       A, #0x6
+   \   0000AF 26 08        JRNE      L:??SystemControl_4
+   \                     ??SystemControl_18:
+   \   0000B1 3D ..        TNZ       S:SetCmdTempFlag
+   \   0000B3 26 04        JRNE      L:??SystemControl_4
+    125              Dmode = 'T';    /*BACK TO TEMP MODE*/
+   \   0000B5 35 54 ....   MOV       S:Dmode, #0x54
+    126            }
+    127          }
+   \                     ??SystemControl_4:
+   \   0000B9 81           RET
+   \                     ??SystemControl_13:
+   \   0000BA BE ..        LDW       X, S:FCTimer
+   \   0000BC 26 E7        JRNE      L:??SystemControl_16
+   \   0000BE B6 ..        LD        A, S:Mode1
+   \   0000C0 A8 01        XOR       A, #0x1
+   \   0000C2 B7 ..        LD        S:Mode1, A
+   \   0000C4 7201 .... 06 BTJF      S:Mode1, #0x0, L:??SystemControl_19
+   \   0000C9 35 46 ....   MOV       S:Dmode, #0x46
+   \   0000CD 20 04        JRA       L:??SystemControl_20
+   \                     ??SystemControl_19:
+   \   0000CF 35 43 ....   MOV       S:Dmode, #0x43
+   \                     ??SystemControl_20:
+   \   0000D3 CD ....      CALL      L:StoreAllData
+   \   0000D6 35 02 ....   MOV       S:FCMode, #0x2
+   \                     ??SystemControl_11:
+   \   0000DA B6 ..        LD        A, S:SysOn
+   \   0000DC A1 01        CP        A, #0x1
+   \   0000DE 26 C5        JRNE      L:??SystemControl_16
+   \   0000E0 7200 .... C6 BTJT      S:PBResultVals, #0x0, L:??SystemControl_17
+   \   0000E5 B6 ..        LD        A, S:PBResultVals
+   \   0000E7 A5 06        BCP       A, #0x6
+   \   0000E9 27 C6        JREQ      L:??SystemControl_18
+   \   0000EB 3D ..        TNZ       S:SetCmdTempFlag
+   \   0000ED 26 BC        JRNE      L:??SystemControl_17
+   \   0000EF 35 01 ....   MOV       S:SetCmdTempFlag, #0x1
+   \   0000F3 35 53 ....   MOV       S:Dmode, #0x53
+   \   0000F7 81           RET
+    128          
+    129          /*******************************************************************************
+    130          * Function Name  : Read Temp 
+    131          * Description    : Reads the ADC value containing the temp data from the thermistor
+    132          *                  called from main loop
+    133          * Input          : none
+    134          * Output: LastTdisp in floating point format corrected for F/C units
+    135          * EQUATIONS FOR MEASUREMENT OF RESISTANCE:
+    136          *     the pull down resistor in the circuit is 7.5K ohms
+    137          *     R = ((7500 * 16384)/ (ADreading)) - 7500
+    138          * for the thermistor used (Murata NTSD1XH103FPB50) the B constant is 3380
+    139          * and the reference temp is 25C (298K) reference R = 10K ohms.
+    140          * (T kelvin) = (Tref * B) / (B + ((tref) * (ln (R) - ln(Rref))
+    141          * if out of limits then set SysError bit 0 = 1
+    142          * called from Main
+    143          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1
+    144          void ReadTemp(void){
+    145            float K1 = ((float)7500 * (float)16384);
+    146            float K2 = 7500;    /* the pull down resistor value*/
+    147            float K3 = 1.0072E6; /*THIS IS = Tref * B constant*/
+    148            float K4 = 635.32;  /*B(3380) - (ln(Ref R) * Ref T)*/
+    149            float K5 = 298;     /*Ref T in kelvin*/
+    150            float K6 = 273;     /* kelvin conversion value*/
+    151            float K7 = 1.8;     /* 9/5 conversion F to C*/
+    152            float K8 = 32;      /* conversion constant F to C*/
+    153            float K9 = 23.9;    /* correction limit for over 75F*/
+    154            float K10 = 0.1388; /* 1/4 deg F */
+    155            if (ADCValReady){
+   \                     ReadTemp:
+   \   000000 3D ..        TNZ       S:ADCValReady
+   \   000002 26 03        JRNE      ??lb_4
+   \   000004 CC ....      JP        L:??ReadTemp_0
+    156              ADCValReady = 0;    /*allow next average*/
+   \                     ??lb_4:
+   \   000007 3F ..        CLR       S:ADCValReady
+    157              /*COMPUTE THE RESISTANCE KNOWING THE CIRCUIT PARAMETERS*/
+    158              RValue = (K1/ADC_Avg) - K2;
+   \   000009 BE ..        LDW       X, S:ADC_Avg
+   \   00000B CD ....      CALL      L:?fcastf32u16_l0_x
+   \   00000E CD ....      CALL      L:?mov_l1_l0
+   \   000011 CD ....      CALL      L:?fdiv32_l0_dc32_l1
+   \   000014 4CEA6000     DC32      0x4cea6000
+   \   000018 CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   00001B C5EA6000     DC32      0xffffffffc5ea6000
+   \   00001F AE ....      LDW       X, #RValue
+   \   000022 CD ....      CALL      L:?load32_0x_l0
+    159              if((RValue > 23000) || (RValue < 3000)){ /*temp above 140F or below 40F declare error*/
+   \   000025 CD ....      CALL      L:?fcmpge32_c_l0_dc32
+   \   000028 46B3B001     DC32      0x46b3b001
+   \   00002C 24 09        JRNC      L:??ReadTemp_1
+   \   00002E CD ....      CALL      L:?fcmplt32_c_l0_dc32
+   \   000031 453B8000     DC32      0x453b8000
+   \   000035 24 05        JRNC      L:??ReadTemp_2
+    160                SysError |=1;
+   \                     ??ReadTemp_1:
+   \   000037 7210 ....    BSET      L:SysError, #0x0
+    161                return;
+   \   00003B 81           RET
+    162              }
+    163              else{
+    164                SysError &= 0xFE;
+   \                     ??ReadTemp_2:
+   \   00003C 7211 ....    BRES      L:SysError, #0x0
+    165                TdegC_A = (((K3) / (K4 + (K5 * (log(RValue)))) - K6)) + TempOffsetC;
+   \   000040 5F           CLRW      X
+   \   000041 89           PUSHW     X
+   \   000042 85           POPW      X
+   \   000043 CD ....      CALL      L:__iar_Log
+   \   000046 CD ....      CALL      L:?fmul32_l0_l0_dc32
+   \   000049 43950000     DC32      0x43950000
+   \   00004D CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   000050 441ED47B     DC32      0x441ed47b
+   \   000054 CD ....      CALL      L:?mov_l1_l0
+   \   000057 CD ....      CALL      L:?fdiv32_l0_dc32_l1
+   \   00005A 4975E600     DC32      0x4975e600
+   \   00005E CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   000061 C3888000     DC32      0xffffffffc3888000
+   \   000065 CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   000068 BF8E147B     DC32      0xffffffffbf8e147b
+   \   00006C AE ....      LDW       X, #TdegC_A
+   \   00006F CD ....      CALL      L:?load32_0x_l0
+    166                /*YET ANOTHER CORRECTION */
+    167                /*ABOVE 75F(23.9C) ADD .25F(0.138C) FOR EVERY DEGREE ABOVE 75F*/
+    168                if (TdegC_A > K9){    /*if above K9 deg C*/
+   \   000072 CD ....      CALL      L:?fcmpge32_c_l0_dc32
+   \   000075 41BF3334     DC32      0x41bf3334
+   \   000079 25 1D        JRC       L:??ReadTemp_3
+    169                  TdegC_A = TdegC_A + ((TdegC_A - K9) * K10);
+   \   00007B CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   00007E C1BF3333     DC32      0xffffffffc1bf3333
+   \   000082 CD ....      CALL      L:?fmul32_l0_l0_dc32
+   \   000085 3E0E2196     DC32      0x3e0e2196
+   \   000089 AE ....      LDW       X, #TdegC_A
+   \   00008C CD ....      CALL      L:?load32_l1_0x
+   \   00008F CD ....      CALL      L:?fadd32_l0_l0_l1
+   \   000092 AE ....      LDW       X, #TdegC_A
+   \   000095 CD ....      CALL      L:?load32_0x_l0
+    170                }
+    171                TdegF_A = (TdegC_A * K7) + K8;
+   \                     ??ReadTemp_3:
+   \   000098 AE ....      LDW       X, #TdegC_A
+   \   00009B CD ....      CALL      L:?load32_l0_0x
+   \   00009E CD ....      CALL      L:?fmul32_l0_l0_dc32
+   \   0000A1 3FE66666     DC32      0x3fe66666
+   \   0000A5 CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   0000A8 42000000     DC32      0x42000000
+   \   0000AC AE ....      LDW       X, #TdegF_A
+   \   0000AF CD ....      CALL      L:?load32_0x_l0
+    172                /*create the display temperature in integer format*/
+    173                if(Mode1 & 0x01){   /*if Deg F*/
+   \   0000B2 AE ....      LDW       X, #LastTdisp
+   \   0000B5 7201 .... 32 BTJF      S:Mode1, #0x0, L:??ReadTemp_4
+    174                  if ((TdegF_A > (LastTdisp + TDisplayHyst)) ||(TdegF_A < (LastTdisp - TDisplayHyst))){
+   \   0000BA CD ....      CALL      L:?load32_l0_0x
+   \   0000BD CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   0000C0 3ECCCCCD     DC32      0x3ecccccd
+   \   0000C4 AE ....      LDW       X, #TdegF_A
+   \   0000C7 CD ....      CALL      L:?load32_l1_0x
+   \   0000CA CD ....      CALL      L:?fcmplt32_c_l0_l1
+   \   0000CD 25 18        JRC       L:??ReadTemp_5
+   \   0000CF CD ....      CALL      L:?Subroutine7
+   \                     ??CrossCallReturnLabel_15:
+   \   0000D2 CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   0000D5 BECCCCCD     DC32      0xffffffffbecccccd
+   \   0000D9 CD ....      CALL      L:?mov_l1_l0
+   \   0000DC AE ....      LDW       X, #TdegF_A
+   \   0000DF CD ....      CALL      L:?load32_l0_0x
+   \   0000E2 CD ....      CALL      L:?fcmplt32_c_l0_l1
+   \   0000E5 24 3E        JRNC      L:??ReadTemp_6
+    175                   LastTdisp = TdegF_A;  /*update Display*/
+   \                     ??ReadTemp_5:
+   \   0000E7 AE ....      LDW       X, #TdegF_A
+   \   0000EA 20 30        JRA       L:??ReadTemp_7
+    176                  }
+    177                }
+    178                else{   /*IF DEG C */
+    179                  if ((TdegC_A > (LastTdisp + (TDisplayHyst / K7))) ||(TdegC_A < (LastTdisp - (TDisplayHyst / K7)))){
+   \                     ??ReadTemp_4:
+   \   0000EC CD ....      CALL      L:?load32_l0_0x
+   \   0000EF CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   0000F2 3E638E3A     DC32      0x3e638e3a
+   \   0000F6 AE ....      LDW       X, #TdegC_A
+   \   0000F9 CD ....      CALL      L:?load32_l1_0x
+   \   0000FC CD ....      CALL      L:?fcmplt32_c_l0_l1
+   \   0000FF 25 18        JRC       L:??ReadTemp_8
+   \   000101 CD ....      CALL      L:?Subroutine7
+   \                     ??CrossCallReturnLabel_16:
+   \   000104 CD ....      CALL      L:?fadd32_l0_l0_dc32
+   \   000107 BE638E3A     DC32      0xffffffffbe638e3a
+   \   00010B CD ....      CALL      L:?mov_l1_l0
+   \   00010E AE ....      LDW       X, #TdegC_A
+   \   000111 CD ....      CALL      L:?load32_l0_0x
+   \   000114 CD ....      CALL      L:?fcmplt32_c_l0_l1
+   \   000117 24 0C        JRNC      L:??ReadTemp_6
+    180                    LastTdisp = TdegC_A;  /*update Display*/
+   \                     ??ReadTemp_8:
+   \   000119 AE ....      LDW       X, #TdegC_A
+   \                     ??ReadTemp_7:
+   \   00011C CD ....      CALL      L:?load32_l0_0x
+   \   00011F AE ....      LDW       X, #LastTdisp
+   \   000122 CD ....      CALL      L:?load32_0x_l0
+    181                  }
+    182                }
+    183                TempInt_FC = (int) round (LastTdisp);  /*display temp deg F or C*/
+   \                     ??ReadTemp_6:
+   \   000125 CD ....      CALL      L:?Subroutine7
+   \                     ??CrossCallReturnLabel_17:
+   \   000128 CD ....      CALL      L:round
+   \   00012B CD ....      CALL      L:?fcasts16f32_x_l0
+   \   00012E 9F           LD        A, XL
+   \   00012F B7 ..        LD        S:TempInt_FC, A
+    184                NewTempAvail = 1;
+   \   000131 35 01 ....   MOV       S:NewTempAvail, #0x1
+    185              }
+    186            }
+    187          }
+   \                     ??ReadTemp_0:
+   \   000135 81           RET
+
+   \                                 In section .near_func.text, align 1
+   \                     ?Subroutine7:
+   \   000000 AE ....      LDW       X, #LastTdisp
+   \   000003 CC ....      JP        L:?load32_l0_0x
+    188          
+    189          /*******************************************************************************
+    190          * Function Name  : ReadADC
+    191          * Description    : Reads the ADC  for temperature averaging called from 200hz(5msec) Interupt
+    192          *                   each total pass will take 16 passes so actual sample is 80msec.
+    193          *                   12.5hz
+    194          * Input          : NONE
+    195          * Output         : SUM OF 16 READINGS 
+    196          * Return         : None
+    197          * Called from interrupt
+    198          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1
+    199          void ReadADC(void){
+    200            u8 LOCH;
+    201            u8 LOCL;
+    202            if((ADCValReady == 0) && ((ADC1->CSR & 0x80) == 0x80)){
+   \                     ReadADC:
+   \   000000 3D ..        TNZ       S:ADCValReady
+   \   000002 26 40        JRNE      L:??ReadADC_0
+   \   000004 720F 5400 3B BTJF      L:0x5400, #0x7, L:??ReadADC_0
+    203              ADC1->CSR &= 0x7F;
+   \   000009 721F 5400    BRES      L:0x5400, #0x7
+    204              LOCL = ADC1->DRL;
+   \   00000D C6 5405      LD        A, L:0x5405
+    205              LOCL = ADC1->DRL;
+   \   000010 C6 5405      LD        A, L:0x5405
+   \   000013 B7 ..        LD        S:?b0, A
+    206              LOCH = ADC1->DRH;
+   \   000015 C6 5404      LD        A, L:0x5404
+    207              ADC_Avg_Tmp += (LOCH << 8);
+   \   000018 5F           CLRW      X
+   \   000019 97           LD        XL, A
+   \   00001A 4F           CLR       A
+   \   00001B 02           RLWA      X, A
+   \   00001C 72BB ....    ADDW      X, L:ADC_Avg_Tmp
+   \   000020 BF ..        LDW       S:ADC_Avg_Tmp, X
+    208              ADC_Avg_Tmp += (LOCL);
+   \   000022 5F           CLRW      X
+   \   000023 B6 ..        LD        A, S:?b0
+   \   000025 41           EXG       A, XL
+   \   000026 72BB ....    ADDW      X, L:ADC_Avg_Tmp
+   \   00002A BF ..        LDW       S:ADC_Avg_Tmp, X
+    209              ADCAvgCtr++;
+   \   00002C B6 ..        LD        A, S:ADCAvgCtr
+   \   00002E 4C           INC       A
+   \   00002F B7 ..        LD        S:ADCAvgCtr, A
+    210              if (ADCAvgCtr >= 16){
+   \   000031 A1 10        CP        A, #0x10
+   \   000033 25 0B        JRC       L:??ReadADC_1
+    211                ADCAvgCtr = 0;
+   \   000035 3F ..        CLR       S:ADCAvgCtr
+    212                ADC_Avg = ADC_Avg_Tmp;
+   \   000037 BF ..        LDW       S:ADC_Avg, X
+    213                ADC_Avg_Tmp = 0;
+   \   000039 5F           CLRW      X
+   \   00003A BF ..        LDW       S:ADC_Avg_Tmp, X
+    214                ADCValReady = 1;
+   \   00003C 35 01 ....   MOV       S:ADCValReady, #0x1
+    215              }
+    216            ADC1->CR1 |= 1;  /*START CONVERSION*/
+   \                     ??ReadADC_1:
+   \   000040 7210 5401    BSET      L:0x5401, #0x0
+    217            }
+    218          }
+   \                     ??ReadADC_0:
+   \   000044 81           RET
+    219          
+    220          /*******************************************************************************
+    221          * Function Name  : Start1stTime
+    222          * Description    : Startup Routines 
+    223          *                  -if UP and DOWN buttons are pressed go to Display Test
+    224          *                  since the LoopControlDelay is not used on power up I will
+    225          *                  use it for timing of the version display
+    226          * Input          : UP DOWN ON button status
+    227          * Output         : RunOnce only 
+    228          * Return         : None
+    229          * Called from Main
+    230          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1
+    231          void Start1stTime(void){
+    232            if (((RunOnceDone & 0x80) == 0) && (StartupTimer == 0)){
+   \                     Start1stTime:
+   \   000000 720E .... 62 BTJT      S:RunOnceDone, #0x7, L:??Start1stTime_0
+   \   000005 BE ..        LDW       X, S:StartupTimer
+   \   000007 26 5E        JRNE      L:??Start1stTime_0
+    233              if((PBResultVals & 0x06)== 0x06){
+   \   000009 B6 ..        LD        A, S:PBResultVals
+   \   00000B A4 06        AND       A, #0x6
+   \   00000D A1 06        CP        A, #0x6
+   \   00000F 26 11        JRNE      L:??Start1stTime_1
+    234                DIGIT0_DATA = DIG0[1];  /*1 with colon off  */
+   \   000011 C6 ....      LD        A, L:DIG0 + 1
+   \   000014 B7 ..        LD        S:DIGIT0_DATA, A
+    235                DIGIT1_DATA = DIG12[8]; /*set number 8  */
+   \   000016 C6 ....      LD        A, L:DIG12 + 8
+   \   000019 B7 ..        LD        S:DIGIT1_DATA, A
+    236                DIGIT2_DATA = DIG12[8]; /*set number 8  */
+   \   00001B B7 ..        LD        S:DIGIT2_DATA, A
+    237                L1L2_OPTION = 3; /*Set L1 L2 on */
+   \   00001D 35 03 ....   MOV       S:L1L2_OPTION, #0x3
+   \   000021 81           RET
+    238              }
+    239              else if ((PBResultVals & PB_PRESSED_ON) == PB_PRESSED_ON){
+   \                     ??Start1stTime_1:
+   \   000022 7201 .... 36 BTJF      S:PBResultVals, #0x0, L:??Start1stTime_2
+    240                if(LoopControlDelay){
+   \   000027 BE ..        LDW       X, S:LoopControlDelay
+   \   000029 26 3C        JRNE      L:??Start1stTime_0
+    241                  return;
+    242                }
+    243                switch(VerDispSeq){
+   \   00002B B6 ..        LD        A, S:VerDispSeq
+   \   00002D 27 07        JREQ      L:??Start1stTime_3
+   \   00002F 4A           DEC       A
+   \   000030 27 10        JREQ      L:??Start1stTime_4
+   \   000032 4A           DEC       A
+   \   000033 27 1D        JREQ      L:??Start1stTime_5
+   \   000035 81           RET
+    244                  case 0:{
+    245                    VerDispSeq = 1;
+   \                     ??Start1stTime_3:
+   \   000036 35 01 ....   MOV       S:VerDispSeq, #0x1
+    246                    DIGIT0_DATA = DIG0[0];  /*blank with colon off  */
+   \   00003A CD ....      CALL      L:?Subroutine0
+    247                    DIGIT1_DATA = DIG12[VER0]; /*set major number */
+    248                    DIGIT2_DATA = DIG12[VER1]; /*set major number  */
+   \                     ??CrossCallReturnLabel_0:
+   \   00003D C6 ....      LD        A, L:DIG12 + 2
+   \   000040 20 0A        JRA       L:??Start1stTime_6
+    249                    L1L2_OPTION = 0; /*Set L1 L2 off */
+    250                    LoopControlDelay = DLY_1_sec;
+    251                    break;    
+    252                  }
+    253                  case 1:{
+    254                    VerDispSeq = 2;
+   \                     ??Start1stTime_4:
+   \   000042 35 02 ....   MOV       S:VerDispSeq, #0x2
+    255                    DIGIT0_DATA = DIG0[0];  /*blank with colon off  */
+   \   000046 CD ....      CALL      L:?Subroutine0
+    256                    DIGIT1_DATA = DIG12[VER2]; /*set minor number */
+    257                    DIGIT2_DATA = DIG12[VER3]; /*set minor number  */
+   \                     ??CrossCallReturnLabel_1:
+   \   000049 C6 ....      LD        A, L:DIG12 + 4
+   \                     ??Start1stTime_6:
+   \   00004C B7 ..        LD        S:DIGIT2_DATA, A
+    258                    L1L2_OPTION = 0; /*Set L1 L2 off */
+   \   00004E 3F ..        CLR       S:L1L2_OPTION
+    259                    LoopControlDelay = DLY_1_sec;
+   \   000050 20 05        JRA       L:??Start1stTime_7
+    260                    break;    
+    261                  }
+    262                  case 2:{
+    263                    VerDispSeq = 0;
+   \                     ??Start1stTime_5:
+   \   000052 3F ..        CLR       S:VerDispSeq
+    264                    BlankDisplay();
+   \   000054 CD ....      CALL      L:BlankDisplay
+    265                    LoopControlDelay = DLY_1_sec;
+   \                     ??Start1stTime_7:
+   \   000057 AE FF38      LDW       X, #0xff38
+   \   00005A BF ..        LDW       S:LoopControlDelay, X
+    266                    break;    
+   \   00005C 81           RET
+    267                  }
+    268                }
+    269              }
+    270              else{
+    271                BlankDisplay();
+   \                     ??Start1stTime_2:
+   \   00005D CD ....      CALL      L:BlankDisplay
+    272                LoopControlDelay = 0;
+   \   000060 5F           CLRW      X
+   \   000061 BF ..        LDW       S:LoopControlDelay, X
+    273                RunOnceDone =  0x80;
+   \   000063 35 80 ....   MOV       S:RunOnceDone, #0x80
+    274              }
+    275            }
+    276          }
+   \                     ??Start1stTime_0:
+   \   000067 81           RET
+
+   \                                 In section .near_func.text, align 1
+   \                     ?Subroutine0:
+   \   000000 C6 ....      LD        A, L:DIG0
+   \   000003 B7 ..        LD        S:DIGIT0_DATA, A
+   \   000005 C6 ....      LD        A, L:DIG12
+   \   000008 B7 ..        LD        S:DIGIT1_DATA, A
+   \   00000A 81           RET
+    277          
+    278          /*******************************************************************************
+    279          * Function Name  : SetCmdTemp
+    280          * Description    : Set the command Temp on the LED.
+    281          *                  Keep within limits TUpLimF/TLoLimF
+    282          * Input          : SetCmdTempFlag = 1 for program to be active
+    283          *                 bit 7 is used for 1st pass info
+    284          * Output         : TmpCmd C or F depending on Mode1 bit 0
+    285          *                 5 seconds of no button press exit the routine
+    286          * Return         : None
+    287          * called from main
+    288          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1
+    289          void SetCmdTemp(void){
+    290            u8 LocalDat;
+    291            u8 LocTLoLim;
+    292            u8 LocTUpLim;
+    293            if (SetCmdTempFlag == 0){
+   \                     SetCmdTemp:
+   \   000000 3D ..        TNZ       S:SetCmdTempFlag
+   \   000002 26 03        JRNE      ??lb_3
+   \   000004 CC ....      JP        L:??SetCmdTemp_0
+    294              return;
+    295            }
+    296            if ((PBResultVals & PB_PRESSED_UPandDN) == 0){
+   \                     ??lb_3:
+   \   000007 B6 ..        LD        A, S:PBResultVals
+   \   000009 A4 06        AND       A, #0x6
+   \   00000B B7 ..        LD        S:?b0, A
+   \   00000D 26 03        JRNE      L:??SetCmdTemp_1
+    297              SetCmdTempTimer2 = 0;  /*slow inc/dec delay timer*/
+   \   00000F 5F           CLRW      X
+   \   000010 BF ..        LDW       S:SetCmdTempTimer2, X
+    298            }
+    299            if (PBResultVals & PB_PRESSED_ON){
+   \                     ??SetCmdTemp_1:
+   \   000012 7200 .... 2D BTJT      S:PBResultVals, #0x0, L:??SetCmdTemp_2
+    300              SetCmdTempFlag = 0;
+    301              StoreAllData();    /*update all eeprom data*/
+    302              return;
+    303            }
+    304            switch (SetCmdTempFlag & 0x0F){
+   \   000017 B6 ..        LD        A, S:SetCmdTempFlag
+   \   000019 A4 0F        AND       A, #0xf
+   \   00001B 4A           DEC       A
+   \   00001C 27 04        JREQ      L:??SetCmdTemp_3
+   \   00001E 4A           DEC       A
+   \   00001F 27 1F        JREQ      L:??SetCmdTemp_4
+   \   000021 81           RET
+    305              case 0x01:{
+    306                if (Mode1 & 0x01){    /*if 1 then is DEG F. else DEG C */
+   \                     ??SetCmdTemp_3:
+   \   000022 7201 .... 04 BTJF      S:Mode1, #0x0, L:??SetCmdTemp_5
+    307                  TmpCmdPtr = &TmpCmd_F;  /*set pointer to deg F*/
+   \   000027 A6 ..        LD        A, #TmpCmd_F
+   \   000029 20 02        JRA       L:??SetCmdTemp_6
+    308                }
+    309                else{
+    310                  TmpCmdPtr = &TmpCmd_C;  /*set pointer to deg C*/
+   \                     ??SetCmdTemp_5:
+   \   00002B A6 ..        LD        A, #TmpCmd_C
+   \                     ??SetCmdTemp_6:
+   \   00002D 5F           CLRW      X
+   \   00002E 97           LD        XL, A
+   \   00002F BF ..        LDW       S:TmpCmdPtr, X
+    311                }
+    312              SetCmdExitTimer = DLY_5_sec;    /*no button press for this time then exit*/
+   \   000031 AE FC18      LDW       X, #0xfc18
+   \   000034 BF ..        LDW       S:SetCmdExitTimer, X
+    313              SetCmdTempTimer1 = DLY_4_sec;   /*speed up timer when 0 go faster*/
+   \   000036 AE FCE0      LDW       X, #0xfce0
+   \   000039 BF ..        LDW       S:SetCmdTempTimer1, X
+    314              SetCmdTempFlag = 0x02;
+   \   00003B 35 02 ....   MOV       S:SetCmdTempFlag, #0x2
+    315              break;
+   \   00003F 81           RET
+    316              }
+    317              
+    318              case 0x02:{
+    319                if (SetCmdExitTimer == 0){
+   \                     ??SetCmdTemp_4:
+   \   000040 BE ..        LDW       X, S:SetCmdExitTimer
+   \   000042 26 05        JRNE      L:??SetCmdTemp_7
+    320                  SetCmdTempFlag = 0;
+   \                     ??SetCmdTemp_2:
+   \   000044 3F ..        CLR       S:SetCmdTempFlag
+    321                  StoreAllData();    /*update all eeprom data*/
+   \   000046 CC ....      JP        L:StoreAllData
+    322                  return;
+    323                }
+    324                if ((PBResultVals & PB_PRESSED_UPandDN) == 0){  /*unpress restarts fast timer*/
+   \                     ??SetCmdTemp_7:
+   \   000049 3D ..        TNZ       S:?b0
+   \   00004B 26 09        JRNE      L:??SetCmdTemp_8
+    325                  SetCmdTempTimer2 = 0;  /*clear if button released while active*/
+   \   00004D 5F           CLRW      X
+   \   00004E BF ..        LDW       S:SetCmdTempTimer2, X
+    326                  SetCmdTempTimer1 = DLY_4_sec;   /*speed up timer when 0 go faster*/
+   \   000050 AE FCE0      LDW       X, #0xfce0
+   \   000053 BF ..        LDW       S:SetCmdTempTimer1, X
+    327                  return;
+   \   000055 81           RET
+    328                }
+    329                if (SetCmdTempTimer2 == 0){ /*allow inc dec action*/
+   \                     ??SetCmdTemp_8:
+   \   000056 BE ..        LDW       X, S:SetCmdTempTimer2
+   \   000058 26 76        JRNE      L:??SetCmdTemp_0
+    330                  if(SetCmdTempTimer1 == 0){    /*speed up timer expired*/
+   \   00005A BE ..        LDW       X, S:SetCmdTempTimer1
+   \   00005C 26 05        JRNE      L:??SetCmdTemp_9
+    331                    SetCmdTempTimer2 = DLY_250_msec;
+   \   00005E AE FFCE      LDW       X, #0xffce
+   \   000061 20 03        JRA       L:??SetCmdTemp_10
+    332                  }
+    333                  else{
+    334                    SetCmdTempTimer2 = DLY_500_msec;
+   \                     ??SetCmdTemp_9:
+   \   000063 AE FF9C      LDW       X, #0xff9c
+   \                     ??SetCmdTemp_10:
+   \   000066 BF ..        LDW       S:SetCmdTempTimer2, X
+    335                  }
+    336                  LocalDat = *TmpCmdPtr;
+   \   000068 92C6 ..      LD        A, [S:TmpCmdPtr.w]
+   \   00006B B7 ..        LD        S:?b1, A
+    337                  if (Mode1 & 0x01){    /*if 1 then is DEG F. else DEG C */
+   \   00006D 7201 .... 0A BTJF      S:Mode1, #0x0, L:??SetCmdTemp_11
+    338                    LocTLoLim = TLoLimF;
+   \   000072 35 32 ....   MOV       S:?b2, #0x32
+    339                    LocTUpLim = TUpLimF;
+   \   000076 35 7D ....   MOV       S:?b0, #0x7d
+   \   00007A 20 08        JRA       L:??SetCmdTemp_12
+    340                  }
+    341                  else{
+    342                    LocTLoLim = ConvertTemp(TLoLimF, ToC);
+   \                     ??SetCmdTemp_11:
+   \   00007C 35 0A ....   MOV       S:?b2, #0xa
+    343                    LocTUpLim = ConvertTemp(TUpLimF, ToC);
+    344                  }
+   \   000080 35 34 ....   MOV       S:?b0, #0x34
+    345                  if (PBResultVals & PB_PRESSED_UP){
+   \                     ??SetCmdTemp_12:
+   \   000084 7203 .... 16 BTJF      S:PBResultVals, #0x1, L:??SetCmdTemp_13
+    346                    SetCmdExitTimer = DLY_5_sec;    /*no button press for this time then exit*/
+   \   000089 CD ....      CALL      L:?Subroutine6
+    347                    LoopControlDelay = DLY_1_sec;
+    348                    if (SetCmdTempFlag & 0x80){
+   \                     ??CrossCallReturnLabel_13:
+   \   00008C 720F .... 03 BTJF      S:SetCmdTempFlag, #0x7, L:??SetCmdTemp_14
+    349                      LocalDat++;
+   \   000091 4C           INC       A
+   \   000092 B7 ..        LD        S:?b1, A
+    350                    }
+    351                    if (LocalDat > LocTUpLim){
+   \                     ??SetCmdTemp_14:
+   \   000094 B6 ..        LD        A, S:?b0
+   \   000096 B1 ..        CP        A, S:?b1
+   \   000098 24 1E        JRNC      L:??SetCmdTemp_15
+    352                      LocalDat = LocTLoLim;
+   \   00009A 45 .. ..     MOV       S:?b1, S:?b2
+   \   00009D 20 19        JRA       L:??SetCmdTemp_15
+    353                    }
+    354                    SetCmdTempFlag |= 0x80;
+    355                  }
+    356                  else if (PBResultVals & PB_PRESSED_DN){
+   \                     ??SetCmdTemp_13:
+   \   00009F 7205 .... 1A BTJF      S:PBResultVals, #0x2, L:??SetCmdTemp_16
+    357                    SetCmdExitTimer = DLY_5_sec;    /*no button press for this time then exit*/
+   \   0000A4 CD ....      CALL      L:?Subroutine6
+    358                    LoopControlDelay = DLY_1_sec;
+    359                    if (SetCmdTempFlag & 0x80){
+   \                     ??CrossCallReturnLabel_14:
+   \   0000A7 720F .... 03 BTJF      S:SetCmdTempFlag, #0x7, L:??SetCmdTemp_17
+    360                      LocalDat--;
+   \   0000AC 4A           DEC       A
+   \   0000AD B7 ..        LD        S:?b1, A
+    361                    }
+    362                    if (LocalDat < LocTLoLim){
+   \                     ??SetCmdTemp_17:
+   \   0000AF B6 ..        LD        A, S:?b1
+   \   0000B1 B1 ..        CP        A, S:?b2
+   \   0000B3 24 03        JRNC      L:??SetCmdTemp_15
+    363                      LocalDat = LocTUpLim;
+   \   0000B5 45 .. ..     MOV       S:?b1, S:?b0
+    364                    }
+    365                    SetCmdTempFlag |= 0x80;
+   \                     ??SetCmdTemp_15:
+   \   0000B8 721E ....    BSET      L:SetCmdTempFlag, #0x7
+   \   0000BC 20 0A        JRA       L:??SetCmdTemp_18
+    366                  }
+    367                  else{
+    368                    SetCmdTempTimer2 = DLY_500_msec;  /*slow inc/dec delay timer*/
+   \                     ??SetCmdTemp_16:
+   \   0000BE AE FF9C      LDW       X, #0xff9c
+   \   0000C1 BF ..        LDW       S:SetCmdTempTimer2, X
+    369                    SetCmdTempTimer1 = DLY_4_sec;   /*speed up timer when 0 go faster*/
+   \   0000C3 AE FCE0      LDW       X, #0xfce0
+   \   0000C6 BF ..        LDW       S:SetCmdTempTimer1, X
+    370                  }
+    371                  *TmpCmdPtr = LocalDat;
+   \                     ??SetCmdTemp_18:
+   \   0000C8 BE ..        LDW       X, S:TmpCmdPtr
+   \   0000CA B6 ..        LD        A, S:?b1
+   \   0000CC F7           LD        (X), A
+    372                  SetLedData(LocalDat);
+   \   0000CD CD ....      CALL      L:SetLedData
+    373                }
+    374              break;
+    375              }
+    376            }
+    377          }
+   \                     ??SetCmdTemp_0:
+   \   0000D0 81           RET
+
+   \                                 In section .near_func.text, align 1
+   \                     ?Subroutine6:
+   \   000000 AE FC18      LDW       X, #0xfc18
+   \   000003 BF ..        LDW       S:SetCmdExitTimer, X
+   \   000005 AE FF38      LDW       X, #0xff38
+   \   000008 BF ..        LDW       S:LoopControlDelay, X
+   \   00000A 81           RET
+    378          
+    379          /*******************************************************************************
+    380          * Function Name  : ControlSteam
+    381          * Description    : Run the Steam generator lines
+    382          * Input          : 
+    383          * Output         : Timer_SS and TstatOut
+    384          * Return         : none
+    385          * Called on demand
+    386          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+    387          void ControlSteam(void){
+    388            if ((SysOn) && ((SysError & 0x01) == 0)){ /*sequence for system on*/
+   \                     ControlSteam:
+   \   000000 3D ..        TNZ       S:SysOn
+   \   000002 27 72        JREQ      L:??ControlSteam_0
+   \   000004 7200 .... 6D BTJT      S:SysError, #0x0, L:??ControlSteam_0
+    389              ControlSteamStateOff = 0;
+   \   000009 3F ..        CLR       S:ControlSteamStateOff
+    390              switch(ControlSteamStateOn){  /*if steam control should be on*/
+   \   00000B B6 ..        LD        A, S:ControlSteamStateOn
+   \   00000D 27 0D        JREQ      L:??ControlSteam_1
+   \   00000F 4A           DEC       A
+   \   000010 27 12        JREQ      L:??ControlSteam_2
+   \   000012 4A           DEC       A
+   \   000013 27 29        JREQ      L:??ControlSteam_3
+   \   000015 4A           DEC       A
+   \   000016 27 35        JREQ      L:??ControlSteam_4
+   \   000018 4A           DEC       A
+   \   000019 27 4C        JREQ      L:??ControlSteam_5
+   \   00001B 81           RET
+    391                case 0x00:{
+    392                  SysSSTimer = DLY_600_msec;
+   \                     ??ControlSteam_1:
+   \   00001C CD ....      CALL      L:??Subroutine8_0
+    393                  ControlSteamStateOn = 1;  /*go to state 1*/
+   \                     ??CrossCallReturnLabel_20:
+   \   00001F 35 01 ....   MOV       S:ControlSteamStateOn, #0x1
+    394                  break;
+   \   000023 81           RET
+    395                }
+    396                case 0x01:{
+    397                  if (SysSSTimer){
+   \                     ??ControlSteam_2:
+   \   000024 BE ..        LDW       X, S:SysSSTimer
+   \   000026 27 03        JREQ      ??lb_0
+   \   000028 CC ....      JP        L:??ControlSteam_6
+    398                    break;
+    399                  }
+    400                  if(PBResultVals & PB_SYS_ON){ /*the generator is already on?*/
+   \                     ??lb_0:
+   \   00002B 7207 .... 05 BTJF      S:PBResultVals, #0x3, L:??ControlSteam_7
+    401                    ControlSteamStateOn = 4;  /*go to state 4*/
+   \   000030 35 04 ....   MOV       S:ControlSteamStateOn, #0x4
+    402                    break;
+   \   000034 81           RET
+    403                  }
+    404                  else{                       /*start timer and generate on pulse*/
+    405                    SysSSTimer = DLY_600_msec;
+   \                     ??ControlSteam_7:
+   \   000035 CD ....      CALL      L:??Subroutine8_0
+    406                    ControlSteamStateOn = 2;  /*go to state 2*/
+   \                     ??CrossCallReturnLabel_21:
+   \   000038 35 02 ....   MOV       S:ControlSteamStateOn, #0x2
+    407                    GPIOG->ODR |= 0x02;       /*start of pulse*/           
+   \   00003C 20 67        JRA       L:??ControlSteam_8
+    408                  }          
+    409                  break;
+    410                }
+    411                case 0x02:{                 /*FINISH UP TIMER PULSE*/
+    412                  if (SysSSTimer == 0){
+   \                     ??ControlSteam_3:
+   \   00003E BE ..        LDW       X, S:SysSSTimer
+   \   000040 27 03        JREQ      ??lb_1
+   \   000042 CC ....      JP        L:??ControlSteam_6
+    413                    GPIOG->ODR &= 0xFD;       /*END of pulse*/           
+   \                     ??lb_1:
+   \   000045 CD ....      CALL      L:?Subroutine5
+    414                    SysSSTimer = DLY_600_msec;
+    415                    ControlSteamStateOn = 3;  /*go to state 3*/
+   \                     ??CrossCallReturnLabel_18:
+   \   000048 35 03 ....   MOV       S:ControlSteamStateOn, #0x3
+   \   00004C 81           RET
+    416                  }
+    417                  break;
+    418                }
+    419                case 0x03:{                 /*make sure the generator is on*/
+    420                  if (SysSSTimer == 0){
+   \                     ??ControlSteam_4:
+   \   00004D BE ..        LDW       X, S:SysSSTimer
+   \   00004F 27 03        JREQ      ??lb_2
+   \   000051 CC ....      JP        L:??ControlSteam_6
+    421                    ControlSteamStateOn = 4;  /*go to state 4*/
+   \                     ??lb_2:
+   \   000054 35 04 ....   MOV       S:ControlSteamStateOn, #0x4
+    422                    if((PBResultVals & PB_SYS_ON) == 0){   /*sys is off this is an error*/
+   \   000058 7206 .... 05 BTJT      S:PBResultVals, #0x3, L:??ControlSteam_9
+    423                      SysError |= 2;       /*steam control error*/
+   \   00005D 7212 ....    BSET      L:SysError, #0x1
+   \   000061 81           RET
+    424                    }
+    425                    else{
+    426                      SysError &= (~2);   /*clear error*/
+   \                     ??ControlSteam_9:
+   \   000062 7213 ....    BRES      L:SysError, #0x1
+   \   000066 81           RET
+    427                    }
+    428                  }
+    429                  break;
+    430                }
+    431                case 0x04:{               /*generator going off and do temp control*/
+    432                  if ((PBResultVals & PB_SYS_ON) == 0){
+   \                     ??ControlSteam_5:
+   \   000067 7206 .... 07 BTJT      S:PBResultVals, #0x3, L:??ControlSteam_10
+    433                    OnEvent = 2;
+   \   00006C 35 02 ....   MOV       S:OnEvent, #0x2
+    434                    ControlSteamStateOn = 0;
+   \   000070 3F ..        CLR       S:ControlSteamStateOn
+    435                    break;
+   \   000072 81           RET
+    436                  }
+    437                  ControlTstat();         /*control temp loop*/
+   \                     ??ControlSteam_10:
+   \   000073 CC ....      JP        L:ControlTstat
+    438                  break;
+    439                }
+    440              }
+    441            }
+    442             
+    443            else{                       /*SYSTEM IS OFF*/
+    444              GPIOE->ODR &= 0xF7;       /* tstat out is off*/
+   \                     ??ControlSteam_0:
+   \   000076 CD ....      CALL      L:?Subroutine3
+    445              L1L2_OPTION = 0;          /*steam on indicator off*/
+    446              ControlSteamStateOn = 0;
+   \                     ??CrossCallReturnLabel_9:
+   \   000079 3F ..        CLR       S:ControlSteamStateOn
+    447              switch(ControlSteamStateOff){  /*if steam control should be off*/
+   \   00007B B6 ..        LD        A, S:ControlSteamStateOff
+   \   00007D 27 0D        JREQ      L:??ControlSteam_11
+   \   00007F 4A           DEC       A
+   \   000080 27 12        JREQ      L:??ControlSteam_12
+   \   000082 4A           DEC       A
+   \   000083 27 25        JREQ      L:??ControlSteam_13
+   \   000085 4A           DEC       A
+   \   000086 27 2E        JREQ      L:??ControlSteam_14
+   \   000088 4A           DEC       A
+   \   000089 27 3E        JREQ      L:??ControlSteam_15
+   \   00008B 81           RET
+    448                case 0x00:{
+    449                    SysSSTimer = DLY_600_msec;
+   \                     ??ControlSteam_11:
+   \   00008C CD ....      CALL      L:??Subroutine8_0
+    450                    ControlSteamStateOff = 1;
+   \                     ??CrossCallReturnLabel_22:
+   \   00008F 35 01 ....   MOV       S:ControlSteamStateOff, #0x1
+    451                    break;
+   \   000093 81           RET
+    452                }
+    453                  
+    454                case 0x01:{                 /*check for timeout generator going off*/
+    455                  if((PBResultVals & PB_SYS_ON) == 0){ /*the generator is already off?*/
+   \                     ??ControlSteam_12:
+   \   000094 CD ....      CALL      L:??Subroutine8_0
+   \                     ??CrossCallReturnLabel_23:
+   \   000097 7206 .... 05 BTJT      S:PBResultVals, #0x3, L:??ControlSteam_16
+    456                    SysSSTimer = DLY_600_msec;
+    457                    ControlSteamStateOff = 4;  /*go to state 4*/
+   \   00009C 35 04 ....   MOV       S:ControlSteamStateOff, #0x4
+    458                    break;
+   \   0000A0 81           RET
+    459                  }
+    460                  else{                       /*start timer and generate on pulse*/
+    461                    SysSSTimer = DLY_600_msec;
+    462                    ControlSteamStateOff = 2;  /*go to state 2*/
+   \                     ??ControlSteam_16:
+   \   0000A1 35 02 ....   MOV       S:ControlSteamStateOff, #0x2
+    463                    GPIOG->ODR |= 0x02;       /*start of pulse*/           
+   \                     ??ControlSteam_8:
+   \   0000A5 7212 501E    BSET      L:0x501e, #0x1
+    464                  }          
+    465                  break;
+   \   0000A9 81           RET
+    466                }
+    467                case 0x02:{                 /*FINISH UP TIMER PULSE*/
+    468                  if (SysSSTimer == 0){
+   \                     ??ControlSteam_13:
+   \   0000AA BE ..        LDW       X, S:SysSSTimer
+   \   0000AC 26 2B        JRNE      L:??ControlSteam_6
+    469                    GPIOG->ODR &= 0xFD;       /*END of pulse*/           
+   \   0000AE CD ....      CALL      L:?Subroutine5
+    470                    SysSSTimer = DLY_600_msec;
+    471                    ControlSteamStateOff = 3;  /*go to state 3*/
+   \                     ??CrossCallReturnLabel_19:
+   \   0000B1 35 03 ....   MOV       S:ControlSteamStateOff, #0x3
+   \   0000B5 81           RET
+    472                  }
+    473                  break;
+    474                }
+    475                case 0x03:{                 /*make sure the generator is off*/
+    476                  if (SysSSTimer == 0){
+   \                     ??ControlSteam_14:
+   \   0000B6 BE ..        LDW       X, S:SysSSTimer
+   \   0000B8 26 1F        JRNE      L:??ControlSteam_6
+    477                    SysSSTimer = DLY_600_msec;
+   \   0000BA CD ....      CALL      L:??Subroutine8_0
+    478                    ControlSteamStateOff = 4;  /*go to state 4*/
+   \                     ??CrossCallReturnLabel_24:
+   \   0000BD 35 04 ....   MOV       S:ControlSteamStateOff, #0x4
+    479                    if((PBResultVals & PB_SYS_ON) == PB_SYS_ON){   /*sys is on this is an error*/
+   \   0000C1 7207 .... 13 BTJF      S:PBResultVals, #0x3, L:??ControlSteam_6
+    480                      ControlSteamStateOff = 0;
+   \   0000C6 3F ..        CLR       S:ControlSteamStateOff
+   \   0000C8 81           RET
+    481                    }
+    482                  }
+    483                  break;
+    484                }
+    485                case 0x04:{                 /*check for timeout*/
+    486                  if (SysSSTimer == 0){
+   \                     ??ControlSteam_15:
+   \   0000C9 BE ..        LDW       X, S:SysSSTimer
+   \   0000CB 26 0C        JRNE      L:??ControlSteam_6
+    487                    SysSSTimer = DLY_600_msec;
+   \   0000CD CD ....      CALL      L:??Subroutine8_0
+    488                    if ((PBResultVals & PB_SYS_ON) == PB_SYS_ON){   /*manual on from generator*/
+   \                     ??CrossCallReturnLabel_25:
+   \   0000D0 7207 .... 04 BTJF      S:PBResultVals, #0x3, L:??ControlSteam_6
+    489                      OnEvent = 0x81;   /*force on event*/
+   \   0000D5 35 81 ....   MOV       S:OnEvent, #0x81
+    490                    }
+    491                  }
+    492                  break;
+    493                }
+    494              }
+    495            }
+    496          }
+   \                     ??ControlSteam_6:
+   \   0000D9 81           RET
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+   \                     ?Subroutine5:
+   \   000000 7213 501E    BRES      L:0x501e, #0x1
+   \   000004              REQUIRE ??Subroutine8_0
+   \   000004              ;               // Fall through to label ??Subroutine8_0
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+   \                     ??Subroutine8_0:
+   \   000000 AE FF88      LDW       X, #0xff88
+   \   000003 BF ..        LDW       S:SysSSTimer, X
+   \   000005 81           RET
+    497          
+    498          /*******************************************************************************
+    499          * Function Name  : ControlTstat
+    500          * Description    : Turn on/off TSTAT_OUT as required
+    501          * Input          :
+    502          * Output         : 
+    503          * Return         :
+    504          *called when system is on
+    505          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+    506          void ControlTstat(void){
+    507            u8 TmpCmd;
+    508            if(Mode1 & 0x01){   /*if deg F is selected*/
+   \                     ControlTstat:
+   \   000000 7201 .... 04 BTJF      S:Mode1, #0x0, L:??ControlTstat_0
+    509              TmpCmd = TmpCmd_F;
+   \   000005 B6 ..        LD        A, S:TmpCmd_F
+   \   000007 20 02        JRA       L:??ControlTstat_1
+    510            }
+    511            else{               /*if deg C is selected*/
+    512              TmpCmd = TmpCmd_C;
+   \                     ??ControlTstat_0:
+   \   000009 B6 ..        LD        A, S:TmpCmd_C
+   \                     ??ControlTstat_1:
+   \   00000B B7 ..        LD        S:?b0, A
+    513            }
+    514            if (TempInt_FC < (TmpCmd)){
+   \   00000D B6 ..        LD        A, S:TempInt_FC
+   \   00000F B1 ..        CP        A, S:?b0
+   \   000011 24 14        JRNC      L:??ControlTstat_2
+    515              if (LastControlOnOff == 0){  /**/
+   \   000013 3D ..        TNZ       S:LastControlOnOff
+   \   000015 26 04        JRNE      L:??ControlTstat_3
+    516                LastControlOnOff = 1;
+   \   000017 35 01 ....   MOV       S:LastControlOnOff, #0x1
+    517              }
+    518              if(LoopControlDelay == 0){
+   \                     ??ControlTstat_3:
+   \   00001B BE ..        LDW       X, S:LoopControlDelay
+   \   00001D 26 1E        JRNE      L:??CrossCallReturnLabel_8
+    519                GPIOE->ODR |= 0x08;       /* tstat out is on*/
+   \   00001F 7216 5014    BSET      L:0x5014, #0x3
+    520                L1L2_OPTION = 3;          /*steam on indicator on*/
+   \   000023 35 03 ....   MOV       S:L1L2_OPTION, #0x3
+    521              }
+    522            }
+    523            if (TempInt_FC >= (TmpCmd)){
+   \                     ??ControlTstat_2:
+   \   000027 B6 ..        LD        A, S:TempInt_FC
+   \   000029 B1 ..        CP        A, S:?b0
+   \   00002B 25 10        JRC       L:??CrossCallReturnLabel_8
+    524              if (LastControlOnOff == 1){
+   \   00002D B6 ..        LD        A, S:LastControlOnOff
+   \   00002F A1 01        CP        A, #0x1
+   \   000031 26 07        JRNE      L:??ControlTstat_4
+    525                LastControlOnOff = 0;
+   \   000033 3F ..        CLR       S:LastControlOnOff
+    526                LoopControlDelay = DLY_45_sec;  /*set delay on when going on to off*/
+   \   000035 AE DCD8      LDW       X, #0xdcd8
+   \   000038 BF ..        LDW       S:LoopControlDelay, X
+    527              }
+    528              GPIOE->ODR &= 0xF7;       /* tstat out is off*/
+   \                     ??ControlTstat_4:
+   \   00003A CD ....      CALL      L:?Subroutine3
+    529              L1L2_OPTION = 0;          /*steam on indicator off*/
+    530            }
+    531          }
+   \                     ??CrossCallReturnLabel_8:
+   \   00003D 81           RET
+    532          
+    533          
+    534          /*******************************************************************************
+    535          * Function Name  : ConvertTemp
+    536          * Description    : Convert Temp from F to C or C to F
+    537          * Input          : input Temperature to conver (u8)t;
+    538          *                 1(ToF) = C to F convert; 0(ToC) F to C convert
+    539          * Output         : TempF or TempC
+    540          * Return         : TempF or TempC
+    541          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+    542          u8 ConvertTemp(u8 Temp, u8 ToF_or_ToC){
+   \                     ConvertTemp:
+   \   000000 B7 ..        LD        S:?b1, A
+   \   000002 B6 ..        LD        A, S:?b0
+    543           u32 TInt;
+    544           u8 Retval;
+    545            if(ToF_or_ToC == ToF){    /*IF MODE C TO F*/
+   \   000004 A1 01        CP        A, #0x1
+   \   000006 26 25        JRNE      L:??ConvertTemp_0
+    546              TInt = Temp * 117965;      /*times 1.8 * 65536*/
+   \   000008 5F           CLRW      X
+   \   000009 41           EXG       A, XL
+   \   00000A B6 ..        LD        A, S:?b1
+   \   00000C 41           EXG       A, XL
+   \   00000D BF ..        LDW       S:?w1, X
+   \   00000F 5F           CLRW      X
+   \   000010 BF ..        LDW       S:?w0, X
+   \   000012 CD ....      CALL      L:?mul32_l0_l0_dl
+   \   000015 0001CCCD     DC32      0x1cccd
+    547              if (TInt & 0x00008000){     /*round to nearest degree*/
+   \   000019 CD ....      CALL      L:?Subroutine2
+   \                     ??CrossCallReturnLabel_6:
+   \   00001C 27 03        JREQ      L:??CrossCallReturnLabel_11
+    548                TInt = TInt + 65536;    /*add 1 if gt 0.5 deg fractional*/
+   \   00001E CD ....      CALL      L:?Subroutine4
+    549              }
+    550              Retval = (TInt >> 16) + 32;
+   \                     ??CrossCallReturnLabel_11:
+   \   000021 CD ....      CALL      L:?srl32_l0_l0_db
+   \   000024 10           DC8       0x10
+   \   000025 B6 ..        LD        A, S:?b3
+   \   000027 AB 20        ADD       A, #0x20
+   \   000029 B7 ..        LD        S:?b3, A
+   \   00002B 20 21        JRA       L:??ConvertTemp_1
+    551            }
+    552            else if (ToF_or_ToC == ToC){   /*if MODE IS F to C*/
+   \                     ??ConvertTemp_0:
+   \   00002D 4D           TNZ       A
+   \   00002E 26 1E        JRNE      L:??ConvertTemp_1
+    553              TInt = (Temp -32) * 36409;  /*( 5.5555 * 65536)*/
+   \   000030 5F           CLRW      X
+   \   000031 41           EXG       A, XL
+   \   000032 B6 ..        LD        A, S:?b1
+   \   000034 41           EXG       A, XL
+   \   000035 1C FFE0      ADDW      X, #0xffffffffffffffe0
+   \   000038 CD ....      CALL      L:?sext32_l0_x
+   \   00003B CD ....      CALL      L:?mul32_l0_l0_dl
+   \   00003E 00008E39     DC32      0x8e39
+    554              if (TInt & 0x00008000){      /*round to nearest degree*/
+   \   000042 CD ....      CALL      L:?Subroutine2
+   \                     ??CrossCallReturnLabel_7:
+   \   000045 27 03        JREQ      L:??CrossCallReturnLabel_12
+    555                TInt = TInt + 65536;
+   \   000047 CD ....      CALL      L:?Subroutine4
+    556              }
+    557              Retval = TInt >> 16;
+   \                     ??CrossCallReturnLabel_12:
+   \   00004A CD ....      CALL      L:?srl32_l0_l0_db
+   \   00004D 10           DC8       0x10
+    558            }
+    559            return Retval;
+   \                     ??ConvertTemp_1:
+   \   00004E B6 ..        LD        A, S:?b3
+   \   000050 81           RET
+    560          }
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+   \                     ?Subroutine4:
+   \   000000 CD ....      CALL      L:?add32_l0_l0_dl
+   \   000003 00010000     DC32      0x10000
+   \   000007 81           RET
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+   \                     ?Subroutine2:
+   \   000000 BE ..        LDW       X, S:?w1
+   \   000002 02           RLWA      X, A
+   \   000003 A4 80        AND       A, #0x80
+   \   000005 02           RLWA      X, A
+   \   000006 4F           CLR       A
+   \   000007 02           RLWA      X, A
+   \   000008 5D           TNZW      X
+   \   000009 81           RET
+    561          
+    562          /* Store all known EEData    ------------------------------------------------*/
+    563          /* called on demand                                                          */
+    564          /*---------------------------------------------------------------------------*/
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+    565          void StoreAllData(void){
+    566           if ((ReadEEData(Mode1_EEADR) != Mode1)){
+   \                     StoreAllData:
+   \   000000 B6 ..        LD        A, S:Mode1
+   \   000002 C1 4000      CP        A, L:0x4000
+   \   000005 27 0F        JREQ      L:??StoreAllData_0
+    567             SaveEEData(Mode1_EEADR , Mode1); /*store new value*/
+   \   000007 CD ....      CALL      L:?Subroutine1
+   \                     ??CrossCallReturnLabel_3:
+   \   00000A 7207 505F FB BTJF      L:0x505f, #0x3, L:??CrossCallReturnLabel_3
+   \   00000F C7 4000      LD        L:0x4000, A
+   \   000012 7217 505F    BRES      L:0x505f, #0x3
+    568           }
+    569           if ((ReadEEData(TmpCmd_C_EEADR) != TmpCmd_C)){
+   \                     ??StoreAllData_0:
+   \   000016 B6 ..        LD        A, S:TmpCmd_C
+   \   000018 C1 4001      CP        A, L:0x4001
+   \   00001B 27 0F        JREQ      L:??StoreAllData_1
+    570             SaveEEData(TmpCmd_C_EEADR , TmpCmd_C); /*store new value*/
+   \   00001D CD ....      CALL      L:?Subroutine1
+   \                     ??CrossCallReturnLabel_4:
+   \   000020 7207 505F FB BTJF      L:0x505f, #0x3, L:??CrossCallReturnLabel_4
+   \   000025 C7 4001      LD        L:0x4001, A
+   \   000028 7217 505F    BRES      L:0x505f, #0x3
+    571           }
+    572           if ((ReadEEData(TmpCmd_F_EEADR) != TmpCmd_F)){
+   \                     ??StoreAllData_1:
+   \   00002C B6 ..        LD        A, S:TmpCmd_F
+   \   00002E C1 4002      CP        A, L:0x4002
+   \   000031 27 0F        JREQ      L:??StoreAllData_2
+    573             SaveEEData(TmpCmd_F_EEADR , TmpCmd_F); /*store new value*/
+   \   000033 CD ....      CALL      L:?Subroutine1
+   \                     ??CrossCallReturnLabel_5:
+   \   000036 7207 505F FB BTJF      L:0x505f, #0x3, L:??CrossCallReturnLabel_5
+   \   00003B C7 4002      LD        L:0x4002, A
+   \   00003E 7217 505F    BRES      L:0x505f, #0x3
+    574           }
+    575          }
+   \                     ??StoreAllData_2:
+   \   000042 81           RET
+    576          
+    577          /*******************************************************************************
+    578          * Function Name  : SaveEEData
+    579          * Description    : Display Set temperature called on demand
+    580          * Input          : EEADR: EEPROM Address offset. EEDAT: Data to store
+    581          * Output         : Data Saved
+    582          * Return         : None
+    583          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1, keep-with-next
+   \                     ?Subroutine1:
+   \   000000 35 AE 5064   MOV       L:0x5064, #0xae
+   \   000004 35 56 5064   MOV       L:0x5064, #0x56
+   \   000008 AE FFFE      LDW       X, #0xfffe
+   \   00000B BF ..        LDW       S:EEWRTimout, X
+   \   00000D 81           RET
+
+   \                                 In section .near_func.text, align 1
+    584          void SaveEEData(u8 EEADR, u8 EEDAT){
+    585            u16 Addr = 0x4000 + EEADR;
+   \                     SaveEEData:
+   \   000000 905F         CLRW      Y
+   \   000002 9097         LD        YL, A
+   \   000004 72A9 4000    ADDW      Y, #0x4000
+    586            FLASH->DUKR = FLASH_RASS_KEY2;
+   \   000008 CD ....      CALL      L:?Subroutine1
+    587            FLASH->DUKR = FLASH_RASS_KEY1;
+    588            EEWRTimout = DLY_10_msec;
+    589            while (((FLASH->IAPSR & 0x08) == 0) && (EEWRTimout)){
+   \                     ??CrossCallReturnLabel_2:
+   \   00000B 7207 505F FB BTJF      L:0x505f, #0x3, L:??CrossCallReturnLabel_2
+    590            }
+    591            if(EEWRTimout){
+    592              *(PointerAttr uint8_t*) (uint16_t)Addr = EEDAT; /*if unlock ok then program*/
+   \   000010 B6 ..        LD        A, S:?b0
+   \   000012 90F7         LD        (Y), A
+    593            }
+    594            else{
+    595              SaveEEDataErr = 1;
+    596            }
+    597            FLASH->IAPSR &= 0xF7; /*lock EE again*/
+   \   000014 7217 505F    BRES      L:0x505f, #0x3
+    598          }
+   \   000018 81           RET
+    599          
+    600          /*******************************************************************************
+    601          * Function Name  : ReadEEData
+    602          * Description    : Display Set temperature called on demand
+    603          * Input          : EEADR: EEPROM Address offset. EEDAT: Data to store
+    604          * Output         : Data Saved
+    605          * Return         : None
+    606          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1
+    607          u8 ReadEEData(u8 EEADR){
+    608            u16 Addr = 0x4000 + EEADR;
+    609            return(*(PointerAttr uint8_t *) (uint16_t)Addr); 
+   \                     ReadEEData:
+   \   000000 5F           CLRW      X
+   \   000001 97           LD        XL, A
+   \   000002 1C 4000      ADDW      X, #0x4000
+   \   000005 F6           LD        A, (X)
+   \   000006 81           RET
+    610          }
+    611          
+    612          /*******************************************************************************
+    613          * Function Name  : ReadOnPB
+    614          * Description    : Read and debounce the On switch This is normally open
+    615          *		 : 
+    616          *		 : 
+    617          * Input          : None
+    618          * Output         : None
+    619          * Return         : None
+    620          *called from timer routine at 5msec per pass
+    621          *******************************************************************************/
+    622          
+
+   \                                 In section .near_func.text, align 1
+    623          void ReadOnPB(void){
+    624            u8 SwVal;
+    625            SwVal = ((GPIOB->IDR ) & 0x02);   /*get GPIOB Pin 1 data*/
+   \                     ReadOnPB:
+   \   000000 C6 5006      LD        A, L:0x5006
+    626            if (SwVal){                         /*MEANS THE ON SW READ IS NOT PRESSED*/
+   \   000003 A5 02        BCP       A, #0x2
+   \   000005 27 1F        JREQ      L:??ReadOnPB_0
+    627              if ((PBLPVals & PB_PRESSED_ON) == PB_PRESSED_ON){      /*if the last pass was same as this pass then count timer*/
+   \   000007 7201 .... 11 BTJF      S:PBLPVals, #0x0, L:??ReadOnPB_1
+    628                if (PBOnCtr){
+   \   00000C 3D ..        TNZ       S:PBOnCtr
+   \   00000E 27 07        JREQ      L:??ReadOnPB_2
+    629                  PBOnCtr--;                  /*count down*/
+   \   000010 B6 ..        LD        A, S:PBOnCtr
+   \   000012 4A           DEC       A
+   \   000013 B7 ..        LD        S:PBOnCtr, A
+   \   000015 20 0A        JRA       L:??ReadOnPB_3
+    630                }
+    631                else{
+    632                  PBResultVals &= (~PB_PRESSED_ON);      /* ON NOT PRESSED */
+   \                     ??ReadOnPB_2:
+   \   000017 7211 ....    BRES      L:PBResultVals, #0x0
+   \   00001B 20 04        JRA       L:??ReadOnPB_3
+    633                }
+    634              }
+    635              else{
+    636                PBOnCtr = PBFiltTime1;               /*set for 100 msec counter*/
+   \                     ??ReadOnPB_1:
+   \   00001D 35 14 ....   MOV       S:PBOnCtr, #0x14
+    637              }
+    638            PBLPVals |= PB_PRESSED_ON;
+   \                     ??ReadOnPB_3:
+   \   000021 7210 ....    BSET      L:PBLPVals, #0x0
+   \   000025 81           RET
+    639            }
+    640            else{   /*HERE THE ON SW IS PRESSED*/
+    641              if (( PBLPVals & PB_PRESSED_ON) == PB_PRESSED_ON){ /*if the last pass was not the same as this pass*/
+   \                     ??ReadOnPB_0:
+   \   000026 7201 .... 06 BTJF      S:PBLPVals, #0x0, L:??ReadOnPB_4
+    642                PBOnCtr = PBFiltTime1;          /*Set timer*/
+   \   00002B 35 14 ....   MOV       S:PBOnCtr, #0x14
+   \   00002F 20 24        JRA       L:??ReadOnPB_5
+    643              }
+    644              else{
+    645                if (PBOnCtr){
+   \                     ??ReadOnPB_4:
+   \   000031 3D ..        TNZ       S:PBOnCtr
+   \   000033 27 1C        JREQ      L:??ReadOnPB_6
+    646                  PBOnCtr--;
+   \   000035 B6 ..        LD        A, S:PBOnCtr
+   \   000037 4A           DEC       A
+   \   000038 B7 ..        LD        S:PBOnCtr, A
+    647                  if(PBOnCtr == 0){ /*1st time here*/
+   \   00003A 26 15        JRNE      L:??ReadOnPB_6
+    648                    if(OnEvent & 0x80){ /*was on last time*/
+   \   00003C 720F .... 0A BTJF      S:OnEvent, #0x7, L:??ReadOnPB_7
+    649                      OnEvent &= 0x7F;
+    650                      OnEvent |= 2; /*flag going On to Off*/
+   \   000041 721F ....    BRES      L:OnEvent, #0x7
+   \   000045 7212 ....    BSET      L:OnEvent, #0x1
+   \   000049 20 06        JRA       L:??ReadOnPB_6
+    651                    }
+    652                    else{               /*was off last time*/
+    653                      OnEvent |= 0x81; /*flag going Off to On*/
+   \                     ??ReadOnPB_7:
+   \   00004B B6 ..        LD        A, S:OnEvent
+   \   00004D AA 81        OR        A, #0x81
+   \   00004F B7 ..        LD        S:OnEvent, A
+    654                    }
+    655                  }
+    656                }
+    657                PBResultVals |= (PB_PRESSED_ON);      /* ON PRESSED */
+   \                     ??ReadOnPB_6:
+   \   000051 7210 ....    BSET      L:PBResultVals, #0x0
+    658              }
+    659            PBLPVals &= (~PB_PRESSED_ON);     /*Clear bit 1 in the last pass byte*/
+   \                     ??ReadOnPB_5:
+   \   000055 7211 ....    BRES      L:PBLPVals, #0x0
+    660            }
+    661          }
+   \   000059 81           RET
+    662          
+    663          /*******************************************************************************
+    664          * Function Name  : ReadUpPB
+    665          * Description    : Read and debounce the Up switch This is normally open
+    666          *		 : 
+    667          *		 : 
+    668          * Input          : None
+    669          * Output         : None
+    670          * Return         : None
+    671          *called from timer routine at 5msec per pass
+    672          *******************************************************************************/
+    673          
+
+   \                                 In section .near_func.text, align 1
+    674          void ReadUpPB(void){
+    675            u8 SwVal;
+    676            SwVal = ((GPIOB->IDR ) & 0x04); /*get GPIOB Pin 2 data*/
+   \                     ReadUpPB:
+   \   000000 C6 5006      LD        A, L:0x5006
+   \   000003 B7 ..        LD        S:?b0, A
+    677            if (SwVal){                         /*MEANS THE UP SW READ IS NOT PRESSED*/
+   \   000005 B6 ..        LD        A, S:PBLPVals
+   \   000007 A4 02        AND       A, #0x2
+   \   000009 B7 ..        LD        S:?b1, A
+   \   00000B B6 ..        LD        A, S:?b0
+   \   00000D A5 04        BCP       A, #0x4
+   \   00000F 27 1E        JREQ      L:??ReadUpPB_0
+    678              if ((PBLPVals & PB_PRESSED_UP) == PB_PRESSED_UP){ /*if the last pass was same as this pass then count timer*/
+   \   000011 3D ..        TNZ       S:?b1
+   \   000013 27 11        JREQ      L:??ReadUpPB_1
+    679                if (PBUpCtr){
+   \   000015 3D ..        TNZ       S:PBUpCtr
+   \   000017 27 07        JREQ      L:??ReadUpPB_2
+    680                  PBUpCtr--;  /*count down*/
+   \   000019 B6 ..        LD        A, S:PBUpCtr
+   \   00001B 4A           DEC       A
+   \   00001C B7 ..        LD        S:PBUpCtr, A
+   \   00001E 20 0A        JRA       L:??ReadUpPB_3
+    681                }
+    682                else{
+    683                  PBResultVals &= (~PB_PRESSED_UP); /* UP NOT PRESSED */
+   \                     ??ReadUpPB_2:
+   \   000020 7213 ....    BRES      L:PBResultVals, #0x1
+   \   000024 20 04        JRA       L:??ReadUpPB_3
+    684                }
+    685              }
+    686              else{
+    687                PBUpCtr = PBFiltTime2;  /*set for delay*/
+   \                     ??ReadUpPB_1:
+   \   000026 35 0A ....   MOV       S:PBUpCtr, #0xa
+    688              }
+    689            PBLPVals |= PB_PRESSED_UP;
+   \                     ??ReadUpPB_3:
+   \   00002A 7212 ....    BSET      L:PBLPVals, #0x1
+   \   00002E 81           RET
+    690            }
+    691            else{   /*HERE THE UP SW IS PRESSED*/
+    692              if (( PBLPVals & PB_PRESSED_UP) == PB_PRESSED_UP){ /*if the last pass was not the same as this pass*/
+   \                     ??ReadUpPB_0:
+   \   00002F 3D ..        TNZ       S:?b1
+   \   000031 27 06        JREQ      L:??ReadUpPB_4
+    693                PBUpCtr = PBFiltTime2;  /*Set timer*/
+   \   000033 35 0A ....   MOV       S:PBUpCtr, #0xa
+   \   000037 20 0F        JRA       L:??ReadUpPB_5
+    694              }
+    695              else{
+    696                if (PBUpCtr){
+   \                     ??ReadUpPB_4:
+   \   000039 3D ..        TNZ       S:PBUpCtr
+   \   00003B 27 07        JREQ      L:??ReadUpPB_6
+    697                  PBUpCtr--;
+   \   00003D B6 ..        LD        A, S:PBUpCtr
+   \   00003F 4A           DEC       A
+   \   000040 B7 ..        LD        S:PBUpCtr, A
+   \   000042 20 04        JRA       L:??ReadUpPB_5
+    698                }
+    699                else{
+    700                  PBResultVals |= (PB_PRESSED_UP);  /* UP PRESSED */
+   \                     ??ReadUpPB_6:
+   \   000044 7212 ....    BSET      L:PBResultVals, #0x1
+    701                }
+    702              }
+    703            PBLPVals &= (~PB_PRESSED_UP); /*Clear bit 1 in the last pass byte*/
+   \                     ??ReadUpPB_5:
+   \   000048 7213 ....    BRES      L:PBLPVals, #0x1
+    704            }
+    705          }
+   \   00004C 81           RET
+    706          
+    707          /*******************************************************************************
+    708          * Function Name  : ReadDnPB
+    709          * Description    : Read and debounce the Dn switch This is normally open
+    710          *		 : 
+    711          *		 : 
+    712          * Input          : None
+    713          * Output         : None
+    714          * Return         : None
+    715          *called from timer routine at 5msec per pass
+    716          *******************************************************************************/
+    717          
+
+   \                                 In section .near_func.text, align 1
+    718          void ReadDnPB(void){
+    719            u8 SwVal;
+    720            SwVal = ((GPIOB->IDR ) & 0x08);   /*get GPIOB Pin 3 data*/
+   \                     ReadDnPB:
+   \   000000 C6 5006      LD        A, L:0x5006
+   \   000003 B7 ..        LD        S:?b0, A
+    721            if (SwVal){                         /*MEANS THE UP SW READ IS NOT PRESSED*/
+   \   000005 B6 ..        LD        A, S:PBLPVals
+   \   000007 A4 04        AND       A, #0x4
+   \   000009 B7 ..        LD        S:?b1, A
+   \   00000B B6 ..        LD        A, S:?b0
+   \   00000D A5 08        BCP       A, #0x8
+   \   00000F 27 1E        JREQ      L:??ReadDnPB_0
+    722              if ((PBLPVals & PB_PRESSED_DN) == PB_PRESSED_DN){ /*if the last pass was same as this pass then count timer*/
+   \   000011 3D ..        TNZ       S:?b1
+   \   000013 27 11        JREQ      L:??ReadDnPB_1
+    723                if (PBDnCtr){
+   \   000015 3D ..        TNZ       S:PBDnCtr
+   \   000017 27 07        JREQ      L:??ReadDnPB_2
+    724                  PBDnCtr--;  /*count down*/
+   \   000019 B6 ..        LD        A, S:PBDnCtr
+   \   00001B 4A           DEC       A
+   \   00001C B7 ..        LD        S:PBDnCtr, A
+   \   00001E 20 0A        JRA       L:??ReadDnPB_3
+    725                }
+    726                else{
+    727                  PBResultVals &= (~PB_PRESSED_DN); /* DN NOT PRESSED */
+   \                     ??ReadDnPB_2:
+   \   000020 7215 ....    BRES      L:PBResultVals, #0x2
+   \   000024 20 04        JRA       L:??ReadDnPB_3
+    728                }
+    729              }
+    730              else{
+    731                PBDnCtr = PBFiltTime2;  /*set for delay*/
+   \                     ??ReadDnPB_1:
+   \   000026 35 0A ....   MOV       S:PBDnCtr, #0xa
+    732              }
+    733            PBLPVals |= PB_PRESSED_DN;
+   \                     ??ReadDnPB_3:
+   \   00002A 7214 ....    BSET      L:PBLPVals, #0x2
+   \   00002E 81           RET
+    734            }
+    735            else{   /*HERE THE UP SW IS PRESSED*/
+    736              if (( PBLPVals & PB_PRESSED_DN) == PB_PRESSED_DN){ /*if the last pass was not the same as this pass*/
+   \                     ??ReadDnPB_0:
+   \   00002F 3D ..        TNZ       S:?b1
+   \   000031 27 06        JREQ      L:??ReadDnPB_4
+    737                PBDnCtr = PBFiltTime2;               /*Set timer*/
+   \   000033 35 0A ....   MOV       S:PBDnCtr, #0xa
+   \   000037 20 0F        JRA       L:??ReadDnPB_5
+    738              }
+    739              else{
+    740                if (PBDnCtr){
+   \                     ??ReadDnPB_4:
+   \   000039 3D ..        TNZ       S:PBDnCtr
+   \   00003B 27 07        JREQ      L:??ReadDnPB_6
+    741                  PBDnCtr--;
+   \   00003D B6 ..        LD        A, S:PBDnCtr
+   \   00003F 4A           DEC       A
+   \   000040 B7 ..        LD        S:PBDnCtr, A
+   \   000042 20 04        JRA       L:??ReadDnPB_5
+    742                }
+    743                else{
+    744                  PBResultVals |= (PB_PRESSED_DN);  /* DN PRESSED */
+   \                     ??ReadDnPB_6:
+   \   000044 7214 ....    BSET      L:PBResultVals, #0x2
+    745                }
+    746              }
+    747            PBLPVals &= (~PB_PRESSED_DN); /*Clear bit 1 in the last pass byte*/
+   \                     ??ReadDnPB_5:
+   \   000048 7215 ....    BRES      L:PBLPVals, #0x2
+    748            }
+    749          }
+   \   00004C 81           RET
+    750          
+    751          /*******************************************************************************
+    752          * Function Name  : ReadSysOnInput
+    753          * Description    : Read and debounce the SysOn This is normally hi when sys is off
+    754          * Input          : None
+    755          * Output         : None
+    756          * Return         : None
+    757          *called from timer routine at 5msec per pass
+    758          *******************************************************************************/
+    759          
+
+   \                                 In section .near_func.text, align 1
+    760          void ReadSysOnInput(void){
+    761            u8 SwVal;
+    762            SwVal = ((GPIOG->IDR ) & 0x01) ^ 0x01;   /*get GPIOG Pin 0 data (1 = on, 0 = off)*/
+   \                     ReadSysOnInput:
+   \   000000 C6 501F      LD        A, L:0x501f
+   \   000003 B7 ..        LD        S:?b0, A
+    763            if (SwVal){                       /*MEANS THE SYS  INFO FROM THE GENERATOR IS ON*/
+   \   000005 B6 ..        LD        A, S:PBLPVals
+   \   000007 A4 08        AND       A, #0x8
+   \   000009 B7 ..        LD        S:?b1, A
+   \   00000B B6 ..        LD        A, S:?b0
+   \   00000D A4 01        AND       A, #0x1
+   \   00000F A8 01        XOR       A, #0x1
+   \   000011 27 18        JREQ      L:??ReadSysOnInput_0
+    764              if ((PBLPVals & PB_SYS_ON) == PB_SYS_ON){ /*WAS ON LAST PASS*/
+   \   000013 3D ..        TNZ       S:?b1
+   \   000015 27 0A        JREQ      L:??ReadSysOnInput_1
+    765                if (SysOnOffTmr == 0){
+   \   000017 BE ..        LDW       X, S:SysOnOffTmr
+   \   000019 26 0B        JRNE      L:??ReadSysOnInput_2
+    766                  PBResultVals |= (PB_SYS_ON); /*set Gen sys on is on*/
+   \   00001B 7216 ....    BSET      L:PBResultVals, #0x3
+   \   00001F 20 05        JRA       L:??ReadSysOnInput_2
+    767                }
+    768              }
+    769              else{                           /* set the Hi timer count*/
+    770                SysOnOffTmr = DLY_100_msec;
+   \                     ??ReadSysOnInput_1:
+   \   000021 AE FFEC      LDW       X, #0xffec
+   \   000024 BF ..        LDW       S:SysOnOffTmr, X
+    771              }
+    772              PBLPVals |= PB_SYS_ON;
+   \                     ??ReadSysOnInput_2:
+   \   000026 7216 ....    BSET      L:PBLPVals, #0x3
+   \   00002A 81           RET
+    773            }
+    774            else{                             /*MEANS THE SYS INFO FROM THE GENERATOR IS OFF*/
+    775              if ((PBLPVals & PB_SYS_ON) == 0){ /*WAS OFF lLAST PASS*/
+   \                     ??ReadSysOnInput_0:
+   \   00002B 3D ..        TNZ       S:?b1
+   \   00002D 26 0A        JRNE      L:??ReadSysOnInput_3
+    776                if (SysOnOffTmr == 0){
+   \   00002F BE ..        LDW       X, S:SysOnOffTmr
+   \   000031 26 0B        JRNE      L:??ReadSysOnInput_4
+    777                  PBResultVals &= (~PB_SYS_ON); /*set Gen sys Not on*/
+   \   000033 7217 ....    BRES      L:PBResultVals, #0x3
+   \   000037 20 05        JRA       L:??ReadSysOnInput_4
+    778                }
+    779              }
+    780              else{                           /* WAS ON LAST PASS set the Lo timer count*/
+    781                SysOnOffTmr = DLY_400_msec;
+   \                     ??ReadSysOnInput_3:
+   \   000039 AE FFB0      LDW       X, #0xffb0
+   \   00003C BF ..        LDW       S:SysOnOffTmr, X
+    782              }
+    783              PBLPVals &= (~PB_SYS_ON);
+   \                     ??ReadSysOnInput_4:
+   \   00003E 7217 ....    BRES      L:PBLPVals, #0x3
+    784            }
+    785          }
+   \   000042 81           RET
+    786          
+    787          /*******************************************************************************
+    788          * Function Name  : BlankDisplay
+    789          * Description    : Blank the LED display
+    790          * Input          : NONE
+    791          * Output         : display blank 
+    792          * Return         : None
+    793          * Called on demand
+    794          *******************************************************************************/
+
+   \                                 In section .near_func.text, align 1
+    795          void BlankDisplay(void){
+    796              DIGIT0_DATA = DIG0[0];  /*blank with colon off  */
+   \                     BlankDisplay:
+   \   000000 C6 ....      LD        A, L:DIG0
+   \   000003 B7 ..        LD        S:DIGIT0_DATA, A
+    797              DIGIT1_DATA = DIG12[10]; /*set blank  */
+   \   000005 C6 ....      LD        A, L:DIG12 + 10
+   \   000008 B7 ..        LD        S:DIGIT1_DATA, A
+    798              DIGIT2_DATA = DIG12[10]; /*set blank  */
+   \   00000A B7 ..        LD        S:DIGIT2_DATA, A
+    799              L1L2_OPTION = 0; /*Set L1 L2 off */
+   \   00000C 3F ..        CLR       S:L1L2_OPTION
+    800          }
+   \   00000E 81           RET
+    801          
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       6  ??Subroutine8_0
+      11  ?Subroutine0
+      14  ?Subroutine1
+      10  ?Subroutine2
+       7  ?Subroutine3
+       8  ?Subroutine4
+       4  ?Subroutine5
+      11  ?Subroutine6
+       6  ?Subroutine7
+       1  ADCAvgCtr
+       1  ADCValReady
+       2  ADC_Avg
+       2  ADC_Avg_Tmp
+      15  BlankDisplay
+     218  ControlSteam
+       1  ControlSteamStateOff
+       1  ControlSteamStateOn
+      62  ControlTstat
+      81  ConvertTemp
+       1  FCMode
+       1  LastControlOnOff
+       4  LastTdisp
+       1  NewTempAvail
+       1  OnEvent
+       1  PBDnCtr
+       1  PBLPVals
+       1  PBOnCtr
+       1  PBResultVals
+       1  PBUpCtr
+       4  RValue
+      69  ReadADC
+      77  ReadDnPB
+       7  ReadEEData
+      90  ReadOnPB
+      67  ReadSysOnInput
+     310  ReadTemp
+      77  ReadUpPB
+       1  RunOnceDone
+      25  SaveEEData
+       1  SaveEEDataErr
+     209  SetCmdTemp
+       1  SetCmdTempFlag
+     104  Start1stTime
+      67  StoreAllData
+       1  SysOn
+     248  SystemControl
+       4  TdegC_A
+       4  TdegF_A
+       1  TempInt_FC
+       2  TmpCmdPtr
+       1  TmpCmd_C
+       1  TmpCmd_F
+       1  VerDispSeq
+
+ 
+ 1 803 bytes in section .near_func.text
+    42 bytes in section .tiny.bss
+     1 byte  in section .tiny.data
+ 
+ 1 803 bytes of CODE memory
+    43 bytes of DATA memory
+
+Errors: none
+Warnings: none

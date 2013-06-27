@@ -1,0 +1,36 @@
+struct EHRT_Parameters {
+  char SERNUM[16];      /*P1,ASCII 16 characters */
+  u8 VERNUM[4];         /*P2 binary ex 1.34, 
+        versionNum[0] = 0, versionNum[1] =1, versionNum[2]=3, versionNum[3]=4*/
+  char SENS_SW;         /*P3 ASCII, 1 char, L,M,H */
+  char LEN_SW;          /*P4 ASCII, 1 CHAR L,S,M */
+  char DELAY_SW;        /*P5 ASCII, 1 CHAR L,S,M */
+  char LOGIC_MODE;      /*P6 ASCII 1 CHAR D,H */
+  u8 TSB[3];            /*P7 3 binary, byte 0 = lsb, byte 1 = mid, byte 2 = msb */
+  u8 TLBC[3];           /*P8 3 binary, byte 0 = lsb, byte 1 = mid, byte 2 = msb */
+  u8 TCBC[3];           /*P9 3 binary, byte 0 = lsb, byte 1 = mid, byte 2 = msb */
+  u8 TBSB[2];           /*P10 2 binary, byte 0 = lsb, byte 1 = msb */
+  u8 VLBC[2];           /*P11 2 binary, byte 0 = lsb, byte 1 = msb */
+  u8 BatValNow[2];      /*P12 2 binary, byte 0 = lsb, byte 1 = msb */
+  u8 LOW_PAPER;         /* p13 binary, 0=NO ALERT, 1=PAPER LOW*/
+  u8 BATLO_STATE;       /* p14 binary, 0=NO ALERT, 1=BATTERY LOW*/
+  u8 JAM_FLAG;          /* p15 binary, 0=NO ALERT, 1=PAPER JAM */
+  };
+struct EHRT_Parameters TOWEL_Status;
+
+struct CO_Parameters {
+  char SERNUM[16];      /*P1,ASCII 16 characters */
+  u16 LIVE_HUMID        /*P2 Live humidity*/
+  u16 LIVE_TEMP         /*P3 Live temperature */  
+  u8  TEMP_TYPE         /*p4 0 = Farenheit, 1 = Celsius */  
+  u16 TARGET_HUMID      /*P5 TARGET HUMIDITIY */  
+  u8  LOW_WATER         /*P6 0 = OK, 1 = LOW WATER WARNING*/  
+  u16 UPTIME            /*P7 UPTIME IN HOURS */  
+  u16 AVG_HUMID         /*P8 AVERAGE HUMIDITY 700=70.0%, 600=60.0%  */  
+  u16 HIGH_HUMID        /*P9 HIGH HUMIDITY 700=70.0%, 600=60.0%  */  
+  u16 LOW_HUMID         /*P10 LOW HUMIDITY 700=70.0%, 600=60.0% */  
+  u16 FACTORY_VALUE     /*P11 FACTORY CALIBRATION 700=70.0%, 600=60.0% */  
+  u16 FIRM_VERSIO       /*P12 0xC20 = VER 2.0, 0xC30 = VER 3.0 */  
+  u8  SENSOR_TYPE       /*P13 SENSOR TYPE, 0=DIGITIAL, 1= ANALOG*/  
+  };
+struct CO_Parameters Cigar_Oasis_Status;

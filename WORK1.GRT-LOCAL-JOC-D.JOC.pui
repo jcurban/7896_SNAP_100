@@ -1,0 +1,33 @@
+[Open Files]
+Active File Display Mode=3
+Active File Index=3
+Open File Line0=0
+Open File Line1=0
+Open File Line2=0
+Open File Line3=346
+Open File Line4=608
+Open File Line5=0
+Open File Pos0=0
+Open File Pos1=621
+Open File Pos2=0
+Open File Pos3=855
+Open File Pos4=795
+Open File Pos5=799
+Open File Window Pos0=0,1,-1,-1,-4,-30,28,80,1090,562
+Open File Window Pos1=0,1,-1,-1,-4,-30,110,145,1172,627
+Open File Window Pos2=0,1,-1,-1,-4,-30,22,29,1084,511
+Open File Window Pos3=2,3,-1,-1,-4,-30,44,58,1106,540
+Open File Window Pos4=0,1,-1,-1,-4,-30,66,87,1128,569
+Open File Window Pos5=0,1,-1,-1,-4,-30,88,116,1150,598
+Open File0=.\Display.h
+Open File1=.\main.c
+Open File2=.\main.h
+Open File3=.\Periph_Functions.c
+Open File4=.\Periph_Functions.h
+Open File5=.\Display.c
+Open File6=
+Remember Files=1
+
+[Project Information]
+Project Start=DD07020005000100070011003400000038
+Working Time=25517

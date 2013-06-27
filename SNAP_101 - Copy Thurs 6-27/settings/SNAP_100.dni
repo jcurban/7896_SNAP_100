@@ -1,0 +1,125 @@
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[DebugChecksum]
+Checksum=-1618158813
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[SfrWindow]
+Show=1 1
+Sort=4 0
+[CallStackLog]
+Enabled=0
+[DriverProfiling]
+Enabled=0
+Mode=1
+Graph=0
+Symbiont=0
+Exclusions=
+[InterruptLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+SumSortOrder=0
+[DataLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+Title0=DEVICE_MSGLENGTH
+Symbol0=0 2 1
+[Breakpoints2]
+Bp0=_ 0 "STD_DATA_LOG" "DEVICE_MSGLENGTH" 0
+Bp1=_ 0 "STD_CODE2" "0x0086C5" 0 0 1 "" 0 ""
+Bp2=_ 0 "STD_DATA2" "DEVICE_MSGLENGTH" 0 0 1 "" 0 "" 0
+Bp3=_ 0 "STD_DATA2" "DEVICE_MSGLENGTH" 0 0 1 "" 0 "" 0
+Bp4=_ 0 "STD_CODE2" "{$PROJ_DIR$\StringUtilities.c}.132.1" 0 0 1 "" 0 ""
+Bp5=_ 0 "STD_CODE2" "0x00841C" 0 0 1 "" 0 ""
+Bp6=_ 0 "STD_CODE2" "{$PROJ_DIR$\main.c}.85.1" 0 0 1 "" 0 ""
+Bp7=_ 0 "STD_CODE2" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.303.3" 0 0 1 "" 0 ""
+Bp8=_ 0 "STD_CODE2" "{$PROJ_DIR$\StringUtilities.c}.122.3" 0 0 1 "" 0 ""
+Bp9=_ 0 "STD_CODE2" "{$PROJ_DIR$\Device_Serial_Handlers.c}.208.9" 0 0 1 "" 0 ""
+Bp10=_ 0 "STD_CODE2" "{$PROJ_DIR$\stm8s_clk.c}.605.5" 0 0 1 "" 0 ""
+Bp11=_ 0 "STD_CODE2" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.246.2" 0 0 1 "" 0 ""
+Bp12=_ 0 "STD_CODE2" "{$PROJ_DIR$\Device_Serial_Handlers.c}.321.5" 0 0 1 "" 0 ""
+Bp13=_ 0 "STD_CODE2" "{$PROJ_DIR$\main.c}.141.3" 0 0 1 "" 0 ""
+Bp14=_ 0 "STD_CODE2" "{$PROJ_DIR$\stm8s_it.c}.435.3" 0 0 1 "" 0 ""
+Bp15=_ 0 "STD_CODE2" "{$PROJ_DIR$\stm8s_it.c}.369.3" 0 0 1 "" 0 ""
+Bp16=_ 0 "STD_CODE2" "{$PROJ_DIR$\Device_Serial_Handlers.c}.307.3" 0 0 1 "" 0 ""
+Bp17=_ 0 "STD_CODE2" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.305.3" 0 0 1 "" 0 ""
+Bp18=_ 0 "STD_CODE2" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.282.3" 0 0 1 "" 0 ""
+Bp19=_ 0 "STD_CODE2" "{$PROJ_DIR$\main.c}.58.3" 0 0 1 "" 0 ""
+Bp20=_ 0 "STD_CODE2" "{$PROJ_DIR$\main.c}.51.3" 0 0 1 "" 0 ""
+Bp21=_ 0 "STD_CODE2" "{$PROJ_DIR$\stm8s_it.c}.379.3" 0 0 1 "" 0 ""
+Bp22=_ 0 "STD_CODE2" "{$PROJ_DIR$\stm8s_it.c}.448.3" 0 0 1 "" 0 ""
+Bp23=_ 0 "STD_CODE2" "{$PROJ_DIR$\Device_Serial_Handlers.c}.295.3" 0 0 1 "" 0 ""
+Bp24=_ 0 "STD_CODE2" "{$PROJ_DIR$\main.c}.56.3" 0 0 1 "" 0 ""
+Bp25=_ 0 "STD_CODE2" "{$PROJ_DIR$\main.c}.53.3" 0 0 1 "" 0 ""
+Count=26
+[Interrupts]
+Enabled=1
+[MemoryMap]
+Enabled=0
+Base=0
+UseAuto=0
+TypeViolation=1
+UnspecRange=1
+ActionState=1
+[Trace1]
+Enabled=0
+ShowSource=1
+[BreakpointUsageDialog]
+Placement=_ 665 338 1255 695
+[DataSample]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$}.64.7" 0 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$}.51.3" 0 0 0 0 "" 0 ""
+Bp2=_ "STD_DATA" "Device_Xmit_Complete_Flag" 0 0 0 3 0 "" 0 ""
+Bp3=_ "STD_DATA" "Device_Xmit_Complete_Flag" 0 0 0 3 0 "" 0 ""
+Bp4=_ "STD_DATA" "Device_Xmit_Complete_Flag" 0 0 0 3 0 "" 0 ""
+Bp5=_ "STD_DATA" "if" 0 0 0 3 0 "" 0 ""
+Bp6=_ "STD_DATA" "UART1->DR" 0 0 0 3 0 "" 0 ""
+Bp7=_ "STD_CODE" "0x008E01" 0 0 0 0 "" 0 ""
+Bp8=_ "STD_CODE" "{$PROJ_DIR$\SNAPSData.c}.44.1" 0 0 0 0 "" 0 ""
+Bp9=_ "STD_CODE" "{$PROJ_DIR$\Device_Serial_Handlers.c}.165.3" 1 0 0 0 "" 0 ""
+Bp10=_ "STD_CODE" "{$PROJ_DIR$\StringUtilities.c}.266.1" 1 0 0 0 "" 0 ""
+Bp11=_ "STD_CODE" "{$PROJ_DIR$\main.c}.56.3" 1 0 0 0 "" 0 ""
+Bp12=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.201.3" 1 0 0 0 "" 0 ""
+Bp13=_ "STD_CODE" "{$PROJ_DIR$\StringUtilities.c}.237.1" 1 0 0 0 "" 0 ""
+Bp14=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.209.7" 1 0 0 0 "" 0 ""
+Bp15=_ "STD_CODE" "{$PROJ_DIR$\StringUtilities.c}.242.3" 1 0 0 0 "" 0 ""
+Count=16
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[Aliases]
+A0=_ "C:\GITHUB_PROJECTS\7896_SNAP\main.c" ""
+A1=_ "C:\SNAP\7896_SNAP\stm8s_it.c" ""
+A2=_ "C:\SNAP\SNAP_100 - old\main.c" ""
+A3=_ "C:\SNAP\SNAP_100 - old\stm8s_clk.c" ""
+A4=_ "C:\SNAP\SNAP_100 - old\stm8s_it.c" ""
+A5=_ "C:\SNAP\johns code\Device_Serial_Handlers.c" ""
+A6=_ "F:\johns code\stm8s_it.c" ""
+A7=_ "G:\johns code\stm8s_it.c" "F:\johns code\stm8s_itc.c"
+Count=8
+SuppressDialog=1
