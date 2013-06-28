@@ -19,6 +19,6 @@
 @REM 
 
 
-"C:\Program Files\IAR Systems\Embedded Workbench 6.5\common\bin\cspybat" "C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\bin\stm8proc.dll" "C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\bin\stm8stlink.dll"  %1 --plugin "C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\bin\stm8bat.dll" --backend -B "-p" "C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\config\ddf\iostm8s007c8.ddf" "-d" "stlink" "--mcuname" "STM8S007C8" "--verify_download" "--log_file" "C:\SNAP_101\cspycomm.log" 
+"C:\Program Files\IAR Systems\Embedded Workbench 6.5\common\bin\cspybat" "C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\bin\stm8proc.dll" "C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\bin\stm8stlink.dll"  %1 --plugin "C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\bin\stm8bat.dll" --backend -B "-p" "C:\Program Files\IAR Systems\Embedded Workbench 6.5\stm8\config\ddf\iostm8s007c8.ddf" "-d" "stlink" "--mcuname" "STM8S007C8" "--verify_download" "--log_file" "C:\Users\jurban\Documents\GitHub\7896_SNAP_100\cspycomm.log" 
 
 

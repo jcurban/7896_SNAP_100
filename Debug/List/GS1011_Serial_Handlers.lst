@@ -1,25 +1,30 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  15:01:06 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  17:37:02 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
-#    Source file  =  C:\SNAP_101\GS1011_Serial_Handlers.c                     #
-#    Command line =  C:\SNAP_101\GS1011_Serial_Handlers.c -e                  #
-#                    --enable_multibytes -On --no_cse --no_unroll             #
-#                    --no_inline --no_code_motion --no_tbaa --no_cross_call   #
-#                    --debug --code_model medium --data_model medium -o       #
-#                    C:\SNAP_101\Debug\Obj\ --dlib_config "C:\Program         #
+#    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\GS1011_Se #
+#                    rial_Handlers.c                                          #
+#    Command line =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\GS1011_Se #
+#                    rial_Handlers.c -e --enable_multibytes -On --no_cse      #
+#                    --no_unroll --no_inline --no_code_motion --no_tbaa       #
+#                    --no_cross_call --debug --code_model medium              #
+#                    --data_model medium -o C:\Users\jurban\Documents\GitHub\ #
+#                    7896_SNAP_100\Debug\Obj\ --dlib_config "C:\Program       #
 #                    Files\IAR Systems\Embedded Workbench                     #
 #                    6.5\stm8\LIB\dlstm8mmn.h" -D STM8S007 -lC                #
-#                    C:\SNAP_101\Debug\List\ -I .\ --no_system_include        #
-#                    --require_prototypes --vregs 16                          #
-#    List file    =  C:\SNAP_101\Debug\List\GS1011_Serial_Handlers.lst        #
-#    Object file  =  C:\SNAP_101\Debug\Obj\GS1011_Serial_Handlers.o           #
+#                    C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Lis #
+#                    t\ -I .\ --no_system_include --require_prototypes        #
+#                    --vregs 16                                               #
+#    List file    =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Lis #
+#                    t\GS1011_Serial_Handlers.lst                             #
+#    Object file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj #
+#                    \GS1011_Serial_Handlers.o                                #
 #                                                                             #
 #                                                                             #
 ###############################################################################
 
-C:\SNAP_101\GS1011_Serial_Handlers.c
+C:\Users\jurban\Documents\GitHub\7896_SNAP_100\GS1011_Serial_Handlers.c
       1          /**
       2            ******************************************************************************
       3            * UART 1 is the GS1011 UART
@@ -595,7 +600,7 @@ C:\SNAP_101\GS1011_Serial_Handlers.c
    \   00003B BF ..        LDW       S:?w1, X
    \   00003D 5F           CLRW      X
    \   00003E BF ..        LDW       S:?w0, X
-   \   000040 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   000040 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000043 8D ......    CALLF     assert_failed
     340              assert_param(IS_UART1_WORDLENGTH_OK(WordLength));
    \                     ??UART1_Init_1:
@@ -608,7 +613,7 @@ C:\SNAP_101\GS1011_Serial_Handlers.c
    \   000054 BF ..        LDW       S:?w1, X
    \   000056 5F           CLRW      X
    \   000057 BF ..        LDW       S:?w0, X
-   \   000059 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   000059 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00005C 8D ......    CALLF     assert_failed
     341              assert_param(IS_UART1_STOPBITS_OK(StopBits));
    \                     ??UART1_Init_2:
@@ -627,7 +632,7 @@ C:\SNAP_101\GS1011_Serial_Handlers.c
    \   000079 BF ..        LDW       S:?w1, X
    \   00007B 5F           CLRW      X
    \   00007C BF ..        LDW       S:?w0, X
-   \   00007E AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   00007E AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000081 8D ......    CALLF     assert_failed
     342              assert_param(IS_UART1_PARITY_OK(Parity));
    \                     ??UART1_Init_3:
@@ -643,7 +648,7 @@ C:\SNAP_101\GS1011_Serial_Handlers.c
    \   000098 BF ..        LDW       S:?w1, X
    \   00009A 5F           CLRW      X
    \   00009B BF ..        LDW       S:?w0, X
-   \   00009D AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   00009D AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   0000A0 8D ......    CALLF     assert_failed
     343              assert_param(IS_UART1_MODE_OK((uint8_t)Mode));
    \                     ??UART1_Init_4:
@@ -678,7 +683,7 @@ C:\SNAP_101\GS1011_Serial_Handlers.c
    \   0000DD BF ..        LDW       S:?w1, X
    \   0000DF 5F           CLRW      X
    \   0000E0 BF ..        LDW       S:?w0, X
-   \   0000E2 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   0000E2 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   0000E5 8D ......    CALLF     assert_failed
     344              assert_param(IS_UART1_SYNCMODE_OK((uint8_t)SyncMode));
    \                     ??UART1_Init_5:
@@ -703,7 +708,7 @@ C:\SNAP_101\GS1011_Serial_Handlers.c
    \   00010C BF ..        LDW       S:?w1, X
    \   00010E 5F           CLRW      X
    \   00010F BF ..        LDW       S:?w0, X
-   \   000111 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`
+   \   000111 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000114 8D ......    CALLF     assert_failed
     345          
     346              /* Clear the word length bit */
@@ -910,16 +915,32 @@ C:\SNAP_101\GS1011_Serial_Handlers.c
    \   000260 AC ......    JPF       L:?epilogue_l2_l3
 
    \                                 In section .near.rodata, align 1
-   \                     `?<Constant "C:\\\\SNAP_101\\\\GS1011_Se...">`:
-   \   000000 43 3A 5C 53  DC8 "C:\\SNAP_101\\GS1011_Serial_Handlers.c"
-   \          4E 41 50 5F 
+   \                     `?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`:
+   \   000000 43 3A 5C 55  DC8 43H, 3AH, 5CH, 55H, 73H, 65H, 72H, 73H
+   \          73 65 72 73 
+   \   000008 5C 6A 75 72  DC8 5CH, 6AH, 75H, 72H, 62H, 61H, 6EH, 5CH
+   \          62 61 6E 5C 
+   \   000010 44 6F 63 75  DC8 44H, 6FH, 63H, 75H, 6DH, 65H, 6EH, 74H
+   \          6D 65 6E 74 
+   \   000018 73 5C 47 69  DC8 73H, 5CH, 47H, 69H, 74H, 48H, 75H, 62H
+   \          74 48 75 62 
+   \   000020 5C 37 38 39  DC8 5CH, 37H, 38H, 39H, 36H, 5FH, 53H, 4EH
+   \          36 5F 53 4E 
+   \   000028 41 50 5F 31  DC8 41H, 50H, 5FH, 31H, 30H, 30H, 5CH, 47H
+   \          30 30 5C 47 
+   \   000030 53 31 30 31  DC8 53H, 31H, 30H, 31H, 31H, 5FH, 53H, 65H
+   \          31 5F 53 65 
+   \   000038 72 69 61 6C  DC8 72H, 69H, 61H, 6CH, 5FH, 48H, 61H, 6EH
+   \          5F 48 61 6E 
+   \   000040 64 6C 65 72  DC8 64H, 6CH, 65H, 72H, 73H, 2EH, 63H, 0
+   \          73 2E 63 00 
     421          
 
    Section sizes:
 
    Bytes  Function/Label
    -----  --------------
-      37  ?<Constant "C:\\SNAP_101\\GS1011_Se...">
+      72  ?<Constant "C:\\Users\\jurban\\Docum...">
        1  Are_You_There_with_Response
       37  GS1011_Received_Data_Handler
       30  GetNSTAT_ResponseFromGS1011
@@ -938,10 +959,10 @@ C:\SNAP_101\GS1011_Serial_Handlers.c
 
  
  1 006 bytes in section .far_func.text
-    37 bytes in section .near.rodata
+    72 bytes in section .near.rodata
  
  1 006 bytes of CODE  memory
-    37 bytes of CONST memory
+    72 bytes of CONST memory
 
 Errors: none
 Warnings: none

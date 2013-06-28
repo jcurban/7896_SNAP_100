@@ -1,24 +1,29 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  14:55:14 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  17:37:03 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
-#    Source file  =  C:\SNAP_101\stm8s_clk.c                                  #
-#    Command line =  C:\SNAP_101\stm8s_clk.c -e --enable_multibytes -On       #
-#                    --no_cse --no_unroll --no_inline --no_code_motion        #
-#                    --no_tbaa --no_cross_call --debug --code_model medium    #
-#                    --data_model medium -o C:\SNAP_101\Debug\Obj\            #
-#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\stm8s_clk #
+#                    .c                                                       #
+#    Command line =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\stm8s_clk #
+#                    .c -e --enable_multibytes -On --no_cse --no_unroll       #
+#                    --no_inline --no_code_motion --no_tbaa --no_cross_call   #
+#                    --debug --code_model medium --data_model medium -o       #
+#                    C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj #
+#                    \ --dlib_config "C:\Program Files\IAR Systems\Embedded   #
 #                    Workbench 6.5\stm8\LIB\dlstm8mmn.h" -D STM8S007 -lC      #
-#                    C:\SNAP_101\Debug\List\ -I .\ --no_system_include        #
-#                    --require_prototypes --vregs 16                          #
-#    List file    =  C:\SNAP_101\Debug\List\stm8s_clk.lst                     #
-#    Object file  =  C:\SNAP_101\Debug\Obj\stm8s_clk.o                        #
+#                    C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Lis #
+#                    t\ -I .\ --no_system_include --require_prototypes        #
+#                    --vregs 16                                               #
+#    List file    =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Lis #
+#                    t\stm8s_clk.lst                                          #
+#    Object file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj #
+#                    \stm8s_clk.o                                             #
 #                                                                             #
 #                                                                             #
 ###############################################################################
 
-C:\SNAP_101\stm8s_clk.c
+C:\Users\jurban\Documents\GitHub\7896_SNAP_100\stm8s_clk.c
       1          /**
       2            ******************************************************************************
       3            * @file    stm8s_clk.c
@@ -159,7 +164,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000012 BF ..        LDW       S:?w1, X
    \   000014 5F           CLRW      X
    \   000015 BF ..        LDW       S:?w0, X
-   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001A 8D ......    CALLF     assert_failed
     100          
     101              if (NewState != DISABLE)
@@ -209,7 +214,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000012 BF ..        LDW       S:?w1, X
    \   000014 5F           CLRW      X
    \   000015 BF ..        LDW       S:?w0, X
-   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001A 8D ......    CALLF     assert_failed
     124          
     125              if (NewState != DISABLE)
@@ -259,7 +264,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000012 BF ..        LDW       S:?w1, X
    \   000014 5F           CLRW      X
    \   000015 BF ..        LDW       S:?w0, X
-   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001A 8D ......    CALLF     assert_failed
     148          
     149              if (NewState != DISABLE)
@@ -309,7 +314,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000012 BF ..        LDW       S:?w1, X
    \   000014 5F           CLRW      X
    \   000015 BF ..        LDW       S:?w0, X
-   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001A 8D ......    CALLF     assert_failed
     172          
     173              if (NewState != DISABLE)
@@ -360,7 +365,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000012 BF ..        LDW       S:?w1, X
    \   000014 5F           CLRW      X
    \   000015 BF ..        LDW       S:?w0, X
-   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001A 8D ......    CALLF     assert_failed
     197          
     198              if (NewState != DISABLE)
@@ -412,7 +417,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000012 BF ..        LDW       S:?w1, X
    \   000014 5F           CLRW      X
    \   000015 BF ..        LDW       S:?w0, X
-   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001A 8D ......    CALLF     assert_failed
     223          
     224              if (NewState != DISABLE )
@@ -465,7 +470,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000012 BF ..        LDW       S:?w1, X
    \   000014 5F           CLRW      X
    \   000015 BF ..        LDW       S:?w0, X
-   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001A 8D ......    CALLF     assert_failed
     250          
     251              if (NewState != DISABLE)
@@ -519,7 +524,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000016 BF ..        LDW       S:?w1, X
    \   000018 5F           CLRW      X
    \   000019 BF ..        LDW       S:?w0, X
-   \   00001B AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   00001B AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001E 8D ......    CALLF     assert_failed
     277              assert_param(IS_CLK_PERIPHERAL_OK(CLK_Peripheral));
    \                     ??CLK_PeripheralClockConfig_0:
@@ -568,7 +573,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000077 BF ..        LDW       S:?w1, X
    \   000079 5F           CLRW      X
    \   00007A BF ..        LDW       S:?w0, X
-   \   00007C AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   00007C AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00007F 8D ......    CALLF     assert_failed
     278          
     279              if (((uint8_t)CLK_Peripheral & (uint8_t)0x10) == 0x00)
@@ -696,7 +701,7 @@ C:\SNAP_101\stm8s_clk.c
    \   00002F BF ..        LDW       S:?w1, X
    \   000031 5F           CLRW      X
    \   000032 BF ..        LDW       S:?w0, X
-   \   000034 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000034 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000037 8D ......    CALLF     assert_failed
     328              assert_param(IS_CLK_SWITCHMODE_OK(CLK_SwitchMode));
    \                     ??CLK_ClockSwitchConfig_0:
@@ -709,7 +714,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000048 BF ..        LDW       S:?w1, X
    \   00004A 5F           CLRW      X
    \   00004B BF ..        LDW       S:?w0, X
-   \   00004D AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   00004D AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000050 8D ......    CALLF     assert_failed
     329              assert_param(IS_FUNCTIONALSTATE_OK(ITState));
    \                     ??CLK_ClockSwitchConfig_1:
@@ -722,7 +727,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000061 BF ..        LDW       S:?w1, X
    \   000063 5F           CLRW      X
    \   000064 BF ..        LDW       S:?w0, X
-   \   000066 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000066 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000069 8D ......    CALLF     assert_failed
     330              assert_param(IS_CLK_CURRENTCLOCKSTATE_OK(CLK_CurrentClockState));
    \                     ??CLK_ClockSwitchConfig_2:
@@ -735,7 +740,7 @@ C:\SNAP_101\stm8s_clk.c
    \   00007A BF ..        LDW       S:?w1, X
    \   00007C 5F           CLRW      X
    \   00007D BF ..        LDW       S:?w0, X
-   \   00007F AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   00007F AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000082 8D ......    CALLF     assert_failed
     331          
     332              /* Current clock master saving */
@@ -921,7 +926,7 @@ C:\SNAP_101\stm8s_clk.c
    \   00001E BF ..        LDW       S:?w1, X
    \   000020 5F           CLRW      X
    \   000021 BF ..        LDW       S:?w0, X
-   \   000023 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000023 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000026 8D ......    CALLF     assert_failed
     421          
     422              /* Clear High speed internal clock prescaler */
@@ -1002,7 +1007,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000054 BF ..        LDW       S:?w1, X
    \   000056 5F           CLRW      X
    \   000057 BF ..        LDW       S:?w0, X
-   \   000059 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000059 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00005C 8D ......    CALLF     assert_failed
     444          
     445              /* Clears of the CCO type bits part */
@@ -1054,7 +1059,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000016 BF ..        LDW       S:?w1, X
    \   000018 5F           CLRW      X
    \   000019 BF ..        LDW       S:?w0, X
-   \   00001B AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   00001B AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001E 8D ......    CALLF     assert_failed
     469              assert_param(IS_CLK_IT_OK(CLK_IT));
    \                     ??CLK_ITConfig_0:
@@ -1068,7 +1073,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000031 BF ..        LDW       S:?w1, X
    \   000033 5F           CLRW      X
    \   000034 BF ..        LDW       S:?w0, X
-   \   000036 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000036 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000039 8D ......    CALLF     assert_failed
     470          
     471              if (NewState != DISABLE)
@@ -1189,7 +1194,7 @@ C:\SNAP_101\stm8s_clk.c
    \   00004E BF ..        LDW       S:?w1, X
    \   000050 5F           CLRW      X
    \   000051 BF ..        LDW       S:?w0, X
-   \   000053 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000053 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000056 8D ......    CALLF     assert_failed
     512          
     513              if (((uint8_t)CLK_Prescaler & (uint8_t)0x80) == 0x00) /* Bit7 = 0 means HSI divider */
@@ -1253,7 +1258,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000012 BF ..        LDW       S:?w1, X
    \   000014 5F           CLRW      X
    \   000015 BF ..        LDW       S:?w0, X
-   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000017 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001A 8D ......    CALLF     assert_failed
     536          
     537              if (CLK_SWIMDivider != CLK_SWIMDIVIDER_2)
@@ -1457,7 +1462,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000036 BF ..        LDW       S:?w1, X
    \   000038 5F           CLRW      X
    \   000039 BF ..        LDW       S:?w0, X
-   \   00003B AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   00003B AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00003E 8D ......    CALLF     assert_failed
     621          
     622              /* Store the new value */
@@ -1548,7 +1553,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000054 BF ..        LDW       S:?w1, X
    \   000056 5F           CLRW      X
    \   000057 BF ..        LDW       S:?w0, X
-   \   000059 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000059 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00005C 8D ......    CALLF     assert_failed
     657          
     658              /* Get the CLK register index */
@@ -1671,7 +1676,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000017 BF ..        LDW       S:?w1, X
    \   000019 5F           CLRW      X
    \   00001A BF ..        LDW       S:?w0, X
-   \   00001C AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   00001C AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001F 8D ......    CALLF     assert_failed
     710          
     711              if (CLK_IT == CLK_IT_SWIF)
@@ -1759,7 +1764,7 @@ C:\SNAP_101\stm8s_clk.c
    \   000014 BF ..        LDW       S:?w1, X
    \   000016 5F           CLRW      X
    \   000017 BF ..        LDW       S:?w0, X
-   \   000019 AE ....      LDW       X, #`?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`
+   \   000019 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00001C 8D ......    CALLF     assert_failed
     752          
     753              if (CLK_IT == (uint8_t)CLK_IT_CSSD)
@@ -1787,9 +1792,22 @@ C:\SNAP_101\stm8s_clk.c
    \   000033 87           RETF
 
    \                                 In section .near.rodata, align 1
-   \                     `?<Constant "C:\\\\SNAP_101\\\\stm8s_clk.c">`:
-   \   000000 43 3A 5C 53  DC8 "C:\\SNAP_101\\stm8s_clk.c"
-   \          4E 41 50 5F 
+   \                     `?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`:
+   \   000000 43 3A 5C 55  DC8 43H, 3AH, 5CH, 55H, 73H, 65H, 72H, 73H
+   \          73 65 72 73 
+   \   000008 5C 6A 75 72  DC8 5CH, 6AH, 75H, 72H, 62H, 61H, 6EH, 5CH
+   \          62 61 6E 5C 
+   \   000010 44 6F 63 75  DC8 44H, 6FH, 63H, 75H, 6DH, 65H, 6EH, 74H
+   \          6D 65 6E 74 
+   \   000018 73 5C 47 69  DC8 73H, 5CH, 47H, 69H, 74H, 48H, 75H, 62H
+   \          74 48 75 62 
+   \   000020 5C 37 38 39  DC8 5CH, 37H, 38H, 39H, 36H, 5FH, 53H, 4EH
+   \          36 5F 53 4E 
+   \   000028 41 50 5F 31  DC8 41H, 50H, 5FH, 31H, 30H, 30H, 5CH, 73H
+   \          30 30 5C 73 
+   \   000030 74 6D 38 73  DC8 74H, 6DH, 38H, 73H, 5FH, 63H, 6CH, 6BH
+   \          5F 63 6C 6B 
+   \   000038 2E 63 00     DC8 2EH, 63H, 0
     765          /**
     766            * @}
     767            */
@@ -1804,7 +1822,7 @@ C:\SNAP_101\stm8s_clk.c
 
    Bytes  Function/Label
    -----  --------------
-      24  ?<Constant "C:\\SNAP_101\\stm8s_clk.c">
+      59  ?<Constant "C:\\Users\\jurban\\Docum...">
        8  CLKPrescTable
       80  CLK_AdjustHSICalibrationValue
       48  CLK_CCOCmd
@@ -1833,10 +1851,10 @@ C:\SNAP_101\stm8s_clk.c
 
  
  1 938 bytes in section .far_func.text
-    36 bytes in section .near.rodata
+    71 bytes in section .near.rodata
  
  1 938 bytes of CODE  memory
-    36 bytes of CONST memory
+    71 bytes of CONST memory
 
 Errors: none
 Warnings: none

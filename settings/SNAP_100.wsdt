@@ -12,7 +12,7 @@
           
           
           
-        <Column0>156</Column0><Column1>0</Column1><Column2>1</Column2><Column3>0</Column3></ColumnWidths>
+        <Column0>246</Column0><Column1>0</Column1><Column2>1</Column2><Column3>0</Column3></ColumnWidths>
       </Workspace>
       <Build>
         
@@ -29,7 +29,7 @@
     <Windows>
       
       
-    <Wnd0>
+    <Wnd1>
         <Tabs>
           <Tab>
             <Identity>TabID-22034-2795</Identity>
@@ -41,26 +41,26 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd0><Wnd2>
+      <SelectedTab>0</SelectedTab></Wnd1><Wnd3>
         <Tabs>
           
           
         <Tab><Identity>TabID-32513-14675</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab><Tab><Identity>TabID-9600-842</Identity><TabName>Build</TabName><Factory>Build</Factory><Session/></Tab><Tab><Identity>TabID-30143-11739</Identity><TabName>Debug Log</TabName><Factory>Debug-Log</Factory><Session/></Tab></Tabs>
         
-      <SelectedTab>1</SelectedTab></Wnd2></Windows>
+      <SelectedTab>1</SelectedTab></Wnd3></Windows>
     <Editor>
       
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\stm8s_it.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>375</YPos2><SelStart2>9963</SelStart2><SelEnd2>9963</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\SNAPSData.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>284</SelStart2><SelEnd2>302</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\SNAPdata.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>32</YPos2><SelStart2>1310</SelStart2><SelEnd2>1327</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\SNAP_101 - Copy Thurs 6-27\StringUtilities.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>375</SelStart2><SelEnd2>375</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\SNAP_101 - Copy Thurs 6-27\GS1011_Serial_Handlers.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>217</YPos2><SelStart2>10904</SelStart2><SelEnd2>10904</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\GS1011_Serial_Handlers.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>191</YPos2><SelStart2>9585</SelStart2><SelEnd2>9585</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>36</YPos2><SelStart2>2070</SelStart2><SelEnd2>2070</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\Device_Serial_Handlers.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>84</YPos2><SelStart2>4264</SelStart2><SelEnd2>4264</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\StringUtilities.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>226</YPos2><SelStart2>10038</SelStart2><SelEnd2>10038</SelEnd2></Tab><ActiveTab>8</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\stm8s_it.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>375</YPos2><SelStart2>9963</SelStart2><SelEnd2>9963</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\SNAPSData.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>284</SelStart2><SelEnd2>302</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\SNAPdata.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>32</YPos2><SelStart2>1310</SelStart2><SelEnd2>1327</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\GS1011_Serial_Handlers.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>190</YPos2><SelStart2>9106</SelStart2><SelEnd2>9106</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>13</YPos2><SelStart2>1009</SelStart2><SelEnd2>1009</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\Device_Serial_Handlers.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>84</YPos2><SelStart2>4264</SelStart2><SelEnd2>4264</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\StringUtilities.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>29</YPos2><SelStart2>2234</SelStart2><SelEnd2>2234</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\SNAP_101\StringUtilities.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>251</YPos2><SelStart2>10854</SelStart2><SelEnd2>10854</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\SNAP_101\GS1011_Serial_Handlers.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>153</YPos2><SelStart2>7461</SelStart2><SelEnd2>7461</SelEnd2></Tab><ActiveTab>8</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\SNAP_101\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>37</YPos2><SelStart2>2535</SelStart2><SelEnd2>2562</SelEnd2></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-00f44710><key>iaridepm.enu1</key></Toolbar-00f44710></Sizes></Row0><Row1><Sizes/></Row1><Row2><Sizes/></Row2><Row3><Sizes><Toolbar-0678b190><key>debuggergui.enu1</key></Toolbar-0678b190></Sizes></Row3></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>451</Bottom><Right>177</Right><x>-2</x><y>-2</y><xscreen>65</xscreen><yscreen>63</yscreen><sizeHorzCX>50781</sizeHorzCX><sizeHorzCY>98284</sizeHorzCY><sizeVertCX>139844</sizeVertCX><sizeVertCY>706708</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>145</Bottom><Right>1282</Right><x>-2</x><y>-2</y><xscreen>1284</xscreen><yscreen>147</yscreen><sizeHorzCX>1003125</sizeHorzCX><sizeHorzCY>229329</sizeHorzCY><sizeVertCX>50781</sizeVertCX><sizeVertCY>98284</sizeVertCY></Rect></Wnd2></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-01ba4710><key>iaridepm.enu1</key></Toolbar-01ba4710></Sizes></Row0><Row1><Sizes/></Row1><Row2><Sizes/></Row2><Row3><Sizes/></Row3><Row4><Sizes/></Row4><Row5><Sizes/></Row5><Row6><Sizes/></Row6><Row7><Sizes/></Row7><Row8><Sizes/></Row8><Row9><Sizes><Toolbar-0a7bb590><key>debuggergui.enu1</key></Toolbar-0a7bb590></Sizes></Row9></Top><Left><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>691</Bottom><Right>267</Right><x>-2</x><y>-2</y><xscreen>97</xscreen><yscreen>94</yscreen><sizeHorzCX>50521</sizeHorzCX><sizeHorzCY>97815</sizeHorzCY><sizeVertCX>140104</sizeVertCX><sizeVertCY>721124</sizeVertCY></Rect></Wnd1></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>219</Bottom><Right>1922</Right><x>-2</x><y>-2</y><xscreen>1924</xscreen><yscreen>221</yscreen><sizeHorzCX>1002083</sizeHorzCX><sizeHorzCY>229969</sizeHorzCY><sizeVertCX>50521</sizeVertCX><sizeVertCY>97815</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 

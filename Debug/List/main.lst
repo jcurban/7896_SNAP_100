@@ -1,24 +1,28 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  14:55:13 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  17:37:02 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
-#    Source file  =  C:\SNAP_101\main.c                                       #
-#    Command line =  C:\SNAP_101\main.c -e --enable_multibytes -On --no_cse   #
-#                    --no_unroll --no_inline --no_code_motion --no_tbaa       #
-#                    --no_cross_call --debug --code_model medium              #
-#                    --data_model medium -o C:\SNAP_101\Debug\Obj\            #
-#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\main.c    #
+#    Command line =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\main.c    #
+#                    -e --enable_multibytes -On --no_cse --no_unroll          #
+#                    --no_inline --no_code_motion --no_tbaa --no_cross_call   #
+#                    --debug --code_model medium --data_model medium -o       #
+#                    C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj #
+#                    \ --dlib_config "C:\Program Files\IAR Systems\Embedded   #
 #                    Workbench 6.5\stm8\LIB\dlstm8mmn.h" -D STM8S007 -lC      #
-#                    C:\SNAP_101\Debug\List\ -I .\ --no_system_include        #
-#                    --require_prototypes --vregs 16                          #
-#    List file    =  C:\SNAP_101\Debug\List\main.lst                          #
-#    Object file  =  C:\SNAP_101\Debug\Obj\main.o                             #
+#                    C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Lis #
+#                    t\ -I .\ --no_system_include --require_prototypes        #
+#                    --vregs 16                                               #
+#    List file    =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Lis #
+#                    t\main.lst                                               #
+#    Object file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj #
+#                    \main.o                                                  #
 #                                                                             #
 #                                                                             #
 ###############################################################################
 
-C:\SNAP_101\main.c
+C:\Users\jurban\Documents\GitHub\7896_SNAP_100\main.c
       1          /*-------------extern -----------------------------------------------------------------------*/
       2          /* SNAP JOB#7896 USES STM8007C8T6 PROCESSOR                                           */
       3          /* - 32K FLASH 2KRAM  128 EEPROM  ver 1.00                                            */
@@ -34,7 +38,7 @@ C:\SNAP_101\main.c
      13          extern char GS1011_Xmit_Buffer;
      14          extern char *GS1011_Rcvr_Pointer;
      15          extern char GS1011_Received_Response_Flag;
-     16          void SendYouThereMessageToGS1011(void);
+     16          extern void SendYouThereMessageToGS1011(void);
      17          void InitializeGS1011Buffer(void);
      18          void InitializeDeviceBuffer (void);
      19          void Handle_GS1011_State(void);

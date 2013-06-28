@@ -13,7 +13,7 @@ extern int GS1011_Rvcr_Count;
 extern char GS1011_Xmit_Buffer;
 extern char *GS1011_Rcvr_Pointer;
 extern char GS1011_Received_Response_Flag;
-void SendYouThereMessageToGS1011(void);
+extern void SendYouThereMessageToGS1011(void);
 void InitializeGS1011Buffer(void);
 void InitializeDeviceBuffer (void);
 void Handle_GS1011_State(void);

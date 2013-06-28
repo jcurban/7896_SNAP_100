@@ -4,7 +4,7 @@ Global:
   ------   -------------
   _Printf  _PrintfFullNoMb
   _Scanf   _ScanfFullNoMb
-Loading object C:\SNAP_101\Debug\Obj\Device_Serial_Handlers.o.
+Loading object C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\Device_Serial_Handlers.o.
               reference :  ?b0
               reference :  ?b15
               reference :  ?b2
@@ -105,8 +105,8 @@ Loading object C:\SNAP_101\Debug\Obj\Device_Serial_Handlers.o.
               definition:  UART3_DeInit
               definition:  UART3_Init
               definition:  Wait_For_Update
-              definition:  __iar_cc..5aV8F1pJTLA
-Loading object C:\SNAP_101\Debug\Obj\GS1011_Serial_Handlers.o.
+              definition:  __iar_cc..ACXjttolq26
+Loading object C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\GS1011_Serial_Handlers.o.
               reference :  ?b0
               reference :  ?b15
               reference :  ?b3
@@ -177,8 +177,8 @@ Loading object C:\SNAP_101\Debug\Obj\GS1011_Serial_Handlers.o.
               definition:  Start_GS1011_Send
               definition:  UART1_DeInit
               definition:  UART1_Init
-              definition:  __iar_cc..5aV8F1pJTLA
-Loading object C:\SNAP_101\Debug\Obj\ParameterBlockHandlers.o.
+              definition:  __iar_cc..ACXjttolq26
+Loading object C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\ParameterBlockHandlers.o.
               reference :  ?b0
               reference :  ?epilogue_l2_w6
               reference :  ?push_l2
@@ -200,7 +200,7 @@ Loading object C:\SNAP_101\Debug\Obj\ParameterBlockHandlers.o.
               definition:  Save_PValues
               definition:  get_Device_type
               definition:  get_Serial_Number
-Loading object C:\SNAP_101\Debug\Obj\SNAPSData.o.
+Loading object C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\SNAPSData.o.
               definition:  AdaptorReady
               definition:  ClearW0Message
               definition:  ClearW1Message
@@ -231,7 +231,7 @@ Loading object C:\SNAP_101\Debug\Obj\SNAPSData.o.
               definition:  WSTATECONNECTEDmsg
               definition:  YouThereMessage
               definition:  pheader
-Loading object C:\SNAP_101\Debug\Obj\SNAPdata.o.
+Loading object C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\SNAPdata.o.
               definition:  BFRSIZE
               definition:  CID_Value
               definition:  DEVICE_CHECKSUM
@@ -284,7 +284,7 @@ Loading object C:\SNAP_101\Debug\Obj\SNAPdata.o.
               definition:  checksum_Okay
               definition:  cntr
               definition:  gtchr
-Loading object C:\SNAP_101\Debug\Obj\StringUtilities.o.
+Loading object C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\StringUtilities.o.
               reference :  ?b0
               reference :  ?b1
               reference :  ?b4
@@ -335,7 +335,7 @@ Loading object C:\SNAP_101\Debug\Obj\StringUtilities.o.
               definition:  FindGS1011Chars
               definition:  InitializeDeviceBuffer
               definition:  InitializeGS1011Buffer
-Loading object C:\SNAP_101\Debug\Obj\main.o.
+Loading object C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\main.o.
               reference :  CID_Value
               reference :  Device_State
               reference :  GS1011_Received_Response_Flag
@@ -359,7 +359,7 @@ Loading object C:\SNAP_101\Debug\Obj\main.o.
               definition:  VER
               definition:  assert_failed
               definition:  main
-Loading object C:\SNAP_101\Debug\Obj\stm8s_clk.o.
+Loading object C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_clk.o.
               reference :  ?b0
               reference :  ?b1
               reference :  ?b10
@@ -418,10 +418,10 @@ Loading object C:\SNAP_101\Debug\Obj\stm8s_clk.o.
               definition:  CLK_SYSCLKEmergencyClear
               definition:  CLK_SlowActiveHaltWakeUpCmd
               definition:  HSIDivFactor
-              definition:  __iar_cc..pVrM2fVQzZD
-              definition:  __iar_cc..Ezzrgiw96k1
-              definition:  __iar_cc..vqv_9V7z8h2
-Loading object C:\SNAP_101\Debug\Obj\stm8s_it.o.
+              definition:  __iar_cc..gE7tokzj6oC
+              definition:  __iar_cc..prx5$PSyCd9
+              definition:  __iar_cc..128KhM7JGQA
+Loading object C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o.
               reference :  ?pop_l0
               reference :  ?pop_l1
               reference :  ?push_l0
@@ -956,56 +956,56 @@ Selecting member init_small.o(dlstm8mmn.a) to define __iar_zero_init2 (optional)
               definition:  __iar_copy_init2
               definition:  __iar_zero_init2
 Resolving duplicate symbol definitions
-  Picking _interrupt_15 [s29 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_15 [s29 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_15 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_8 [s24 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_8 [s24 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_8 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_16 [s30 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_16 [s30 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_16 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_26 [s40 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_26 [s40 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_26 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_7 [s23 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_7 [s23 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_7 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_17 [s31 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_17 [s31 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_17 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_21 [s35 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_21 [s35 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_21 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_6 [s22 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_6 [s22 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_6 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_18 [s32 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_18 [s32 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_18 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_20 [s34 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_20 [s34 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_20 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_5 [s21 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_5 [s21 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_5 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_19 [s33 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_19 [s33 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_19 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_23 [s37 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_23 [s37 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_23 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_4 [s20 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_4 [s20 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_4 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_12 [s26 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_12 [s26 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_12 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_22 [s36 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_22 [s36 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_22 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_3 [s19 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_3 [s19 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_3 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_13 [s27 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_13 [s27 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_13 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_2 [s18 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_2 [s18 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_2 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_25 [s39 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_25 [s39 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_25 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_1 [s17 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_1 [s17 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_1 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_14 [s28 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_14 [s28 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_14 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_24 [s38 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_24 [s38 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_24 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking _interrupt_9 [s25 C:\SNAP_101\Debug\Obj\stm8s_it.o]
+  Picking _interrupt_9 [s25 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\stm8s_it.o]
     Suppressing _interrupt_9 [s6 interrupt.o(dlstm8mmn.a)]
-  Picking __iar_cc..5aV8F1pJTLA [s111 C:\SNAP_101\Debug\Obj\GS1011_Serial_Handlers.o]
-    Suppressing __iar_cc..5aV8F1pJTLA [s147 C:\SNAP_101\Debug\Obj\Device_Serial_Handlers.o]
+  Picking __iar_cc..ACXjttolq26 [s111 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\GS1011_Serial_Handlers.o]
+    Suppressing __iar_cc..ACXjttolq26 [s147 C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj\Device_Serial_Handlers.o]
 *** Marking from roots ***
 Marking symbol __iar_program_start                Glb  (17 cstartup.o) [program entry]
   Marking fragment #1508 .far_func.text (7 cstartup.o(dlstm8mmn.a)) init:always
@@ -1782,29 +1782,29 @@ Marking from fragment #166 .far_func.text (22 GS1011_Serial_Handlers.o)
   Marking symbol ?w5                                Glb  (33 vregs.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\GS1011_Se...">          (3 GS1011_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 GS1011_Serial_Handlers.o)
     Marking fragment #168 .near.rodata (24 GS1011_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
     Marking fragment #677 .far_func.text (16 main.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\GS1011_Se...">          (3 GS1011_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 GS1011_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\GS1011_Se...">          (3 GS1011_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 GS1011_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\GS1011_Se...">          (3 GS1011_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 GS1011_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\GS1011_Se...">          (3 GS1011_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 GS1011_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\GS1011_Se...">          (3 GS1011_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 GS1011_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?mov_l0_l2                         Glb  (153 vreg_util.o)
     Marking fragment #1601 .far_func.text (6 vreg_util.o(dlstm8mmn.a))
@@ -2159,26 +2159,26 @@ Marking from fragment #22 .far_func.text (27 Device_Serial_Handlers.o)
   Marking symbol ?w6                                Glb  (34 vregs.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\Device_Se...">          (3 Device_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 Device_Serial_Handlers.o)
     Marking fragment #24 .near.rodata (29 Device_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\Device_Se...">          (3 Device_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 Device_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\Device_Se...">          (3 Device_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 Device_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?w4                                Glb  (32 vregs.o)
   Marking symbol ?w5                                Glb  (33 vregs.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\Device_Se...">          (3 Device_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 Device_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?w1                                Glb  (29 vregs.o)
   Marking symbol ?w0                                Glb  (28 vregs.o)
-  Marking symbol ?<Constant "C:\\SNAP_101\\Device_Se...">          (3 Device_Serial_Handlers.o)
+  Marking symbol ?<Constant "C:\\Users\\jurban\\Docum...">          (3 Device_Serial_Handlers.o)
   Marking symbol assert_failed                      Glb  (84 main.o)
   Marking symbol ?mov_l0_l2                         Glb  (153 vreg_util.o)
   Marking symbol ?sll32_l0_l0_a                     Glb  (96 long.o)
@@ -4575,11 +4575,11 @@ Marking from fragment #734 .debug_info (7 stm8s_clk.o)
     Marking fragment #733 .debug_line (6 stm8s_clk.o)
   Marking symbol .debug_macinfo181                       (140 stm8s_clk.o)
     Marking fragment #885 .debug_macinfo (181 stm8s_clk.o)
-  Marking symbol __iar_cc..vqv_9V7z8h2              Glb  (319 stm8s_clk.o)
+  Marking symbol __iar_cc..128KhM7JGQA              Glb  (319 stm8s_clk.o)
     Marking fragment #861 .debug_info (157 stm8s_clk.o)
-  Marking symbol __iar_cc..pVrM2fVQzZD              Glb  (317 stm8s_clk.o)
+  Marking symbol __iar_cc..gE7tokzj6oC              Glb  (317 stm8s_clk.o)
     Marking fragment #857 .debug_info (153 stm8s_clk.o)
-  Marking symbol __iar_cc..Ezzrgiw96k1              Glb  (318 stm8s_clk.o)
+  Marking symbol __iar_cc..prx5$PSyCd9              Glb  (318 stm8s_clk.o)
     Marking fragment #859 .debug_info (155 stm8s_clk.o)
 Marking from fragment #859 .debug_info (155 stm8s_clk.o)
   Marking symbol .debug_abbrev182                        (136 stm8s_clk.o)
@@ -5650,7 +5650,7 @@ Marking from fragment #213 .debug_frame (80 GS1011_Serial_Handlers.o)
   Marking symbol Initialize_GS011_Xmit_buffer       Glb  (207 GS1011_Serial_Handlers.o)
 Marking from fragment #212 .debug_info (79 GS1011_Serial_Handlers.o)
   Marking symbol .debug_abbrev117                        (66 GS1011_Serial_Handlers.o)
-  Marking symbol __iar_cc..5aV8F1pJTLA              Glb  (215 GS1011_Serial_Handlers.o)
+  Marking symbol __iar_cc..ACXjttolq26              Glb  (215 GS1011_Serial_Handlers.o)
     Marking fragment #240 .debug_info (111 GS1011_Serial_Handlers.o)
   Marking symbol .far_func.text18                        (118 GS1011_Serial_Handlers.o)
   Marking symbol .far_func.text18                        (118 GS1011_Serial_Handlers.o)
@@ -5976,7 +5976,7 @@ Marking from fragment #93 .debug_frame (115 Device_Serial_Handlers.o)
   Marking symbol InitDeviceUART                     Glb  (280 Device_Serial_Handlers.o)
 Marking from fragment #92 .debug_info (114 Device_Serial_Handlers.o)
   Marking symbol .debug_abbrev152                        (90 Device_Serial_Handlers.o)
-  Marking symbol __iar_cc..5aV8F1pJTLA              Glb  (215 GS1011_Serial_Handlers.o)
+  Marking symbol __iar_cc..ACXjttolq26              Glb  (215 GS1011_Serial_Handlers.o)
   Marking symbol .far_func.text24                        (172 Device_Serial_Handlers.o)
   Marking symbol .far_func.text24                        (172 Device_Serial_Handlers.o)
   Marking symbol .debug_line113                          (174 Device_Serial_Handlers.o)
@@ -6357,7 +6357,7 @@ Unused fragments:
   .far_func.text     31     0x0   0x55  stm8s_clk.o
   .far_func.text     32     0x0   0x34  stm8s_clk.o
   VREGS              33     0x0    0x0  stm8s_clk.o
-  .near.rodata       34     0x0   0x18  stm8s_clk.o
+  .near.rodata       34     0x0   0x3b  stm8s_clk.o
   VREGS              41     0x0    0x0  stm8s_it.o
   CSTACK              6     0x0    0x0  cstartup.o
   .far_func.text      7     0xf    0xb  cstartup.o

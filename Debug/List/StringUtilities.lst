@@ -1,24 +1,30 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  15:02:54 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             27/Jun/2013  17:37:02 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
-#    Source file  =  C:\SNAP_101\StringUtilities.c                            #
-#    Command line =  C:\SNAP_101\StringUtilities.c -e --enable_multibytes     #
-#                    -On --no_cse --no_unroll --no_inline --no_code_motion    #
-#                    --no_tbaa --no_cross_call --debug --code_model medium    #
-#                    --data_model medium -o C:\SNAP_101\Debug\Obj\            #
-#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
-#                    Workbench 6.5\stm8\LIB\dlstm8mmn.h" -D STM8S007 -lC      #
-#                    C:\SNAP_101\Debug\List\ -I .\ --no_system_include        #
-#                    --require_prototypes --vregs 16                          #
-#    List file    =  C:\SNAP_101\Debug\List\StringUtilities.lst               #
-#    Object file  =  C:\SNAP_101\Debug\Obj\StringUtilities.o                  #
+#    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUti #
+#                    lities.c                                                 #
+#    Command line =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUti #
+#                    lities.c -e --enable_multibytes -On --no_cse             #
+#                    --no_unroll --no_inline --no_code_motion --no_tbaa       #
+#                    --no_cross_call --debug --code_model medium              #
+#                    --data_model medium -o C:\Users\jurban\Documents\GitHub\ #
+#                    7896_SNAP_100\Debug\Obj\ --dlib_config "C:\Program       #
+#                    Files\IAR Systems\Embedded Workbench                     #
+#                    6.5\stm8\LIB\dlstm8mmn.h" -D STM8S007 -lC                #
+#                    C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Lis #
+#                    t\ -I .\ --no_system_include --require_prototypes        #
+#                    --vregs 16                                               #
+#    List file    =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Lis #
+#                    t\StringUtilities.lst                                    #
+#    Object file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Debug\Obj #
+#                    \StringUtilities.o                                       #
 #                                                                             #
 #                                                                             #
 ###############################################################################
 
-C:\SNAP_101\StringUtilities.c
+C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
       1          #include "stm8s.h"
       2          extern const int BFRSIZE;
       3          extern u8 GS1011_String_Found;
