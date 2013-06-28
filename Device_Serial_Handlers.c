@@ -32,7 +32,10 @@ extern void Initialize_GS011_Xmit_buffer(void);
 extern void CopyBufferGS1011 (char dest[], char srce[]);
 void Add_String_to_GS1011_Buffer ( char *srce);
 
-void Check_Checksum_Device_Buffer(char bufr[]);/* EXTERNAL DATA */
+void Check_Checksum_Device_Buffer(char bufr[]);
+/* EXTERNAL DATA */
+extern char Device_Serial_number[];
+extern char SNAP_State;
 extern char checksum_Okay;
 extern char CID_Value;
 extern char Device_State;
@@ -135,7 +138,7 @@ void Send_Powered(void){
   FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
   Send_powered_Message();
   Device_Update_Ready_for_Website_flag =0;
-  Device_State = 1;
+  SNAP_State = 1;
 }
 /*****************************************************************************/
 /* State 1 - Wait_For_Update                                                 */
@@ -143,7 +146,7 @@ void Send_Powered(void){
 /*****************************************************************************/
 void Wait_For_Update(void){
   if (Device_Rcvr_Complete_flag != 0)
-    Device_State = 2;
+    SNAP_State = 2;
 }
 /*****************************************************************************/
 /* State 2 - Process_Update                                                  */
@@ -153,7 +156,8 @@ void Process_Received_Update(void){
   Process_Receiver_Device_Message();
   Check_Checksum_Device_Buffer(Device_Processing_Buffer);
   if (checksum_Okay == 00){
-      Device_State = 3;
+      CopyBuffer(Device_Serial_number, Device_Processing_Buffer+4);
+      SNAP_State = 3;
   }
 }
 /*****************************************************************************/
@@ -181,8 +185,8 @@ void Send_Finished(void){
   SendYouThereMessageToGS1011();*/
 
 /*****************************************************************************/
-/*****************************************************************************/
-/****         Send message wait response routines                          ***/
+/**************************e wai***************************************************/
+/****         Send messagt response routines                          ***/
 /*****************************************************************************/
 /*****************************************************************************/
 void Convert_Update_Parameters(void){

@@ -37,7 +37,8 @@ void Sending_GS1011_Data_Handler(void);
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-u16 EEWRTimout;
+extern char GS1011_Rcvr_EOM_Timer;
+;
 u16 StartupTimer;
 u16 SetCmdTempTimer1;
 u16 SetCmdTempTimer2;
@@ -46,7 +47,7 @@ u16 SysOnOffTmr;
 u16 LoopControlDelay;
 u16 FCTimer;
 u16 SysSSTimer;
-
+extern char GS1011_Rcvr_Timeout;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /* Public functions ----------------------------------------------------------*/
@@ -234,34 +235,12 @@ INTERRUPT_HANDLER(SPI_IRQHandler, 10)
   * @retval None
   */
 INTERRUPT_HANDLER(TIM1_UPD_OVF_TRG_BRK_IRQHandler, 11){
-  if(EEWRTimout){
-    EEWRTimout++;
+  if(GS1011_Rcvr_EOM_Timer){
+    GS1011_Rcvr_EOM_Timer--;
+    if (GS1011_Rcvr_EOM_Timer == 0)
+      GS1011_Rcvr_Timeout = 1;
   }
-  if(StartupTimer){
-    StartupTimer++;
-  }
-  if(SetCmdTempTimer1){
-    SetCmdTempTimer1++;
-  }
-  if(SetCmdTempTimer2){
-    SetCmdTempTimer2++;
-  }
-  if(SetCmdExitTimer){
-    SetCmdExitTimer++;
-  }
-  if(FCTimer){
-    FCTimer++;
-  }
-  if(SysOnOffTmr){
-    SysOnOffTmr++;
-  }
-  if(SysSSTimer){
-    SysSSTimer++;
-  }
-  if(LoopControlDelay){
-    LoopControlDelay++;
-  }
-  TIM1->SR1 &= 0xFE;  /*CLR UIF INT BIT*/
+  TIM1->SR1 &= 0x7E;  /*CLR UIF INT BIT*/
 }
 
 /**

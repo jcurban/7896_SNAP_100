@@ -30,8 +30,10 @@ void InitGS1011UART(void);
 void Handle_GS1011_State(void);
 /*******************************   state machine handlers ************/
 void GetNetworkStatusFromGS1011(void);
+void Get_any_ResponseFromGS1011(char bufr[]);
 void Reset_Network_Access(void);
 void Send_Website_Update(void);
+void Send_DNSLOOKUP_Message(void);
 /*******************************   state machine handlers end ************/
 void GS1011_Received_Data_Handler(void);
 void Sending_GS1011_Data_Handler(void);
@@ -47,7 +49,12 @@ void InitializeGS1011Buffer(void);
 void Initialize_GS011_Xmit_buffer(void);
 /* external definitions ------------------------------------------------------*/
 /* GS1011 DATA */
+extern char SNAP_State;
+extern char Send_Update_State;
 extern int BFRSIZE;
+extern int Found_String_At_Byte;
+extern char EEWRTimout;
+extern char GS1011_Rcvr_Timeout;
 extern char GS1011_State;
 extern char GS1011_State_State;
 extern u8 GS1011_String_Found;
@@ -61,19 +68,22 @@ extern unsigned char GS1011_Xmit_Char_Count;
 extern char CopyBuffer (char dest[], char srce[]);
 extern void CopyBufferGS1011 (char srce[]);
 extern void FillBuffer (char bufr[],char filchr, char cntr);
+extern char GS1011_Rcvr_EOM_Timer;
 extern char GS1011_Rcvr_Char;
 extern u16 GS1011_Rcvr_InPtr;
 extern u16 GS1011_Rcvr_OutPtr;
 extern u16 GS1011_Rvcr_Count;
 extern u16 GS1011_Rcvr_Pointer;
-
+extern char website_IP_Address[];
 extern char GS1011_Receiver_Buffer[];
 
 
 /* external stock message definitions ----------------------------------------*/
 extern char GetNSTATMessage[];
+extern char DNSLOOKUP_Message[];
 extern char WSTATECONNECTEDmsg[];
 extern char OKAYmsg[];
+extern char IPmsg[];
 /*  Reset GS1011 messages */
 extern char YouThereMessage[];
 extern char ForceFactoryResetMessage;
@@ -93,17 +103,26 @@ extern char SetWEBPROVMessage;
 extern char GetProfileMessage;
 
 /*  sending update messages  */
-extern char LookForMarsIPAddressMessage;
+extern char ConnectionType_CONF11_message[];
 extern char SetConnectionType;
 extern char SendKeepAliveMessage;
 extern char OpenMarsConnectionHeader;   /*add ip Address*/
 extern char SendtoWebsiteHeader;   /*add CID, and status*/
 
+/* sending update state maching*/ 
+void Get_Website_IP_address(void);
+void Set_Mars_as_Website(void);
+void Set_Keep_Alive(void);
+void  HTTPOPEN_Get_CID(void);
+void  Convert_update_and_Send(void);
+void  Get_Website_Response_and_Respond(void);
+
+void GetWebsite_ResponseFromGS1011(void);
 /* external functions */
 extern void CountGS1011Chars(void);
 extern char CountChars(char s[]);
 extern int Add_Char_to_Buffer (char *bufr,int ptr,char chr);
-
+void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm);
 #define CR 0x0D
 #define LF 0x0A
 /*****************************************************************************/
@@ -111,23 +130,9 @@ extern int Add_Char_to_Buffer (char *bufr,int ptr,char chr);
 /*****        GS1011 State machine                                       *****/
 /*****************************************************************************/
 /*****************************************************************************/
-void Handle_GS1011_State(void) {
-  switch (GS1011_State) {
-  case 0:
-    GetNetworkStatusFromGS1011();
-    break;
-  case 1:
-    Reset_Network_Access();
-    break;
-  case 2:
-    Send_Website_Update();
-    break;
-  }
-}
+
 /*****************************************************************************
- ****   GetNetworkStatusFromGS1011  -  STATE 0                            ****
- ****                                                                     ****
- **** sends an AT\r\n and waits for an OK or ERROR                        ****
+ ****   GetNetworkStatusFromGS1011  -  subSTATE 0                         ****
  ****                                                                     ****
  ******************************************************************************/
 void GetNetworkStatusFromGS1011 (void){
@@ -144,9 +149,25 @@ void GetNetworkStatusFromGS1011 (void){
   }
   
 }
+void GetNSTAT_ResponseFromGS1011(void){
+  if (GS1011_Rcvr_Timeout == 1) {
+    GS1011_Received_Response_Flag = 0x00;
+    FindGS1011Chars(OKAYmsg);
+      
+    if (GS1011_String_Found == 1){
+        FindGS1011Chars(WSTATECONNECTEDmsg);
+        if (GS1011_String_Found == 1){
+          SNAP_State = 5;
+          Send_Update_State = 0;
+          }
+        else 
+           SNAP_State = 4;
+    }
+  }
+}
 
 /*****************************************************************************
- ****   Reset_Network_Access  -  STATE 1                                  ****
+ ****   Reset_Network_Access  -  STATE 4                                  ****
  ****                                                                     ****
  **** sends an AT\r\n and waits for an OK or ERROR                        ****
  ****                                                                     ****
@@ -155,33 +176,120 @@ void Reset_Network_Access(void){
 }
 
 /*****************************************************************************
- ****   Send_Website_Update  -  STATE 2                                   ****
+ ****   Send_Website_Update  -  STATE 5                                   ****
  ****                                                                     ****
- **** sends an AT\r\n and waits for an OK or ERROR                        ****
- ****                                                                     ****
+ **** this has 10 substates associated with it                            ****
+ ****  uses Send_Update_State                                             **** 
+ ****  STATE0 DNSLOOKUP                                                   ****
+ ****  STATE1 SET MARS WEBSITE                                            ****
+ ****  STATE2 KEEP ALIVE                                                  ****
+ ****  STATE3 OPEN HTTP get CID                                           ****
+ ****  STATE4 CONVERT UPDATE and SEND                                     ****
+ ****  STATE5 WAIT FOR RESPONSE (send status to device)        ****
  ******************************************************************************/
+
 void Send_Website_Update(void){
-  
-}
+  switch (Send_Update_State) {
+  case 0:
+      Get_Website_IP_address();
+      break;
+  case 1:
+      Set_Mars_as_Website();
+      break;
+  case 2:
+      Set_Keep_Alive();
+      break;
+  case 3:
+      HTTPOPEN_Get_CID();
+      break;
+  case 4:
+      Convert_update_and_Send();
+      break;
+  case 5:
+      Get_Website_Response_and_Respond();
+      break;
+  }
+ }
 /*****************************************************************************
- ****   send_Are_You_There_Get_Response                                   ****
+ ****   Get_Website_IP_address  -  subSTATE 0                             ****
  ****                                                                     ****
- **** sends an AT\r\n and waits for an OK or ERROR                        ****                                              *
- ****                                                                     ****
+ ****  gets the website ip address                                        ****
  ******************************************************************************/
-void Are_You_There_with_Response(void){
+void Get_Website_IP_address(void){
+  Send_DNSLOOKUP_Message();
+while (GS1011_Received_Response_Flag == 0x01)
+{
+Get_any_ResponseFromGS1011(IPmsg);
 }
-
-
+if (GS1011_String_Found == 1){
+  FillBuffer(website_IP_Address,0x00,15);
+  Found_String_At_Byte += 3;
+  copy_buffer_from_offset_to_terminator(GS1011_Receiver_Buffer, website_IP_Address, Found_String_At_Byte, 0x0d);
+  }
+  GS1011_Received_Response_Flag == 0x00;
+  Send_Update_State = 1;
+} 
+void Send_DNSLOOKUP_Message(void){
+  if (GS1011_Received_Response_Flag == 0x00){
+    InitializeGS1011Buffer();
+    CopyBufferGS1011(DNSLOOKUP_Message);  
+    Start_GS1011_Send();                                /* kickstart the xmitter*/
+    GS1011_Received_Response_Flag = 0x01;
+    Get_any_ResponseFromGS1011(IPmsg);
+   }
+  else 
+    Get_any_ResponseFromGS1011(IPmsg);
+  }
+  
+  
+/*****************************************************************************
+ ****   Set_Mars_as_Website  -  subSTATE 1                             ****
+ ****                                                                     ****
+ ****  gets the website ip address                                        ****
+ ******************************************************************************/
+  void Set_Mars_as_Website(void){
+   }  
+/*****************************************************************************
+ ****   Set_Keep_Alive  -  subSTATE 2                                ****
+ ****                                                                     ****
+ ****  GS1011 responds okay                                               ****
+ *****************************************************************************/
+  void Set_Keep_Alive(void){
+  }
+  
+/*****************************************************************************
+ ****   Set_Mars_as_Website  -  subSTATE 3                                ****
+ ****                                                                     ****
+ ****  GS1011 responds okay                                               ****
+ ******************************************************************************/
+  void  HTTPOPEN_Get_CID(void){
+  }
+  
+/*****************************************************************************
+ ****   Set_Mars_as_Website  -  subSTATE 4                             ****
+ ****                                                                     ****
+ ****  GS1011 responds okay                                               ****
+ ******************************************************************************/
+  void  Convert_update_and_Send(void){
+  }
+  
+/*****************************************************************************
+ ****   Set_Mars_as_Website  -  subSTATE 5                             ****
+ ****                                                                     ****
+ ****  gets the website ip address                                        ****
+ ******************************************************************************/
+  void  Get_Website_Response_and_Respond(void){
+  }
+ 
 /*****************************************************************************/
 /*****************************************************************************/
 /****                       normal routines                                ***/
 /*****************************************************************************/
 /*****************************************************************************/
-void SendYouThereMessageToGS1011 (void){
+void SendYouThereMessageToGS1011(void){
 CopyBufferGS1011(YouThereMessage);                                 
 Start_GS1011_Send();                                /* kickstart the xmitter*/
-if (GS1011_Xmit_Char_Count >6)
+if (GS1011_Rcvr_Timeout == 1)
   GetResponseFromGS1011();
 }
 /*****************************************************************************/
@@ -198,18 +306,23 @@ if (GS1011_Xmit_Char_Count >6)
   *       and returns the status to the calling routine                      *
   *****************************************************************************/
 void GetResponseFromGS1011(void){
-  if (GS1011_Rvcr_Count > 6)
+  if (GS1011_Rcvr_Timeout == 1){
+    GS1011_Received_Response_Flag = 0x00;
       FindGS1011Chars(OKAYmsg);
-      
-      if (GS1011_String_Found == 0)
-        FindGS1011Chars(WSTATECONNECTEDmsg);
+   }
 }
-void GetNSTAT_ResponseFromGS1011(void){
-  if (GS1011_Rvcr_Count > 295){
-      FindGS1011Chars(OKAYmsg);
+void Get_any_ResponseFromGS1011(char bufr[]){
+  if (GS1011_Rcvr_Timeout == 1) {
+    GS1011_Received_Response_Flag = 0x00;
+    FindGS1011Chars(OKAYmsg);
       
-      if (GS1011_String_Found == 0)
-        FindGS1011Chars(WSTATECONNECTEDmsg);
+    if (GS1011_String_Found == 1){
+        FindGS1011Chars(bufr);
+        if (GS1011_String_Found == 1)
+          GS1011_String_Found == 1;
+        else 
+           GS1011_String_Found == 0;
+    }
   }
 }
 
@@ -231,6 +344,7 @@ void GS1011_Received_Data_Handler(void){
  GS1011_Rcvr_InPtr++;
  GS1011_Rvcr_Count++;
  GS1011_Rcvr_Pointer++;
+ GS1011_Rcvr_EOM_Timer = 250;
 }
  /******************************************************************************
   *   Start_GS1011_Send                                                        *
@@ -244,7 +358,8 @@ void GS1011_Received_Data_Handler(void){
 void Start_GS1011_Send(void){
   GS1011_Xmit_Pointer = 0;
   GS1011_Xmit_Char = GS1011_Xmit_Buffer[GS1011_Xmit_Pointer];
-  GS1011_Xmit_Pointer++;
+ GS1011_Rcvr_Timeout = 0;
+   GS1011_Xmit_Pointer++;
   GS1011_Xmit_Char_Count--;
   UART1->DR = GS1011_Xmit_Char;
   UART1->CR2 |= ((uint8_t)UART1_CR2_TCIEN | UART1_CR2_TCIEN | UART1_CR2_TIEN);
@@ -261,7 +376,7 @@ void Sending_GS1011_Data_Handler(void){
     if (UART1->SR &= UART3_FLAG_TXE){
 
   GS1011_Xmit_Char = GS1011_Xmit_Buffer[GS1011_Xmit_Pointer];
-  if (GS1011_Xmit_Char != 0x00){
+  if (GS1011_Xmit_Char_Count!=0){
       UART1->DR= GS1011_Xmit_Char;
       GS1011_Xmit_Pointer++;
       GS1011_Xmit_Char_Count--;}

@@ -1,10 +1,12 @@
 #include "stm8s.h"
 extern const int BFRSIZE;
+extern int Found_String_At_Byte;
 extern u8 GS1011_String_Found;
 extern char Device_Xmit_Pointer;
 extern u8 Device_Xmit_Char_Count;
 extern u8 GS1011_Xmit_Char_Count;
 extern int GS1011_Xmit_Pointer;
+extern int GS1011_Rvcr_Count;
 extern char GS1011_Xmit_Buffer[];
 extern char Device_Xmit_Buffer[];
 extern char GS1011_Receiver_Buffer[];
@@ -18,6 +20,7 @@ extern u8 Device_RX_OutPtr;
 /*****            STRING UTILITY ROUTINES                                 ****/
 /*****************************************************************************/
 int CountChars(char s[]);
+
 void CountGS1011Chars(void);
 char CopyBuffer (char dest[], char srce[]);
 void CopyBufferDevice( char srce[]);
@@ -34,6 +37,7 @@ int Add_String_to_Buffer (char bufr[],int ptr, char *srce);
 void Add_String_to_GS1011_Buffer ( char *srce);
 
 void FindGS1011Chars(char chrstrng[]);
+void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm);
 /*****************************************************************************/
 /*****              GENERAL BUFFER HANDLING ROUTINES                      ****/
 /*****************************************************************************/
@@ -185,6 +189,23 @@ void CopyBufferGS1011 (char srce[]){
   }
  }
 /*****************************************************************************/
+/***** copy buffer from offset to terminator(pointer to destination, pointer to source buffer,****/
+/*****                                  number of bytes to copy)          ****/
+/*****************************************************************************/
+void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm){
+char destoffset,chkchr; 
+destoffset = 0;
+for (destoffset =0; destoffset < 512; destoffset++){
+  chkchr = srcebufr[ofst];
+if (chkchr != trm){
+    destbufr[destoffset] = srcebufr[ofst];
+    ofst++;
+  }
+else
+  break;
+}
+ }
+/*****************************************************************************/
 /***** copy buffer count(pointer to destination, pointer to source buffer,****/
 /*****                                  number of bytes to copy)          ****/
 /*****************************************************************************/
@@ -233,37 +254,40 @@ char chr;
 void FindGS1011Chars(char chrstrng[]){
 int bufptr, strptr,strcnt,i;
 char chr,chr1;
-
+    GS1011_String_Found = 0;      /* expect not to find it*/
+    strptr=0x00;                  /*point at first byte of compare string*/
 for (i = 0; i< 6; i++){
   if (chrstrng[i] == 0x00){
     strcnt = i;
     break;}
 }
-  for (bufptr=0; bufptr < BFRSIZE*2; bufptr++){
-    chr = GS1011_Receiver_Buffer[GS1011_Xmit_Pointer];
+for (bufptr=0; bufptr < GS1011_Rvcr_Count; bufptr++){
+    if (GS1011_String_Found == 1) 
+      break;
+    chr = GS1011_Receiver_Buffer[bufptr];
     chr1 = chrstrng[strptr];
     if (chr == chr1){                   /*match first byte of string? */
-      for (i=0; i < strcnt; i++){
-        chr = GS1011_Receiver_Buffer[GS1011_Xmit_Pointer + i];
-        chr1 = chrstrng[strptr + i];    /*keep checking till end*/
+      for (i=1; i <= strcnt-1; i++){
+        bufptr++;
+        strptr++;
+        chr = GS1011_Receiver_Buffer[bufptr];
+        chr1 = chrstrng[strptr];    /*keep checking till end*/
         if (chr != chr1){
           strptr=0x00;                 /*no reset the string pointer*/
-          GS1011_String_Found = 1;
           break;
-         } 
-        else{
-          strcnt++;
-          GS1011_Xmit_Pointer++;               /*yes continue on*/
-        }
+         }
+        else 
+          if (i == strcnt-1){
+          Found_String_At_Byte = (bufptr - (strcnt-1));  
+          GS1011_String_Found = 1;
+
+          break;
+          }
       }
     }
-      if  (chr == 0x00){
-      GS1011_Xmit_Char_Count++;
-     GS1011_String_Found = 0;
-      break;}
-    GS1011_Xmit_Pointer++;
-  }
+   }
 }
+
 /*****************************************************************************/
 /***** CountChars (buffer pointer)                                         ****/
 /*****                  source buffer must terminate with a 0x00.         ****/

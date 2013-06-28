@@ -5,19 +5,25 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 extern char CID_Value;
-extern char GS1011_State;
-extern char Device_State;
+extern char SNAP_State;
+extern void Send_Powered(void);
+extern void Wait_For_Update(void);
+extern void Process_Received_Update(void);
+extern void GetNetworkStatusFromGS1011(void);
+extern void Reset_Network_Access(void);
+extern void Send_Website_Update(void);
+
 extern u16 EEWRTimout;
 extern u8 Device_Rcvr_Complete_flag;
 extern int GS1011_Rvcr_Count;
 extern char GS1011_Xmit_Buffer;
 extern char *GS1011_Rcvr_Pointer;
 extern char GS1011_Received_Response_Flag;
-extern void SendYouThereMessageToGS1011(void);
+void SendYouThereMessageToGS1011(void);
 void InitializeGS1011Buffer(void);
 void InitializeDeviceBuffer (void);
-void Handle_GS1011_State(void);
-void Handle_Device_State(void);
+
+
 /* Local Var------------------------------------------------------------------*/
 u8  TEST;
 u8  BLCNT_INDX;
@@ -53,20 +59,36 @@ int main( void ){
   InitDeviceUART();
   /*Configure GS101 UART*/
   InitGS1011UART();
-  SendYouThereMessageToGS1011();
   InitializeGS1011Buffer();
   InitializeDeviceBuffer();
-  /*get data from EEPROM */
-  InitEEData();
   enableInterrupts();
-  GS1011_State = 0;
-  Device_State = 0;
+  SNAP_State = 0;
   CID_Value = 0x00;
   GS1011_Received_Response_Flag = 0x00;
+  SendYouThereMessageToGS1011();                /* sacrificial message*/
+
   while (1)
   {
-    Handle_Device_State();
-    Handle_GS1011_State();
+    switch (SNAP_State){
+    case 0:
+      Send_Powered();
+      break;
+    case 1:
+      Wait_For_Update();
+      break;
+    case 2:
+      Process_Received_Update();
+      break;
+    case 3:
+      GetNetworkStatusFromGS1011();
+      break;
+    case 4:
+      Reset_Network_Access();
+      break;
+    case 5:
+      Send_Website_Update();
+      break;
+    }
   }
  /*infinite loop*/
 }
