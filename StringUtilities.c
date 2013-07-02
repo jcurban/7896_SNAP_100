@@ -1,11 +1,6 @@
 #include "stm8s.h"
-extern char NULL;
-extern char STX;
-extern char ETX;
-extern char CR;
-extern char DLE;
-extern int BFRSIZE;
-extern int BFRSIZEX2;
+#include "SNAP_Defines.h"
+
 extern int Found_String_At_Byte;
 extern u8 GS1011_String_Found;
 extern char Device_Xmit_Pointer;
@@ -285,40 +280,43 @@ char i;
 }
 
 /*****************************************************************************/
-/***** Find string ( buffer pointer, sting)                                         ****/
+/***** Find string ( buffer pointer, string)                                         ****/
 /*****                  source buffer must terminate with a 0x00.         ****/
 /*****          Returns an integer for number of characters in the buffer ****/
 /*****************************************************************************/
-void FindGS1011Chars(char chrstrng[]){
-int bufptr, strptr,strcnt,i;
-char chr,chr1;
+void FindGS1011Chars(char findstrng[]){
+int lookinptr, lookforptr, restartptr, lookforcnt,i;
+char lookinchr,lookforchr;
     GS1011_String_Found = 0;      /* expect not to find it*/
-    strptr=0x00;                  /*point at first byte of compare string*/
+    lookforptr=0x00;                  /*point at first byte of compare string*/
     
 for (i = 0; i< BFRSIZE; i++){          /* get the size of the string to find*/
-  if (chrstrng[i] == 0x00){
-    strcnt = i;
+  if (findstrng[i] == 0x00){
+    lookforcnt = i;
     break;}
 }
-for (bufptr=0; bufptr < GS1011_Rvcr_Count; bufptr++){
+for (lookinptr=0; lookinptr < GS1011_Rvcr_Count; lookinptr++){
     if (GS1011_String_Found == 1)                       /* if found exit*/
       break;
-    chr = GS1011_Receiver_Buffer[bufptr];
-    chr1 = chrstrng[strptr];                    /*match first byte of string? */
-    if (chr == chr1){                           
+    lookinchr = GS1011_Receiver_Buffer[lookinptr];
+    lookforchr = findstrng[lookforptr];                    /*match first byte of string? */
+    if (lookinchr == lookforchr){  
+      restartptr = lookinptr;                   /* save next char pointer to look in buffer */
+      restartptr++;                             /* in case of double character */
  /***                                            loop while bytes match */
-     for (i=1; i <= strcnt-1; i++){
-        bufptr++;
-        strptr++;
-        chr = GS1011_Receiver_Buffer[bufptr];    /*keep checking till end*/
-        chr1 = chrstrng[strptr];    
-        if (chr != chr1){
-          strptr=0x00;                         /*no reset the string pointer*/
+     for (i=1; i <= lookforcnt-1; i++){
+        lookinptr++;
+        lookforptr++;
+        lookinchr = GS1011_Receiver_Buffer[lookinptr];    /*keep checking till end*/
+        lookforchr = findstrng[lookforptr];    
+        if (lookinchr != lookforchr){
+          lookforptr=0x00;                         /*no reset the string pointer*/
+          lookinptr = restartptr;                  /* and the lookin pointer */
           break;
          }
         else 
-          if (i == strcnt-1){
-          Found_String_At_Byte = (bufptr - (strcnt-1));  
+          if (i == lookforcnt-1){
+          Found_String_At_Byte = (lookinptr - (lookforcnt-1));  
           GS1011_String_Found = 1;           /* save start of string in bufr */
           break;
           }

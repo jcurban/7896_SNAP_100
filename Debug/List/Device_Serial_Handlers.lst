@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             02/Jul/2013  06:23:00 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             02/Jul/2013  07:39:06 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Se #
@@ -41,562 +41,541 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
      14          
      15          #include "stm8s_uart3.h"
      16          #include "stm8s_it.h"
-     17          #define ETX 0x03
-     18          #define STX 0x02
-     19          #define DLE 0X10
-     20          /* EXTERNAL ROUTINES */
-     21          extern void CopyBuffer (char *dest, char *srce);
-     22          extern void CopyBufferDevice(char srce[]);
-     23          extern void CopyBufferCounted (char *dest, char *srce, int cntr);
-     24          extern void FillBuffer (char bufr[],char filchr, int cntr);
-     25          extern void UART3_SendData8(u8);
-     26          extern int InitializeDeviceBuffer (char *bufr,char filchr, int cntr);
-     27          extern int Add_Char_to_Buffer (char *bufr, int ptr, char chr);
-     28          extern int Add_Integer_to_Buffer (char *bufr,int ptr, int vint);
-     29          extern int Add_String_to_Buffer (char *bufr, int ptr, char *srce);
-     30          void Add_Char_to_GS1011_Buffer (char chr);
-     31          extern void Initialize_GS011_Xmit_buffer(void);
-     32          extern void CopyBufferGS1011 (char dest[], char srce[]);
-     33          void Add_String_to_GS1011_Buffer ( char *srce);
-     34          
-     35          void Check_Checksum_Device_Buffer(char bufr[]);
-     36          /* EXTERNAL DATA */
-     37          extern char Device_Serial_number[];
-     38          extern char SNAP_State;
-     39          extern char checksum_Okay;
-     40          extern char CID_Value;
-     41          extern char Device_State;
-     42          extern char DLECHR;
-     43          extern char ETXCHR;
-     44          extern char checksum_this;
-     45          extern char* procptr;
-     46          extern char Device_Processing_Buffer[];
-     47          extern char Device_Xmit_Buffer[];
-     48          extern int cntr,gtchr;
-     49          extern char checksum;
-     50          extern u8 Device_RX_InPtr;
-     51          extern u8 Device_RX_OutPtr;
-     52          extern int Device_Rcvr_Char_Count;
-     53          extern u8 Device_Rcvr_Complete_flag;
-     54          extern char Device_Update_Ready_for_Website_flag;
-     55          extern u8 Device_Rcvr_State;
-     56          extern u8 Device_Rcvr_char;
-     57          extern int Device_Processing_Pointer;
-     58          extern int Device_Rcvr_Pointer;
-     59          extern char  *Device_Rcvr_Dest_Pointer;
-     60          extern char Device_Receiver_Buffer[];
-     61          extern char GS1011_Xmit_Buffer[];
-     62          extern char Packet_Data_Buffer;
-     63          extern u8 Device_Xmit_Complete_Flag;
-     64          extern u8 Device_Xmit_Char;
-     65          extern char Device_Xmit_Pointer;
-     66          extern u8 Device_Xmit_Char_Count;
-     67          extern u8 GS1011_Xmit_Char_Count;
-     68          extern char GS1011_Xmit_Buffer[];
-     69          
-     70          /* EXTERNAL DATA STOCK MESSAGES */
-     71          extern const int BFRSIZE;
-     72          extern char   DEVICE_SOH; /*START OF TEXT 0X02*/
-     73          extern int DEVICE_MSGLENGTH; /*LENGTH OF MESSAGE*/
-     74          extern char DEVICE_COMMAND; /* COMMAND TYPE*/
-     75          extern char DEVICE_PACKETDATA; 
-     76          extern char DEVICE_CHECKSUM;
-     77          extern char DEVICE_EOT; /*end of text*/
-     78          extern char SNAPREADYHDR;
-     79          extern char SNAPREADY;
-     80          extern char SNAPREADYEND;
-     81          extern char Powered[];
-     82          extern char SendtoWebsiteHeader[];
-     83          extern char SendtoWebsiteHeader1[];
-     84          
-     85          /* LOCAL DEFINITIONS */
-     86          void InitDeviceUART(void);
-     87          void Get_Device_Char(void);
-     88          void Send_Next_Char_to_Device(void);
-     89          /*void Make_Send_SNAP_Ready_Message(void);*/
-     90          void Initialize_Device_receiver_buffer(void);
-     91          void Handle_Device_State(void);
-     92          void Assemble_and_Checksum_device_message(void);
-     93          void Checksum_Device_Buffer(char *bufr);
-     94          char Parse_Device_Rcvrd_Buffer(void);
-     95          void Start_Device_Xmit (void);
-     96          void Save_PValues(void);
-     97          void Send_powered_Message(void);
-     98          
-     99          void Process_Receiver_Device_Message(void);
-    100          void Process_Xmit_Device_Message(char bufr[], char bufr2[]);
-    101          
-    102          void Send_Powered(void);
-    103          void Wait_For_Update(void);
-    104          void Process_Received_Update(void);
-    105          void Send_Update(void);
-    106          void Send_Finished(void);
-    107          void Convert_Update_Parameters(void);
-    108          void Send_Powered_Wait_For_Update(void);
+     17          #include "SNAP_Defines.h"
+     18          /* EXTERNAL ROUTINES */
+     19          extern void CopyBuffer (char *dest, char *srce);
+     20          extern void CopyBufferDevice(char srce[]);
+     21          extern void CopyBufferCounted (char *dest, char *srce, int cntr);
+     22          extern void FillBuffer (char bufr[],char filchr, int cntr);
+     23          extern void UART3_SendData8(u8);
+     24          extern int InitializeDeviceBuffer (char *bufr,char filchr, int cntr);
+     25          extern int Add_Char_to_Buffer (char *bufr, int ptr, char chr);
+     26          extern int Add_Integer_to_Buffer (char *bufr,int ptr, int vint);
+     27          extern int Add_String_to_Buffer (char *bufr, int ptr, char *srce);
+     28          void Add_Char_to_GS1011_Buffer (char chr);
+     29          extern void Initialize_GS011_Xmit_buffer(void);
+     30          extern void CopyBufferGS1011 (char dest[], char srce[]);
+     31          void Add_String_to_GS1011_Buffer ( char *srce);
+     32          void CopySerialNumber(void);
+     33          void Send_ACK_Message(void);
+     34          char Check_Checksum_Device_Buffer(char bufr[]);
+     35          /* EXTERNAL DATA */
+     36          extern char Device_Serial_number[];
+     37          extern char SNAP_State;
+     38          extern char checksum_Okay;
+     39          extern char CID_Value;
+     40          extern char Device_State;
+     41          extern char checksum_this;
+     42          extern char* procptr;
+     43          extern char Device_Processing_Buffer[];
+     44          extern char Device_Xmit_Buffer[];
+     45          extern int cntr,gtchr;
+     46          
+     47          extern u8 Device_RX_InPtr;
+     48          extern u8 Device_RX_OutPtr;
+     49          extern int Device_Rcvr_Char_Count;
+     50          extern u8 Device_Rcvr_Complete_flag;
+     51          extern char Device_Update_Ready_for_Website_flag;
+     52          extern u8 Device_Rcvr_State;
+     53          extern u8 Device_Rcvr_char;
+     54          extern int Device_Processing_Pointer;
+     55          extern int Device_Rcvr_Pointer;
+     56          extern char  *Device_Rcvr_Dest_Pointer;
+     57          extern char Device_Receiver_Buffer[];
+     58          extern char GS1011_Xmit_Buffer[];
+     59          extern char ACKMessage[];
+     60          extern char Packet_Data_Buffer;
+     61          extern u8 Device_Xmit_Complete_Flag;
+     62          extern u8 Device_Xmit_Char;
+     63          extern char Device_Xmit_Pointer;
+     64          extern u8 Device_Xmit_Char_Count;
+     65          extern u8 GS1011_Xmit_Char_Count;
+     66          extern char GS1011_Xmit_Buffer[];
+     67          /* EXTERNAL DATA STOCK MESSAGES */
+     68          extern char   DEVICE_SOH; /*START OF TEXT 0X02*/
+     69          extern int DEVICE_MSGLENGTH; /*LENGTH OF MESSAGE*/
+     70          extern char DEVICE_COMMAND; /* COMMAND TYPE*/
+     71          extern char DEVICE_PACKETDATA; 
+     72          extern char DEVICE_CHECKSUM;
+     73          extern char DEVICE_EOT; /*end of text*/
+     74          extern char SNAPREADYHDR;
+     75          extern char SNAPREADY;
+     76          extern char SNAPREADYEND;
+     77          extern char Powered[];
+     78          extern char SendtoWebsiteHeader[];
+     79          extern char SendtoWebsiteHeader1[];
+     80          
+     81          /* LOCAL DEFINITIONS */
+     82          void InitDeviceUART(void);
+     83          void Get_Device_Char(void);
+     84          void Send_Next_Char_to_Device(void);
+     85          /*void Make_Send_SNAP_Ready_Message(void);*/
+     86          void Initialize_Device_receiver_buffer(void);
+     87          void Handle_Device_State(void);
+     88          void Assemble_and_Checksum_device_message(void);
+     89          char Checksum_Device_Buffer(char bufr[]);
+     90          char Parse_Device_Rcvrd_Buffer(void);
+     91          void Start_Device_Xmit (void);
+     92          void Save_PValues(void);
+     93          void Send_powered_Message(void);
+     94          
+     95          void Process_Receiver_Device_Message(void);
+     96          void Process_Xmit_Device_Message(char bufr[], char bufr2[]);
+     97          
+     98          void Send_Powered(void);
+     99          void Wait_For_Update(void);
+    100          void Process_Received_Update(void);
+    101          void Send_Update(void);
+    102          void Send_Finished(void);
+    103          void Convert_Update_Parameters(void);
+    104          void Send_Powered_Wait_For_Update(void);
+    105          /*****************************************************************************/
+    106          /*****************************************************************************/
+    107          /*****       device State machine                                        *****/
+    108          /*****************************************************************************/
     109          /*****************************************************************************/
-    110          /*****************************************************************************/
-    111          /*****       device State machine                                        *****/
-    112          /*****************************************************************************/
-    113          /*****************************************************************************/
+    110          
+    111          /*****************************************************************************/
+    112          /* State 0 - Send_Powered                                                    */
+    113          /*      Lets the Device know we're ready for the update                      */
+    114          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    114          void Handle_Device_State(void) {
-    115            switch (Device_State) {
-   \                     Handle_Device_State:
-   \   000000 C6 ....      LD        A, L:Device_State
-   \   000003 4D           TNZ       A
-   \   000004 27 0E        JREQ      L:??Handle_Device_State_0
-   \   000006 4A           DEC       A
-   \   000007 27 11        JREQ      L:??Handle_Device_State_1
-   \   000009 4A           DEC       A
-   \   00000A 27 14        JREQ      L:??Handle_Device_State_2
-   \   00000C 4A           DEC       A
-   \   00000D 27 17        JREQ      L:??Handle_Device_State_3
-   \   00000F 4A           DEC       A
-   \   000010 27 1A        JREQ      L:??Handle_Device_State_4
-   \   000012 20 1C        JRA       L:??Handle_Device_State_5
-    116            case 0:
-    117              Send_Powered();
-   \                     ??Handle_Device_State_0:
-   \   000014 8D ......    CALLF     Send_Powered
-    118              break;
-   \   000018 20 16        JRA       L:??Handle_Device_State_5
-    119            case 1:
-    120              Wait_For_Update();
-   \                     ??Handle_Device_State_1:
-   \   00001A 8D ......    CALLF     Wait_For_Update
-    121              break;
-   \   00001E 20 10        JRA       L:??Handle_Device_State_5
-    122            case 2:
-    123              Process_Received_Update();
-   \                     ??Handle_Device_State_2:
-   \   000020 8D ......    CALLF     Process_Received_Update
-    124              break;
-   \   000024 20 0A        JRA       L:??Handle_Device_State_5
-    125            case 3:
-    126              Send_Update();
-   \                     ??Handle_Device_State_3:
-   \   000026 8D ......    CALLF     Send_Update
-    127              break;
-   \   00002A 20 04        JRA       L:??Handle_Device_State_5
-    128            case 4:
-    129              Send_Finished();
-   \                     ??Handle_Device_State_4:
-   \   00002C 8D ......    CALLF     Send_Finished
-    130              break;
-    131            }
-    132          }
-   \                     ??Handle_Device_State_5:
-   \   000030 87           RETF
-    133          /*****************************************************************************/
-    134          /* State 0 - Send_Powered                                                    */
-    135          /*      Lets the Device know we're ready for the update                      */
-    136          /*****************************************************************************/
-
-   \                                 In section .far_func.text, align 1
-    137          void Send_Powered(void){
-    138            FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
+    115          void Send_Powered(void){
+    116            FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
    \                     Send_Powered:
-   \   000000 90CE ....    LDW       Y, L:BFRSIZE
+   \   000000 90AE 00FF    LDW       Y, #0xff
    \   000004 4F           CLR       A
    \   000005 AE ....      LDW       X, #Device_Receiver_Buffer
    \   000008 8D ......    CALLF     FillBuffer
-    139            Send_powered_Message();
+    117            Send_powered_Message();
    \   00000C 8D ......    CALLF     Send_powered_Message
-    140            Device_Update_Ready_for_Website_flag =0;
+    118            Device_Update_Ready_for_Website_flag =0;
    \   000010 35 00 ....   MOV       L:Device_Update_Ready_for_Website_flag, #0x0
-    141            SNAP_State = 1;
+    119            SNAP_State = 1;
    \   000014 35 01 ....   MOV       L:SNAP_State, #0x1
-    142          }
+    120          }
    \   000018 87           RETF
-    143          /*****************************************************************************/
-    144          /* State 1 - Wait_For_Update                                                 */
-    145          /*      can't do much without the update data                                */
-    146          /*****************************************************************************/
+    121          /*****************************************************************************/
+    122          /* State 1 - Wait_For_Update                                                 */
+    123          /*      can't do much without the update data                                */
+    124          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    147          void Wait_For_Update(void){
-    148            if (Device_Rcvr_Complete_flag != 0)
+    125          void Wait_For_Update(void){
+    126            if (Device_Rcvr_Complete_flag != 0){
    \                     Wait_For_Update:
    \   000000 C6 ....      LD        A, L:Device_Rcvr_Complete_flag
    \   000003 A1 00        CP        A, #0x0
-   \   000005 27 04        JREQ      L:??Wait_For_Update_0
-    149              SNAP_State = 2;
-   \   000007 35 02 ....   MOV       L:SNAP_State, #0x2
-    150          }
+   \   000005 27 08        JREQ      L:??Wait_For_Update_0
+    127                Device_Rcvr_Complete_flag = 0;
+   \   000007 35 00 ....   MOV       L:Device_Rcvr_Complete_flag, #0x0
+    128                SNAP_State = 2;}
+   \   00000B 35 02 ....   MOV       L:SNAP_State, #0x2
+    129          }
    \                     ??Wait_For_Update_0:
-   \   00000B 87           RETF
-    151          /*****************************************************************************/
-    152          /* State 2 - Process_Update                                                  */
-    153          /*      convert the update data to ASCII for the website                     */
-    154          /*****************************************************************************/
+   \   00000F 87           RETF
+    130          /*****************************************************************************/
+    131          /* State 2 - Process_Update                                                  */
+    132          /*      convert the update data to ASCII for the website                     */
+    133          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    155          void Process_Received_Update(void){
-    156            Process_Receiver_Device_Message();
+    134          void Process_Received_Update(void){
+    135            Process_Receiver_Device_Message();
    \                     Process_Received_Update:
    \   000000 8D ......    CALLF     Process_Receiver_Device_Message
-    157            Check_Checksum_Device_Buffer(Device_Processing_Buffer);
+    136            checksum_Okay = Check_Checksum_Device_Buffer(Device_Processing_Buffer);
    \   000004 AE ....      LDW       X, #Device_Processing_Buffer
    \   000007 8D ......    CALLF     Check_Checksum_Device_Buffer
-    158            if (checksum_Okay == 00){
-   \   00000B C6 ....      LD        A, L:checksum_Okay
-   \   00000E A1 00        CP        A, #0x0
-   \   000010 26 0F        JRNE      L:??Process_Received_Update_0
-    159                CopyBuffer(Device_Serial_number, Device_Processing_Buffer+4);
-   \   000012 90AE ....    LDW       Y, #Device_Processing_Buffer + 4
-   \   000016 AE ....      LDW       X, #Device_Serial_number
-   \   000019 8D ......    CALLF     CopyBuffer
-    160                SNAP_State = 3;
-   \   00001D 35 03 ....   MOV       L:SNAP_State, #0x3
-    161            }
-    162          }
+   \   00000B C7 ....      LD        L:checksum_Okay, A
+    137            if (checksum_Okay != 55){
+   \   00000E C6 ....      LD        A, L:checksum_Okay
+   \   000011 A1 37        CP        A, #0x37
+   \   000013 27 08        JREQ      L:??Process_Received_Update_0
+    138              CopySerialNumber();
+   \   000015 8D ......    CALLF     CopySerialNumber
+    139              SNAP_State = 3;
+   \   000019 35 03 ....   MOV       L:SNAP_State, #0x3
+    140            }
+    141            else{                                 /*if checksum wrong ask for it again*/
+    142            }
+    143          
+    144          }
    \                     ??Process_Received_Update_0:
-   \   000021 87           RETF
-    163          /*****************************************************************************/
-    164          /* State 3 - Send_Update                                                     */
-    165          /*      Send the message up to the website                                   */
-    166          /*****************************************************************************/
+   \   00001D 87           RETF
+    145          /*****************************************************************************/
+    146          /* State 3 - Send_Update                                                     */
+    147          /*      Send the message up to the website                                   */
+    148          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    167          void Send_Update(void){
-    168            if (CID_Value != 0x00) {
+    149          void Send_Update(void){
+    150            if (CID_Value != 0x00) {
    \                     Send_Update:
    \   000000 C6 ....      LD        A, L:CID_Value
    \   000003 A1 00        CP        A, #0x0
    \   000005 27 10        JREQ      L:??Send_Update_0
-    169            FillBuffer (GS1011_Xmit_Buffer,0x00, BFRSIZE);
-   \   000007 90CE ....    LDW       Y, L:BFRSIZE
+    151              FillBuffer (GS1011_Xmit_Buffer,0x00, BFRSIZE);
+   \   000007 90AE 00FF    LDW       Y, #0xff
    \   00000B 4F           CLR       A
    \   00000C AE ....      LDW       X, #GS1011_Xmit_Buffer
    \   00000F 8D ......    CALLF     FillBuffer
-    170              Convert_Update_Parameters();   
+    152              Convert_Update_Parameters();   
    \   000013 8D ......    CALLF     Convert_Update_Parameters
-    171            } 
-    172          }
+    153            } 
+    154          }
    \                     ??Send_Update_0:
    \   000017 87           RETF
-    173          /*****************************************************************************/
-    174          /* State 4 - Send_Finished                                                 */
-    175          /*      got response from website                                 */
-    176          /*****************************************************************************/
+    155          /*****************************************************************************/
+    156          /* State 4 - Send_Finished                                                 */
+    157          /*      got response from website                                 */
+    158          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    177          void Send_Finished(void){
-    178          }
+    159          void Send_Finished(void){
+    160          }
    \                     Send_Finished:
    \   000000 87           RETF
-    179          
-    180            /* Check configuration data in EE */
-    181            
-    182            
-    183            /*SendYouThereMessageToGS1011();
-    184            InitializeGS1011Buffer();
-    185            SendYouThereMessageToGS1011();*/
-    186          
-    187          /*****************************************************************************/
-    188          /**************************e wai***************************************************/
-    189          /****         Send messagt response routines                          ***/
-    190          /*****************************************************************************/
-    191          /*****************************************************************************/
+    161          
+    162            /* Check configuration data in EE */
+    163            
+    164            
+    165            /*SendYouThereMessageToGS1011();
+    166            InitializeGS1011Buffer();
+    167            SendYouThereMessageToGS1011();*/
+    168          
+    169          /*****************************************************************************/
+    170          /**************************e wai***************************************************/
+    171          /****         Send messagt response routines                          ***/
+    172          /*****************************************************************************/
+    173          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    192          void Convert_Update_Parameters(void){
-    193           CID_Value = 0x30;
+    174          void Convert_Update_Parameters(void){
+    175           CID_Value = 0x30;
    \                     Convert_Update_Parameters:
    \   000000 35 30 ....   MOV       L:CID_Value, #0x30
-    194           Initialize_GS011_Xmit_buffer();
+    176           Initialize_GS011_Xmit_buffer();
    \   000004 8D ......    CALLF     Initialize_GS011_Xmit_buffer
-    195           CopyBufferGS1011(GS1011_Xmit_Buffer, SendtoWebsiteHeader);
+    177           CopyBufferGS1011(GS1011_Xmit_Buffer, SendtoWebsiteHeader);
    \   000008 90AE ....    LDW       Y, #SendtoWebsiteHeader
    \   00000C AE ....      LDW       X, #GS1011_Xmit_Buffer
    \   00000F 8D ......    CALLF     CopyBufferGS1011
-    196           Add_Char_to_GS1011_Buffer (CID_Value);
+    178           Add_Char_to_GS1011_Buffer (CID_Value);
    \   000013 C6 ....      LD        A, L:CID_Value
    \   000016 8D ......    CALLF     Add_Char_to_GS1011_Buffer
-    197           Add_String_to_GS1011_Buffer (SendtoWebsiteHeader1);
+    179           Add_String_to_GS1011_Buffer (SendtoWebsiteHeader1);
    \   00001A AE ....      LDW       X, #SendtoWebsiteHeader1
    \   00001D 8D ......    CALLF     Add_String_to_GS1011_Buffer
-    198           }
+    180           }
    \   000021 87           RETF
-    199          /*****************************************************************************/
-    200          /*****        Send_powered_Message                                ****/
-    201          /*****        1st byte in Device processed buffer is the character count  ****/
-    202          /*****************************************************************************/
+    181          /*****************************************************************************/
+    182          /*****        Send_powered_Message                                ****/
+    183          /*****        1st byte in Device processed buffer is the character count  ****/
+    184          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    203          void Send_powered_Message(void){
-    204            Initialize_Device_receiver_buffer();
+    185          void Send_powered_Message(void){
+    186            Initialize_Device_receiver_buffer();
    \                     Send_powered_Message:
    \   000000 8D ......    CALLF     Initialize_Device_receiver_buffer
-    205            CopyBufferDevice(Powered);
+    187            CopyBufferDevice(Powered);
    \   000004 AE ....      LDW       X, #Powered
    \   000007 8D ......    CALLF     CopyBufferDevice
-    206            Device_Xmit_Char_Count = Device_Xmit_Char_Count;
+    188            Device_Xmit_Char_Count = Device_Xmit_Char_Count;
    \   00000B C6 ....      LD        A, L:Device_Xmit_Char_Count
    \   00000E C7 ....      LD        L:Device_Xmit_Char_Count, A
-    207            Start_Device_Xmit ();
+    189            Start_Device_Xmit ();
    \   000011 8D ......    CALLF     Start_Device_Xmit
-    208          }
+    190          }
    \   000015 87           RETF
-    209          /*****************************************************************************/
-    210          /*****        Make_Send_SNAP_Ready_Message                                ****/
-    211          /*****        1st byte in Device processed buffer is the character count  ****/
-    212          /*****************************************************************************
-    213          void Make_Send_SNAP_Ready_Message(void){
-    214            FillBuffer (&Device_Xmit_Buffer,0x00, BFRSIZE);
-    215            Device_Processing_Pointer = 0;
-    216            Device_Processing_Pointer = Add_String_to_Buffer (&Device_Xmit_Buffer, Device_Processing_Pointer, &SNAPREADYHDR);
-    217            Device_Processing_Pointer = Add_String_to_Buffer (&Device_Xmit_Buffer, Device_Processing_Pointer, &SNAPREADY);
-    218            Device_Processing_Pointer = Add_String_to_Buffer (&Device_Xmit_Buffer, Device_Processing_Pointer, &SNAPREADYEND);
-    219            Device_Xmit_Char_Count = CountChars(&Device_Xmit_Buffer);
-    220            Start_Device_Xmit ();
-    221          } */
-    222          /*****************************************************************************/
-    223          /*****        Assemble_and_Checksum_device_message                        ****/
-    224          /*****        1st byte in Device processed buffer is the character count  ****/
-    225          /*****************************************************************************/
+    191          /*****************************************************************************/
+    192          /*****        Send_powered_Message                                ****/
+    193          /*****        1st byte in Device processed buffer is the character count  ****/
+    194          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    226          void Assemble_and_Checksum_device_message(void){
-    227            Device_Processing_Pointer = InitializeDeviceBuffer (Device_Processing_Buffer, 0x00, BFRSIZE/2);
+    195          void Send_ACK_Message(void){
+    196            Initialize_Device_receiver_buffer();
+   \                     Send_ACK_Message:
+   \   000000 8D ......    CALLF     Initialize_Device_receiver_buffer
+    197            CopyBufferDevice(ACKMessage);
+   \   000004 AE ....      LDW       X, #ACKMessage
+   \   000007 8D ......    CALLF     CopyBufferDevice
+    198            Device_Xmit_Char_Count = Device_Xmit_Char_Count;
+   \   00000B C6 ....      LD        A, L:Device_Xmit_Char_Count
+   \   00000E C7 ....      LD        L:Device_Xmit_Char_Count, A
+    199            Start_Device_Xmit ();
+   \   000011 8D ......    CALLF     Start_Device_Xmit
+    200          }
+   \   000015 87           RETF
+    201          /*****************************************************************************/
+    202          /*****        Make_Send_SNAP_Ready_Message                                ****/
+    203          /*****        1st byte in Device processed buffer is the character count  ****/
+    204          /*****************************************************************************
+    205          void Make_Send_SNAP_Ready_Message(void){
+    206            FillBuffer (&Device_Xmit_Buffer,0x00, BFRSIZE);
+    207            Device_Processing_Pointer = 0;
+    208            Device_Processing_Pointer = Add_String_to_Buffer (&Device_Xmit_Buffer, Device_Processing_Pointer, &SNAPREADYHDR);
+    209            Device_Processing_Pointer = Add_String_to_Buffer (&Device_Xmit_Buffer, Device_Processing_Pointer, &SNAPREADY);
+    210            Device_Processing_Pointer = Add_String_to_Buffer (&Device_Xmit_Buffer, Device_Processing_Pointer, &SNAPREADYEND);
+    211            Device_Xmit_Char_Count = CountChars(&Device_Xmit_Buffer);
+    212            Start_Device_Xmit ();
+    213          } */
+    214          /*****************************************************************************/
+    215          /*****        Assemble_and_Checksum_device_message                        ****/
+    216          /*****        1st byte in Device processed buffer is the character count  ****/
+    217          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    218          void Assemble_and_Checksum_device_message(void){
+    219            Device_Processing_Pointer = InitializeDeviceBuffer (Device_Processing_Buffer, 0x00, BFRSIZE/2);
    \                     Assemble_and_Checksum_device_message:
-   \   000000 CE ....      LDW       X, L:BFRSIZE
-   \   000003 90AE 0002    LDW       Y, #0x2
-   \   000007 8D ......    CALLF     L:?sdiv16_x_x_y
-   \   00000B 9093         LDW       Y, X
-   \   00000D 4F           CLR       A
-   \   00000E AE ....      LDW       X, #Device_Processing_Buffer
-   \   000011 8D ......    CALLF     InitializeDeviceBuffer
-   \   000015 CF ....      LDW       L:Device_Processing_Pointer, X
-    228            Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_SOH);
-   \   000018 C6 ....      LD        A, L:DEVICE_SOH
-   \   00001B 90CE ....    LDW       Y, L:Device_Processing_Pointer
-   \   00001F AE ....      LDW       X, #Device_Processing_Buffer
-   \   000022 8D ......    CALLF     Add_Char_to_Buffer
-   \   000026 CF ....      LDW       L:Device_Processing_Pointer, X
-    229            Device_Processing_Pointer = Add_Integer_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_MSGLENGTH);
-   \   000029 CE ....      LDW       X, L:DEVICE_MSGLENGTH
-   \   00002C BF ..        LDW       S:?w0, X
-   \   00002E 90CE ....    LDW       Y, L:Device_Processing_Pointer
-   \   000032 AE ....      LDW       X, #Device_Processing_Buffer
-   \   000035 8D ......    CALLF     Add_Integer_to_Buffer
-   \   000039 CF ....      LDW       L:Device_Processing_Pointer, X
-    230            Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_COMMAND);
-   \   00003C C6 ....      LD        A, L:DEVICE_COMMAND
-   \   00003F 90CE ....    LDW       Y, L:Device_Processing_Pointer
-   \   000043 AE ....      LDW       X, #Device_Processing_Buffer
-   \   000046 8D ......    CALLF     Add_Char_to_Buffer
-   \   00004A CF ....      LDW       L:Device_Processing_Pointer, X
-    231            Device_Processing_Pointer = Add_String_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, &DEVICE_PACKETDATA);
-   \   00004D AE ....      LDW       X, #DEVICE_PACKETDATA
-   \   000050 BF ..        LDW       S:?w0, X
-   \   000052 90CE ....    LDW       Y, L:Device_Processing_Pointer
-   \   000056 AE ....      LDW       X, #Device_Processing_Buffer
-   \   000059 8D ......    CALLF     Add_String_to_Buffer
-   \   00005D CF ....      LDW       L:Device_Processing_Pointer, X
-    232            Checksum_Device_Buffer(Device_Processing_Buffer);
-   \   000060 AE ....      LDW       X, #Device_Processing_Buffer
-   \   000063 8D ......    CALLF     Checksum_Device_Buffer
-    233            Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_CHECKSUM);
-   \   000067 C6 ....      LD        A, L:DEVICE_CHECKSUM
-   \   00006A 90CE ....    LDW       Y, L:Device_Processing_Pointer
-   \   00006E AE ....      LDW       X, #Device_Processing_Buffer
-   \   000071 8D ......    CALLF     Add_Char_to_Buffer
-   \   000075 CF ....      LDW       L:Device_Processing_Pointer, X
-    234            Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_EOT);
-   \   000078 C6 ....      LD        A, L:DEVICE_EOT
-   \   00007B 90CE ....    LDW       Y, L:Device_Processing_Pointer
-   \   00007F AE ....      LDW       X, #Device_Processing_Buffer
-   \   000082 8D ......    CALLF     Add_Char_to_Buffer
-   \   000086 CF ....      LDW       L:Device_Processing_Pointer, X
-    235            /*Process_Device_Message(&Device_Xmit_Buffer, &Device_Processing_Buffer);
-    236            Start_Device_Xmit ();          save the start of the buffer*/
-    237          }
-   \   000089 87           RETF
-    238          /*****************************************************************************/
-    239          /*****             Checksum_Device_Buffer                                 ****/
-    240          /*****        1st byte in Device processed buffer is the character count  ****/
-    241          /*****                                                                    ****/
-    242          /*****  bytes from 1st after count to checksum byte are checksumed        ****/
-    243          /*****************************************************************************/
+   \   000000 90AE 007F    LDW       Y, #0x7f
+   \   000004 4F           CLR       A
+   \   000005 AE ....      LDW       X, #Device_Processing_Buffer
+   \   000008 8D ......    CALLF     InitializeDeviceBuffer
+   \   00000C CF ....      LDW       L:Device_Processing_Pointer, X
+    220            Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_SOH);
+   \   00000F C6 ....      LD        A, L:DEVICE_SOH
+   \   000012 90CE ....    LDW       Y, L:Device_Processing_Pointer
+   \   000016 AE ....      LDW       X, #Device_Processing_Buffer
+   \   000019 8D ......    CALLF     Add_Char_to_Buffer
+   \   00001D CF ....      LDW       L:Device_Processing_Pointer, X
+    221            Device_Processing_Pointer = Add_Integer_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_MSGLENGTH);
+   \   000020 CE ....      LDW       X, L:DEVICE_MSGLENGTH
+   \   000023 BF ..        LDW       S:?w0, X
+   \   000025 90CE ....    LDW       Y, L:Device_Processing_Pointer
+   \   000029 AE ....      LDW       X, #Device_Processing_Buffer
+   \   00002C 8D ......    CALLF     Add_Integer_to_Buffer
+   \   000030 CF ....      LDW       L:Device_Processing_Pointer, X
+    222            Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_COMMAND);
+   \   000033 C6 ....      LD        A, L:DEVICE_COMMAND
+   \   000036 90CE ....    LDW       Y, L:Device_Processing_Pointer
+   \   00003A AE ....      LDW       X, #Device_Processing_Buffer
+   \   00003D 8D ......    CALLF     Add_Char_to_Buffer
+   \   000041 CF ....      LDW       L:Device_Processing_Pointer, X
+    223            Device_Processing_Pointer = Add_String_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, &DEVICE_PACKETDATA);
+   \   000044 AE ....      LDW       X, #DEVICE_PACKETDATA
+   \   000047 BF ..        LDW       S:?w0, X
+   \   000049 90CE ....    LDW       Y, L:Device_Processing_Pointer
+   \   00004D AE ....      LDW       X, #Device_Processing_Buffer
+   \   000050 8D ......    CALLF     Add_String_to_Buffer
+   \   000054 CF ....      LDW       L:Device_Processing_Pointer, X
+    224            Checksum_Device_Buffer(Device_Processing_Buffer);
+   \   000057 AE ....      LDW       X, #Device_Processing_Buffer
+   \   00005A 8D ......    CALLF     Checksum_Device_Buffer
+    225            Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_CHECKSUM);
+   \   00005E C6 ....      LD        A, L:DEVICE_CHECKSUM
+   \   000061 90CE ....    LDW       Y, L:Device_Processing_Pointer
+   \   000065 AE ....      LDW       X, #Device_Processing_Buffer
+   \   000068 8D ......    CALLF     Add_Char_to_Buffer
+   \   00006C CF ....      LDW       L:Device_Processing_Pointer, X
+    226            Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_EOT);
+   \   00006F C6 ....      LD        A, L:DEVICE_EOT
+   \   000072 90CE ....    LDW       Y, L:Device_Processing_Pointer
+   \   000076 AE ....      LDW       X, #Device_Processing_Buffer
+   \   000079 8D ......    CALLF     Add_Char_to_Buffer
+   \   00007D CF ....      LDW       L:Device_Processing_Pointer, X
+    227            /*Process_Device_Message(&Device_Xmit_Buffer, &Device_Processing_Buffer);
+    228            Start_Device_Xmit ();          save the start of the buffer*/
+    229          }
+   \   000080 87           RETF
+    230          /*****************************************************************************/
+    231          /*****             Checksum_Device_Buffer                                 ****/
+    232          /*****        1st byte in Device processed buffer is the character count  ****/
+    233          /*****                                                                    ****/
+    234          /*****  bytes from 1st after count to checksum byte are checksumed        ****/
+    235          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    244          void Checksum_Device_Buffer(char bufr[]){
+    236          char Checksum_Device_Buffer(char bufr[]){
    \                     Checksum_Device_Buffer:
-   \   000000 9093         LDW       Y, X
-    245            checksum = 0;
-   \   000002 35 00 ....   MOV       L:checksum, #0x0
-    246            cntr = bufr[1];
-   \   000006 93           LDW       X, Y
-   \   000007 5C           INCW      X
-   \   000008 F6           LD        A, (X)
-   \   000009 5F           CLRW      X
-   \   00000A 97           LD        XL, A
-   \   00000B CF ....      LDW       L:cntr, X
-    247            cntr = (cntr + bufr[2] * 256)+ 1;
-   \   00000E 93           LDW       X, Y
-   \   00000F 1C 0002      ADDW      X, #0x2
-   \   000012 F6           LD        A, (X)
-   \   000013 5F           CLRW      X
-   \   000014 97           LD        XL, A
-   \   000015 BF ..        LDW       S:?w1, X
-   \   000017 AE 0100      LDW       X, #0x100
-   \   00001A BF ..        LDW       S:?w0, X
-   \   00001C BE ..        LDW       X, S:?w1
-   \   00001E 8D ......    CALLF     L:?mul16_x_x_w0
-   \   000022 5C           INCW      X
-   \   000023 72BB ....    ADDW      X, L:cntr
-   \   000027 CF ....      LDW       L:cntr, X
-    248            for (gtchr = 1; gtchr < cntr; gtchr++){
-   \   00002A 5F           CLRW      X
-   \   00002B 5C           INCW      X
-   \   00002C CF ....      LDW       L:gtchr, X
-   \                     ??Checksum_Device_Buffer_0:
-   \   00002F CE ....      LDW       X, L:gtchr
-   \   000032 C3 ....      CPW       X, L:cntr
-   \   000035 2E 15        JRSGE     L:??Checksum_Device_Buffer_1
-    249                checksum += bufr[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
-   \   000037 93           LDW       X, Y
-   \   000038 72BB ....    ADDW      X, L:gtchr
-   \   00003C F6           LD        A, (X)
-   \   00003D CB ....      ADD       A, L:checksum
-   \   000040 C7 ....      LD        L:checksum, A
-    250              }
-   \   000043 CE ....      LDW       X, L:gtchr
-   \   000046 5C           INCW      X
-   \   000047 CF ....      LDW       L:gtchr, X
-   \   00004A 20 E3        JRA       L:??Checksum_Device_Buffer_0
-    251              DEVICE_CHECKSUM = (0xFF55 - checksum);  /*Cksum to send*/
+   \   000000 8D ......    CALLF     L:?push_w4
+   \   000004 BF ..        LDW       S:?w3, X
+    237            int cntr,gtchr;
+    238            int checksum;
+    239            checksum =0;
+   \   000006 5F           CLRW      X
+   \   000007 BF ..        LDW       S:?w4, X
+    240            cntr = bufr[1];
+   \   000009 BE ..        LDW       X, S:?w3
+   \   00000B 5C           INCW      X
+   \   00000C F6           LD        A, (X)
+   \   00000D 5F           CLRW      X
+   \   00000E 97           LD        XL, A
+   \   00000F BF ..        LDW       S:?w2, X
+    241            cntr = (cntr + bufr[2] * 256)+ 1;
+   \   000011 BE ..        LDW       X, S:?w3
+   \   000013 1C 0002      ADDW      X, #0x2
+   \   000016 F6           LD        A, (X)
+   \   000017 5F           CLRW      X
+   \   000018 97           LD        XL, A
+   \   000019 BF ..        LDW       S:?w1, X
+   \   00001B AE 0100      LDW       X, #0x100
+   \   00001E BF ..        LDW       S:?w0, X
+   \   000020 BE ..        LDW       X, S:?w1
+   \   000022 8D ......    CALLF     L:?mul16_x_x_w0
+   \   000026 5C           INCW      X
+   \   000027 72BB ....    ADDW      X, S:?w2
+   \   00002B BF ..        LDW       S:?w2, X
+    242            if (cntr < BFRSIZE){
+   \   00002D BE ..        LDW       X, S:?w2
+   \   00002F A3 00FF      CPW       X, #0xff
+   \   000032 2E 26        JRSGE     L:??Checksum_Device_Buffer_0
+    243            for (gtchr = 1; gtchr < cntr; gtchr++){
+   \   000034 5F           CLRW      X
+   \   000035 5C           INCW      X
+   \   000036 9093         LDW       Y, X
    \                     ??Checksum_Device_Buffer_1:
-   \   00004C A6 55        LD        A, #0x55
-   \   00004E C0 ....      SUB       A, L:checksum
-   \   000051 C7 ....      LD        L:DEVICE_CHECKSUM, A
+   \   000038 90B3 ..      CPW       Y, S:?w2
+   \   00003B 2E 14        JRSGE     L:??Checksum_Device_Buffer_2
+    244                checksum += bufr[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
+   \   00003D 93           LDW       X, Y
+   \   00003E 72BB ....    ADDW      X, S:?w3
+   \   000042 F6           LD        A, (X)
+   \   000043 5F           CLRW      X
+   \   000044 97           LD        XL, A
+   \   000045 72BB ....    ADDW      X, S:?w4
+   \   000049 BF ..        LDW       S:?w4, X
+    245              }
+   \   00004B 93           LDW       X, Y
+   \   00004C 5C           INCW      X
+   \   00004D 9093         LDW       Y, X
+   \   00004F 20 E7        JRA       L:??Checksum_Device_Buffer_1
+    246              checksum = (0xFF55 - checksum);  /*Cksum to send*/
+   \                     ??Checksum_Device_Buffer_2:
+   \   000051 AE FF55      LDW       X, #0xff55
+   \   000054 72B0 ....    SUBW      X, S:?w4
+   \   000058 BF ..        LDW       S:?w4, X
+    247            }
+    248            else {
+    249               /* error code here*/
+    250            }
+    251          return checksum;
+   \                     ??Checksum_Device_Buffer_0:
+   \   00005A B6 ..        LD        A, S:?b9
+   \   00005C AC ......    JPF       L:?epilogue_w4
     252          }       
-   \   000054 87           RETF
+    253          /*****************************************************************************/
+    254          /*** returns the checksum to the calling routine */
+    255          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    253          void Check_Checksum_Device_Buffer(char bufr[]){
+    256          char Check_Checksum_Device_Buffer(char bufr[]){
    \                     Check_Checksum_Device_Buffer:
-   \   000000 9093         LDW       Y, X
-    254            char chekchar;
-    255            checksum = 0;
-   \   000002 35 00 ....   MOV       L:checksum, #0x0
-    256            cntr = bufr[1];
-   \   000006 93           LDW       X, Y
+   \   000000 BF ..        LDW       S:?w2, X
+    257            char checksum;
+    258            char gtchr;
+    259            
+    260            int cntr;
+    261            checksum = 0;
+   \   000002 4F           CLR       A
+   \   000003 B7 ..        LD        S:?b7, A
+    262            cntr = bufr[1];
+   \   000005 BE ..        LDW       X, S:?w2
    \   000007 5C           INCW      X
    \   000008 F6           LD        A, (X)
    \   000009 5F           CLRW      X
    \   00000A 97           LD        XL, A
-   \   00000B CF ....      LDW       L:cntr, X
-    257            cntr = (cntr + bufr[2] * 256)+ 1;
-   \   00000E 93           LDW       X, Y
+   \   00000B BF ..        LDW       S:?w1, X
+    263            cntr = (cntr + bufr[2] * 256) - 2;  /* lenfffg*/
+   \   00000D BE ..        LDW       X, S:?w2
    \   00000F 1C 0002      ADDW      X, #0x2
    \   000012 F6           LD        A, (X)
    \   000013 5F           CLRW      X
    \   000014 97           LD        XL, A
-   \   000015 BF ..        LDW       S:?w1, X
+   \   000015 9093         LDW       Y, X
    \   000017 AE 0100      LDW       X, #0x100
    \   00001A BF ..        LDW       S:?w0, X
-   \   00001C BE ..        LDW       X, S:?w1
-   \   00001E 8D ......    CALLF     L:?mul16_x_x_w0
-   \   000022 5C           INCW      X
-   \   000023 72BB ....    ADDW      X, L:cntr
-   \   000027 CF ....      LDW       L:cntr, X
-    258            for (gtchr = 1; gtchr < cntr; gtchr++){
-   \   00002A 5F           CLRW      X
-   \   00002B 5C           INCW      X
-   \   00002C CF ....      LDW       L:gtchr, X
-   \                     ??Check_Checksum_Device_Buffer_0:
-   \   00002F CE ....      LDW       X, L:gtchr
-   \   000032 C3 ....      CPW       X, L:cntr
-   \   000035 2E 15        JRSGE     L:??Check_Checksum_Device_Buffer_1
-    259                checksum += bufr[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
-   \   000037 93           LDW       X, Y
-   \   000038 72BB ....    ADDW      X, L:gtchr
-   \   00003C F6           LD        A, (X)
-   \   00003D CB ....      ADD       A, L:checksum
-   \   000040 C7 ....      LD        L:checksum, A
-    260              }
-   \   000043 CE ....      LDW       X, L:gtchr
-   \   000046 5C           INCW      X
-   \   000047 CF ....      LDW       L:gtchr, X
-   \   00004A 20 E3        JRA       L:??Check_Checksum_Device_Buffer_0
-    261            gtchr++;
+   \   00001C 93           LDW       X, Y
+   \   00001D 8D ......    CALLF     L:?mul16_x_x_w0
+   \   000021 1C FFFE      ADDW      X, #0xfffffffffffffffe
+   \   000024 72BB ....    ADDW      X, S:?w1
+   \   000028 BF ..        LDW       S:?w1, X
+    264           if (cntr < BFRSIZE){
+   \   00002A BE ..        LDW       X, S:?w1
+   \   00002C A3 00FF      CPW       X, #0xff
+   \   00002F 2E 2D        JRSGE     L:??Check_Checksum_Device_Buffer_0
+    265            for (gtchr = 1; gtchr <= cntr+3; gtchr++){
+   \   000031 A6 01        LD        A, #0x1
+   \   000033 B7 ..        LD        S:?b6, A
    \                     ??Check_Checksum_Device_Buffer_1:
-   \   00004C CE ....      LDW       X, L:gtchr
-   \   00004F 5C           INCW      X
-   \   000050 CF ....      LDW       L:gtchr, X
-    262            chekchar = checksum += bufr[gtchr];
-   \   000053 93           LDW       X, Y
-   \   000054 72BB ....    ADDW      X, L:gtchr
-   \   000058 F6           LD        A, (X)
-   \   000059 CB ....      ADD       A, L:checksum
-   \   00005C C7 ....      LD        L:checksum, A
-   \   00005F B7 ..        LD        S:?b4, A
-    263            if (chekchar == 0x55)
-   \   000061 B6 ..        LD        A, S:?b4
-   \   000063 A1 55        CP        A, #0x55
-   \   000065 26 06        JRNE      L:??Check_Checksum_Device_Buffer_2
-    264                checksum_Okay = 00;
-   \   000067 35 00 ....   MOV       L:checksum_Okay, #0x0
-   \   00006B 20 04        JRA       L:??Check_Checksum_Device_Buffer_3
-    265            else
-    266                 checksum_Okay = 01;
-   \                     ??Check_Checksum_Device_Buffer_2:
-   \   00006D 35 01 ....   MOV       L:checksum_Okay, #0x1
-    267          
-    268            DEVICE_CHECKSUM = (0xFF55 - checksum);  /*Cksum to send*/
-   \                     ??Check_Checksum_Device_Buffer_3:
-   \   000071 A6 55        LD        A, #0x55
-   \   000073 C0 ....      SUB       A, L:checksum
-   \   000076 C7 ....      LD        L:DEVICE_CHECKSUM, A
-    269          }
-   \   000079 87           RETF
-    270          
-    271          /*****************************************************************************/
-    272          /*****             Process_Device_Message                                 ****/
-    273          /*****        takes the buffer it's passed and inserts DLEs where necess. ****/
-    274          /*****************************************************************************/
+   \   000035 BE ..        LDW       X, S:?w1
+   \   000037 1C 0003      ADDW      X, #0x3
+   \   00003A 9093         LDW       Y, X
+   \   00003C 5F           CLRW      X
+   \   00003D 41           EXG       A, XL
+   \   00003E B6 ..        LD        A, S:?b6
+   \   000040 41           EXG       A, XL
+   \   000041 BF ..        LDW       S:?w0, X
+   \   000043 90B3 ..      CPW       Y, S:?w0
+   \   000046 2F 16        JRSLT     L:??Check_Checksum_Device_Buffer_0
+    266                checksum += bufr[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
+   \   000048 5F           CLRW      X
+   \   000049 41           EXG       A, XL
+   \   00004A B6 ..        LD        A, S:?b6
+   \   00004C 41           EXG       A, XL
+   \   00004D 72BB ....    ADDW      X, S:?w2
+   \   000051 F6           LD        A, (X)
+   \   000052 BB ..        ADD       A, S:?b7
+   \   000054 B7 ..        LD        S:?b7, A
+    267            }
+   \   000056 B6 ..        LD        A, S:?b6
+   \   000058 AB 01        ADD       A, #0x1
+   \   00005A B7 ..        LD        S:?b6, A
+   \   00005C 20 D7        JRA       L:??Check_Checksum_Device_Buffer_1
+    268           }
+    269           return checksum;
+   \                     ??Check_Checksum_Device_Buffer_0:
+   \   00005E B6 ..        LD        A, S:?b7
+   \   000060 87           RETF
+    270          }
+    271          
+    272          /*****************************************************************************/
+    273          /*****             Process_Device_Message                                 ****/
+    274          /*****        takes the buffer it's passed and inserts DLEs where necess. ****/
+    275          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    275          void Process_Xmit_Device_Message(char bufr[], char bufr2[]){
+    276          void Process_Xmit_Device_Message(char bufr[], char bufr2[]){
    \                     Process_Xmit_Device_Message:
    \   000000 8D ......    CALLF     L:?push_l2
    \   000004 BF ..        LDW       S:?w4, X
    \   000006 90BF ..      LDW       S:?w5, Y
-    276           u16 bfrptr;
-    277           u16 xmtptr;
-    278           u8 i;
-    279           for (bfrptr = 0; bfrptr <3; bfrptr++){      /* PUT SOH, PACKET COUNT INTO*/
+    277          int bfrptr;
+    278           u16 xmtptr;
+    279           u8 i;
+    280           for (bfrptr = 0; bfrptr <3; bfrptr++){      /* PUT SOH, PACKET COUNT INTO*/
    \   000009 5F           CLRW      X
    \   00000A 9093         LDW       Y, X
    \                     ??Process_Xmit_Device_Message_0:
    \   00000C 90A3 0003    CPW       Y, #0x3
-   \   000010 24 12        JRNC      L:??Process_Xmit_Device_Message_1
-    280            bufr2[bfrptr] = bufr[bfrptr];               /*XMIT BUFFER*/  
+   \   000010 2E 12        JRSGE     L:??Process_Xmit_Device_Message_1
+    281            bufr2[bfrptr] = bufr[bfrptr];               /*XMIT BUFFER*/  
    \   000012 93           LDW       X, Y
    \   000013 72BB ....    ADDW      X, S:?w4
    \   000017 F6           LD        A, (X)
    \   000018 93           LDW       X, Y
    \   000019 72BB ....    ADDW      X, S:?w5
    \   00001D F7           LD        (X), A
-    281           }
+    282           }
    \   00001E 93           LDW       X, Y
    \   00001F 5C           INCW      X
    \   000020 9093         LDW       Y, X
    \   000022 20 E8        JRA       L:??Process_Xmit_Device_Message_0
-    282          xmtptr = bfrptr;
+    283          xmtptr = bfrptr;
    \                     ??Process_Xmit_Device_Message_1:
    \   000024 90BF ..      LDW       S:?w1, Y
-    283          cntr = bufr[1];
+    284          cntr = bufr[1];
    \   000027 BE ..        LDW       X, S:?w4
    \   000029 5C           INCW      X
    \   00002A F6           LD        A, (X)
    \   00002B 5F           CLRW      X
    \   00002C 97           LD        XL, A
    \   00002D CF ....      LDW       L:cntr, X
-    284          cntr = cntr + ((bufr[2] * 256)+3);
+    285          cntr = cntr + ((bufr[2] * 256)+3);
    \   000030 BE ..        LDW       X, S:?w4
    \   000032 1C 0002      ADDW      X, #0x2
    \   000035 F6           LD        A, (X)
@@ -610,17 +589,17 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   000045 1C 0003      ADDW      X, #0x3
    \   000048 72BB ....    ADDW      X, L:cntr
    \   00004C CF ....      LDW       L:cntr, X
-    285          
-    286          for (bfrptr = bfrptr; bfrptr <cntr; bfrptr++){
+    286          
+    287          for (bfrptr = bfrptr; bfrptr <cntr; bfrptr++){
    \                     ??Process_Xmit_Device_Message_2:
    \   00004F 90C3 ....    CPW       Y, L:cntr
-   \   000053 24 59        JRNC      L:??Process_Xmit_Device_Message_3
-    287            i = bufr[bfrptr];
+   \   000053 2E 58        JRSGE     L:??Process_Xmit_Device_Message_3
+    288            i = bufr[bfrptr];
    \   000055 93           LDW       X, Y
    \   000056 72BB ....    ADDW      X, S:?w4
    \   00005A F6           LD        A, (X)
    \   00005B B7 ..        LD        S:?b6, A
-    288            if (bufr[bfrptr]== 0x02 || bufr[bfrptr] == 0x03 || bufr[bfrptr] == 0x10|| bufr[bfrptr] == ','){
+    289            if (bufr[bfrptr]== STX || bufr[bfrptr] == ETX || bufr[bfrptr] == DLE|| bufr[bfrptr] == ','){
    \   00005D 93           LDW       X, Y
    \   00005E 72BB ....    ADDW      X, S:?w4
    \   000062 F6           LD        A, (X)
@@ -640,305 +619,301 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   00007C 72BB ....    ADDW      X, S:?w4
    \   000080 F6           LD        A, (X)
    \   000081 A1 2C        CP        A, #0x2c
-   \   000083 26 15        JRNE      L:??Process_Xmit_Device_Message_5
-    289               i ^= 0xFF;
+   \   000083 26 14        JRNE      L:??Process_Xmit_Device_Message_5
+    290               i ^= 0xFF;
    \                     ??Process_Xmit_Device_Message_4:
    \   000085 B6 ..        LD        A, S:?b6
    \   000087 A8 FF        XOR       A, #0xff
    \   000089 B7 ..        LD        S:?b6, A
-    290              bufr2[xmtptr] =  DLECHR;
+    291              bufr2[xmtptr] =  DLE;
    \   00008B BE ..        LDW       X, S:?w1
    \   00008D 72BB ....    ADDW      X, S:?w5
-   \   000091 C6 ....      LD        A, L:DLECHR
-   \   000094 F7           LD        (X), A
-    291              xmtptr++;
-   \   000095 BE ..        LDW       X, S:?w1
-   \   000097 5C           INCW      X
-   \   000098 BF ..        LDW       S:?w1, X
-    292            }
-    293            bufr2[xmtptr] =  i;
+   \   000091 A6 10        LD        A, #0x10
+   \   000093 F7           LD        (X), A
+    292              xmtptr++;
+   \   000094 BE ..        LDW       X, S:?w1
+   \   000096 5C           INCW      X
+   \   000097 BF ..        LDW       S:?w1, X
+    293            }
+    294            bufr2[xmtptr] =  i;
    \                     ??Process_Xmit_Device_Message_5:
-   \   00009A BE ..        LDW       X, S:?w1
-   \   00009C 72BB ....    ADDW      X, S:?w5
-   \   0000A0 B6 ..        LD        A, S:?b6
-   \   0000A2 F7           LD        (X), A
-    294            xmtptr++;
-   \   0000A3 BE ..        LDW       X, S:?w1
-   \   0000A5 5C           INCW      X
-   \   0000A6 BF ..        LDW       S:?w1, X
-    295           }
-   \   0000A8 93           LDW       X, Y
-   \   0000A9 5C           INCW      X
-   \   0000AA 9093         LDW       Y, X
-   \   0000AC 20 A1        JRA       L:??Process_Xmit_Device_Message_2
-    296          bufr2[xmtptr] =  ETXCHR;
+   \   000099 BE ..        LDW       X, S:?w1
+   \   00009B 72BB ....    ADDW      X, S:?w5
+   \   00009F B6 ..        LD        A, S:?b6
+   \   0000A1 F7           LD        (X), A
+    295            xmtptr++;
+   \   0000A2 BE ..        LDW       X, S:?w1
+   \   0000A4 5C           INCW      X
+   \   0000A5 BF ..        LDW       S:?w1, X
+    296           }
+   \   0000A7 93           LDW       X, Y
+   \   0000A8 5C           INCW      X
+   \   0000A9 9093         LDW       Y, X
+   \   0000AB 20 A2        JRA       L:??Process_Xmit_Device_Message_2
+    297          bufr2[xmtptr] =  ETX;
    \                     ??Process_Xmit_Device_Message_3:
-   \   0000AE BE ..        LDW       X, S:?w1
-   \   0000B0 72BB ....    ADDW      X, S:?w5
-   \   0000B4 C6 ....      LD        A, L:ETXCHR
-   \   0000B7 F7           LD        (X), A
-    297          }
-   \   0000B8 AC ......    JPF       L:?epilogue_l2
-    298          /*****************************************************************************/
+   \   0000AD BE ..        LDW       X, S:?w1
+   \   0000AF 72BB ....    ADDW      X, S:?w5
+   \   0000B3 A6 03        LD        A, #0x3
+   \   0000B5 F7           LD        (X), A
+    298          }
+   \   0000B6 AC ......    JPF       L:?epilogue_l2
     299          /*****************************************************************************/
-    300          /*****  INITIALIZE RECEIVER BUFFER                                       *****/
-    301          /*****************************************************************************/
+    300          /*****************************************************************************/
+    301          /*****  INITIALIZE RECEIVER BUFFER                                       *****/
     302          /*****************************************************************************/
+    303          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    303          void Initialize_Device_receiver_buffer(void){
-    304            FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
+    304          void Initialize_Device_receiver_buffer(void){
+    305            FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
    \                     Initialize_Device_receiver_buffer:
-   \   000000 90CE ....    LDW       Y, L:BFRSIZE
+   \   000000 90AE 00FF    LDW       Y, #0xff
    \   000004 4F           CLR       A
    \   000005 AE ....      LDW       X, #Device_Receiver_Buffer
    \   000008 8D ......    CALLF     FillBuffer
-    305            Device_RX_InPtr=0;
+    306            Device_RX_InPtr=0;
    \   00000C 35 00 ....   MOV       L:Device_RX_InPtr, #0x0
-    306            Device_RX_OutPtr=0;
+    307            Device_RX_OutPtr=0;
    \   000010 35 00 ....   MOV       L:Device_RX_OutPtr, #0x0
-    307          }
+    308          }
    \   000014 87           RETF
-    308          /*****************************************************************************/
     309          /*****************************************************************************/
-    310          /****                        ISR routines                                  ***/
-    311          /*****************************************************************************/
+    310          /*****************************************************************************/
+    311          /****                        ISR routines                                  ***/
     312          /*****************************************************************************/
-    313          
-    314          /*****************************************************************************/
-    315          /*****        Get_Device_Char  - UART3 RCV INTERRUPT                      ****/
-    316          /*****        1st byte in Device processed buffer is the character count  ****/
-    317          /*****************************************************************************/
+    313          /*****************************************************************************/
+    314          
+    315          /*****************************************************************************/
+    316          /*****        Get_Device_Char  - UART3 RCV INTERRUPT                      ****/
+    317          /*****        1st byte in Device processed buffer is the character count  ****/
+    318          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    318          void Get_Device_Char(void){
-    319            Device_Rcvr_char = ((u8)UART3->DR);
+    319          void Get_Device_Char(void){
+    320            Device_Rcvr_char = ((u8)UART3->DR);
    \                     Get_Device_Char:
    \   000000 C6 5241      LD        A, L:0x5241
    \   000003 C7 ....      LD        L:Device_Rcvr_char, A
-    320            Device_Receiver_Buffer[Device_RX_InPtr] = Device_Rcvr_char;
+    321            Device_Receiver_Buffer[Device_RX_InPtr] = Device_Rcvr_char;
    \   000006 C6 ....      LD        A, L:Device_RX_InPtr
    \   000009 5F           CLRW      X
    \   00000A 97           LD        XL, A
    \   00000B C6 ....      LD        A, L:Device_Rcvr_char
    \   00000E D7 ....      LD        (L:Device_Receiver_Buffer,X), A
-    321            if (Device_Rcvr_char == 0x03)
+    322            if (Device_Rcvr_char == 0x03)
    \   000011 C6 ....      LD        A, L:Device_Rcvr_char
    \   000014 A1 03        CP        A, #0x3
    \   000016 26 04        JRNE      L:??Get_Device_Char_0
-    322                Device_Rcvr_Complete_flag = 1;
+    323                Device_Rcvr_Complete_flag = 1;
    \   000018 35 01 ....   MOV       L:Device_Rcvr_Complete_flag, #0x1
-    323            Device_RX_InPtr++;
+    324            Device_RX_InPtr++;
    \                     ??Get_Device_Char_0:
    \   00001C C6 ....      LD        A, L:Device_RX_InPtr
    \   00001F AB 01        ADD       A, #0x1
    \   000021 C7 ....      LD        L:Device_RX_InPtr, A
-    324          }
+    325          }
    \   000024 87           RETF
-    325          
-    326          /*****************************************************************************/
+    326          
     327          /*****************************************************************************/
-    328          /*****        Device Receive message handlers                            *****/
-    329          /*****************************************************************************/
+    328          /*****************************************************************************/
+    329          /*****        Device Receive message handlers                            *****/
     330          /*****************************************************************************/
-    331          
-    332          /*****************************************************************************/
-    333          /*****             Process_Receiver_Device_Message                        ****/
-    334          /*****   takes the buffer it's passed and unescapes where necess.         ****/
-    335          /*****************************************************************************/
+    331          /*****************************************************************************/
+    332          
+    333          /*****************************************************************************/
+    334          /*****             Process_Receiver_Device_Message                        ****/
+    335          /*****   takes the buffer it's passed and unescapes where necess.         ****/
+    336          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    336          void Process_Receiver_Device_Message(void){
-    337           u16 bfrptr;
-    338           u16 xmtptr;
-    339           u8 i;
-    340          xmtptr =0;
+    337          void Process_Receiver_Device_Message(void){
+    338           u16 bfrptr;
+    339           u16 xmtptr;
+    340           u8 i;
+    341          xmtptr =0;
    \                     Process_Receiver_Device_Message:
    \   000000 5F           CLRW      X
    \   000001 9093         LDW       Y, X
-    341          for (bfrptr = 0; bfrptr <BFRSIZE; bfrptr++){
+    342          for (bfrptr = 0; bfrptr <BFRSIZE; bfrptr++){
    \   000003 5F           CLRW      X
    \   000004 BF ..        LDW       S:?w0, X
    \                     ??Process_Receiver_Device_Message_0:
    \   000006 BE ..        LDW       X, S:?w0
-   \   000008 C3 ....      CPW       X, L:BFRSIZE
+   \   000008 A3 00FF      CPW       X, #0xff
    \   00000B 24 3F        JRNC      L:??Process_Receiver_Device_Message_1
-    342            i = Device_Receiver_Buffer[bfrptr];
+    343            i = Device_Receiver_Buffer[bfrptr];
    \   00000D BE ..        LDW       X, S:?w0
    \   00000F D6 ....      LD        A, (L:Device_Receiver_Buffer,X)
    \   000012 B7 ..        LD        S:?b2, A
-    343            if (i == 0x03) {
+    344            if (i == 0x03) {
    \   000014 B6 ..        LD        A, S:?b2
    \   000016 A1 03        CP        A, #0x3
    \   000018 26 08        JRNE      L:??Process_Receiver_Device_Message_2
-    344              Device_Processing_Buffer[xmtptr] =  i;
+    345              Device_Processing_Buffer[xmtptr] =  i;
    \   00001A B6 ..        LD        A, S:?b2
    \   00001C 93           LDW       X, Y
    \   00001D D7 ....      LD        (L:Device_Processing_Buffer,X), A
-    345              break;
+    346              break;
    \   000020 20 2A        JRA       L:??Process_Receiver_Device_Message_1
-    346              }
-    347            if (Device_Receiver_Buffer[bfrptr] == 0x10){
+    347              }
+    348            if (Device_Receiver_Buffer[bfrptr] == 0x10){
    \                     ??Process_Receiver_Device_Message_2:
    \   000022 A6 10        LD        A, #0x10
    \   000024 BE ..        LDW       X, S:?w0
    \   000026 D1 ....      CP        A, (L:Device_Receiver_Buffer,X)
    \   000029 26 12        JRNE      L:??Process_Receiver_Device_Message_3
-    348              bfrptr++;
+    349              bfrptr++;
    \   00002B BE ..        LDW       X, S:?w0
    \   00002D 5C           INCW      X
    \   00002E BF ..        LDW       S:?w0, X
-    349              i = Device_Receiver_Buffer[bfrptr];
+    350              i = Device_Receiver_Buffer[bfrptr];
    \   000030 BE ..        LDW       X, S:?w0
    \   000032 D6 ....      LD        A, (L:Device_Receiver_Buffer,X)
    \   000035 B7 ..        LD        S:?b2, A
-    350               i ^= 0xFF;
+    351               i ^= 0xFF;
    \   000037 B6 ..        LD        A, S:?b2
    \   000039 A8 FF        XOR       A, #0xff
    \   00003B B7 ..        LD        S:?b2, A
-    351            }
-    352            Device_Processing_Buffer[xmtptr] =  i;
+    352            }
+    353            Device_Processing_Buffer[xmtptr] =  i;
    \                     ??Process_Receiver_Device_Message_3:
    \   00003D B6 ..        LD        A, S:?b2
    \   00003F 93           LDW       X, Y
    \   000040 D7 ....      LD        (L:Device_Processing_Buffer,X), A
-    353            xmtptr++;
+    354            xmtptr++;
    \   000043 905C         INCW      Y
-    354           }
+    355           }
    \   000045 BE ..        LDW       X, S:?w0
    \   000047 5C           INCW      X
    \   000048 BF ..        LDW       S:?w0, X
    \   00004A 20 BA        JRA       L:??Process_Receiver_Device_Message_0
-    355          }
+    356          }
    \                     ??Process_Receiver_Device_Message_1:
    \   00004C 87           RETF
-    356          /*****************************************************************************/
     357          /*****************************************************************************/
-    358          /*****        Device xmit message handlers                               *****/
-    359          /*****************************************************************************/
+    358          /*****************************************************************************/
+    359          /*****        Device xmit message handlers                               *****/
     360          /*****************************************************************************/
-    361          
-    362          /*****************************************************************************/
-    363          /*****        start Device xmit                                           ****/
-    364          /*****        calling routine MUST:                                       ****/
-    365          /*****           Device_Xmit_Pointer = Address of buffer to be sent       ****/
-    366          /*****           Device_Xmit_Char_Count = number of characters to send    ****/
-    367          /*****                                                                    ****/
-    368          /*****      puts 1st character in the data reg. and enables xmit and int  ****/
-    369          /*****************************************************************************/
+    361          /*****************************************************************************/
+    362          
+    363          /*****************************************************************************/
+    364          /*****        start Device xmit                                           ****/
+    365          /*****        calling routine MUST:                                       ****/
+    366          /*****           Device_Xmit_Pointer = Address of buffer to be sent       ****/
+    367          /*****           Device_Xmit_Char_Count = number of characters to send    ****/
+    368          /*****                                                                    ****/
+    369          /*****      puts 1st character in the data reg. and enables xmit and int  ****/
+    370          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    370          void Start_Device_Xmit (void){
-    371            Device_Xmit_Pointer = 0;
+    371          void Start_Device_Xmit (void){
+    372            Device_Xmit_Pointer = 0;
    \                     Start_Device_Xmit:
    \   000000 35 00 ....   MOV       L:Device_Xmit_Pointer, #0x0
-    372            Device_Xmit_Char = Device_Xmit_Buffer[Device_Xmit_Pointer];
+    373            Device_Xmit_Char = Device_Xmit_Buffer[Device_Xmit_Pointer];
    \   000004 C6 ....      LD        A, L:Device_Xmit_Pointer
    \   000007 5F           CLRW      X
    \   000008 97           LD        XL, A
    \   000009 D6 ....      LD        A, (L:Device_Xmit_Buffer,X)
    \   00000C C7 ....      LD        L:Device_Xmit_Char, A
-    373            Device_Xmit_Pointer++;
+    374            Device_Xmit_Pointer++;
    \   00000F C6 ....      LD        A, L:Device_Xmit_Pointer
    \   000012 AB 01        ADD       A, #0x1
    \   000014 C7 ....      LD        L:Device_Xmit_Pointer, A
-    374            Device_Xmit_Char_Count--;
+    375            Device_Xmit_Char_Count--;
    \   000017 C6 ....      LD        A, L:Device_Xmit_Char_Count
    \   00001A AB FF        ADD       A, #0xff
    \   00001C C7 ....      LD        L:Device_Xmit_Char_Count, A
-    375            Device_Xmit_Complete_Flag =1;
+    376            Device_Xmit_Complete_Flag =1;
    \   00001F 35 01 ....   MOV       L:Device_Xmit_Complete_Flag, #0x1
-    376            UART3->DR = Device_Xmit_Char;
+    377            UART3->DR = Device_Xmit_Char;
    \   000023 C6 ....      LD        A, L:Device_Xmit_Char
    \   000026 C7 5241      LD        L:0x5241, A
-    377            UART3->CR2 |= (uint8_t)UART3_CR2_TCIEN | UART3_CR2_TIEN;
+    378            UART3->CR2 |= (uint8_t)UART3_CR2_TCIEN | UART3_CR2_TIEN;
    \   000029 C6 5245      LD        A, L:0x5245
    \   00002C AA C0        OR        A, #0xc0
    \   00002E C7 5245      LD        L:0x5245, A
-    378            while (Device_Xmit_Complete_Flag == 1)
+    379            while (Device_Xmit_Complete_Flag == 1)
    \                     ??Start_Device_Xmit_0:
    \   000031 C6 ....      LD        A, L:Device_Xmit_Complete_Flag
    \   000034 A1 01        CP        A, #0x1
    \   000036 27 F9        JREQ      L:??Start_Device_Xmit_0
-    379            {};
-    380          }
+    380            {};
+    381          }
    \   000038 87           RETF
-    381          /*****************************************************************************/
-    382          /*****        Device xmit - UART3 XMIT INTERRUPT HANDLER                  *****/
-    383          /*****        sends characters till the count expires, on the next int.   ****/
-    384          /*****             turnf off the txmit enable, once TXE is low            ****/
-    385          /*****************************************************************************/
+    382          /*****************************************************************************/
+    383          /*****        Device xmit - UART3 XMIT INTERRUPT HANDLER                  *****/
+    384          /*****        sends characters till the count expires, on the next int.   ****/
+    385          /*****             turnf off the txmit enable, once TXE is low            ****/
+    386          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    386          void Send_Next_Char_to_Device(void){
-    387            if (UART3->SR &= UART3_FLAG_TXE){
+    387          void Send_Next_Char_to_Device(void){
+    388            if (UART3->SR & UART3_FLAG_TXE){
    \                     Send_Next_Char_to_Device:
-   \   000000 C6 5240      LD        A, L:0x5240
-   \   000003 A4 80        AND       A, #0x80
-   \   000005 C7 5240      LD        L:0x5240, A
-   \   000008 4D           TNZ       A
-   \   000009 27 49        JREQ      L:??Send_Next_Char_to_Device_0
-    388            if (Device_Xmit_Char_Count != 0){
-   \   00000B C6 ....      LD        A, L:Device_Xmit_Char_Count
-   \   00000E A1 00        CP        A, #0x0
-   \   000010 27 36        JREQ      L:??Send_Next_Char_to_Device_1
-    389              Device_Xmit_Char = Device_Xmit_Buffer[Device_Xmit_Pointer];
-   \   000012 C6 ....      LD        A, L:Device_Xmit_Pointer
-   \   000015 5F           CLRW      X
-   \   000016 97           LD        XL, A
-   \   000017 D6 ....      LD        A, (L:Device_Xmit_Buffer,X)
-   \   00001A C7 ....      LD        L:Device_Xmit_Char, A
-    390            if (Device_Xmit_Char == 0x03){
-   \   00001D C6 ....      LD        A, L:Device_Xmit_Char
-   \   000020 A1 03        CP        A, #0x3
-   \   000022 26 0C        JRNE      L:??Send_Next_Char_to_Device_2
-    391               Device_Xmit_Char_Count = 0;
-   \   000024 35 00 ....   MOV       L:Device_Xmit_Char_Count, #0x0
-    392              UART3->DR = Device_Xmit_Char;
-   \   000028 C6 ....      LD        A, L:Device_Xmit_Char
-   \   00002B C7 5241      LD        L:0x5241, A
-   \   00002E 20 24        JRA       L:??Send_Next_Char_to_Device_0
-    393              }
-    394            else{
-    395              Device_Xmit_Pointer++;
+   \   000000 720F 5240 49 BTJF      L:0x5240, #0x7, L:??Send_Next_Char_to_Device_0
+    389              if (Device_Xmit_Char_Count != 0){
+   \   000005 C6 ....      LD        A, L:Device_Xmit_Char_Count
+   \   000008 A1 00        CP        A, #0x0
+   \   00000A 27 36        JREQ      L:??Send_Next_Char_to_Device_1
+    390                Device_Xmit_Char = Device_Xmit_Buffer[Device_Xmit_Pointer];
+   \   00000C C6 ....      LD        A, L:Device_Xmit_Pointer
+   \   00000F 5F           CLRW      X
+   \   000010 97           LD        XL, A
+   \   000011 D6 ....      LD        A, (L:Device_Xmit_Buffer,X)
+   \   000014 C7 ....      LD        L:Device_Xmit_Char, A
+    391                if (Device_Xmit_Char == 0x03){
+   \   000017 C6 ....      LD        A, L:Device_Xmit_Char
+   \   00001A A1 03        CP        A, #0x3
+   \   00001C 26 0C        JRNE      L:??Send_Next_Char_to_Device_2
+    392                  Device_Xmit_Char_Count = 0;
+   \   00001E 35 00 ....   MOV       L:Device_Xmit_Char_Count, #0x0
+    393                  UART3->DR = Device_Xmit_Char;
+   \   000022 C6 ....      LD        A, L:Device_Xmit_Char
+   \   000025 C7 5241      LD        L:0x5241, A
+   \   000028 20 24        JRA       L:??Send_Next_Char_to_Device_0
+    394                  }
+    395                  else{
+    396                    Device_Xmit_Pointer++;
    \                     ??Send_Next_Char_to_Device_2:
-   \   000030 C6 ....      LD        A, L:Device_Xmit_Pointer
-   \   000033 AB 01        ADD       A, #0x1
-   \   000035 C7 ....      LD        L:Device_Xmit_Pointer, A
-    396              Device_Xmit_Char_Count--;
-   \   000038 C6 ....      LD        A, L:Device_Xmit_Char_Count
-   \   00003B AB FF        ADD       A, #0xff
-   \   00003D C7 ....      LD        L:Device_Xmit_Char_Count, A
-    397              UART3->DR = Device_Xmit_Char;
-   \   000040 C6 ....      LD        A, L:Device_Xmit_Char
-   \   000043 C7 5241      LD        L:0x5241, A
-   \   000046 20 0C        JRA       L:??Send_Next_Char_to_Device_0
-    398            }
-    399           }
-    400            else {
-    401              UART3->CR2 &= (uint8_t)(~(UART3_CR2_TIEN | UART3_CR2_TCIEN ));  
+   \   00002A C6 ....      LD        A, L:Device_Xmit_Pointer
+   \   00002D AB 01        ADD       A, #0x1
+   \   00002F C7 ....      LD        L:Device_Xmit_Pointer, A
+    397                    Device_Xmit_Char_Count--;
+   \   000032 C6 ....      LD        A, L:Device_Xmit_Char_Count
+   \   000035 AB FF        ADD       A, #0xff
+   \   000037 C7 ....      LD        L:Device_Xmit_Char_Count, A
+    398                    UART3->DR = Device_Xmit_Char;
+   \   00003A C6 ....      LD        A, L:Device_Xmit_Char
+   \   00003D C7 5241      LD        L:0x5241, A
+   \   000040 20 0C        JRA       L:??Send_Next_Char_to_Device_0
+    399                    }
+    400              }
+    401              else {
+    402                UART3->CR2 &= (uint8_t)(~(UART3_CR2_TIEN | UART3_CR2_TCIEN ));  
    \                     ??Send_Next_Char_to_Device_1:
-   \   000048 C6 5245      LD        A, L:0x5245
-   \   00004B A4 3F        AND       A, #0x3f
-   \   00004D C7 5245      LD        L:0x5245, A
-    402              Device_Xmit_Complete_Flag = 0;
-   \   000050 35 00 ....   MOV       L:Device_Xmit_Complete_Flag, #0x0
-    403            }
-    404            }
-    405          }
+   \   000042 C6 5245      LD        A, L:0x5245
+   \   000045 A4 3F        AND       A, #0x3f
+   \   000047 C7 5245      LD        L:0x5245, A
+    403                Device_Xmit_Complete_Flag = 0;
+   \   00004A 35 00 ....   MOV       L:Device_Xmit_Complete_Flag, #0x0
+    404              }
+    405            }
+    406          }
    \                     ??Send_Next_Char_to_Device_0:
-   \   000054 87           RETF
-    406          /*****************************************************************************/
-    407          /*****        Device Initialize/DeInit                                   *****/
-    408          /*****************************************************************************/
+   \   00004E 87           RETF
+    407          /*****************************************************************************/
+    408          /*****        Device Initialize/DeInit                                   *****/
     409          /*****************************************************************************/
+    410          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    410          void InitDeviceUART(void)
-    411          {
-    412            UART3_Init(9600, UART3_WORDLENGTH_8D, 
-    413                           UART3_STOPBITS_1,  UART3_PARITY_NO, 
-    414                           UART3_MODE_TXRX_ENABLE);
+    411          void InitDeviceUART(void)
+    412          {
+    413            UART3_Init(9600, UART3_WORDLENGTH_8D, 
+    414                           UART3_STOPBITS_1,  UART3_PARITY_NO, 
+    415                           UART3_MODE_TXRX_ENABLE);
    \                     InitDeviceUART:
    \   000000 35 0C ....   MOV       S:?b6, #0xc
    \   000004 3F ..        CLR       S:?b5
@@ -949,73 +924,73 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   00000E 5F           CLRW      X
    \   00000F BF ..        LDW       S:?w0, X
    \   000011 8D ......    CALLF     UART3_Init
-    415            UART3->CR2 |= 0x20;  /*UART3 RX INTERRUPT ENABLE*/
+    416            UART3->CR2 |= 0x20;  /*UART3 RX INTERRUPT ENABLE*/
    \   000015 721A 5245    BSET      L:0x5245, #0x5
-    416            Device_Rcvr_State = 0;
+    417            Device_Rcvr_State = 0;
    \   000019 35 00 ....   MOV       L:Device_Rcvr_State, #0x0
-    417            Device_Rcvr_Complete_flag = 0;
+    418            Device_Rcvr_Complete_flag = 0;
    \   00001D 35 00 ....   MOV       L:Device_Rcvr_Complete_flag, #0x0
-    418          }
+    419          }
    \   000021 87           RETF
-    419          
-    420          /*****************************************************************************/
-    421          /*****                          UART3_DeInit                              ****/
-    422          /***** Clear the Idle Line Detected bit in the status rerister by a read  ****/
-    423          /***** to the UART3_SR register followed by a Read to the UART3_DR register **/
-    424          /*****************************************************************************/
+    420          
+    421          /*****************************************************************************/
+    422          /*****                          UART3_DeInit                              ****/
+    423          /***** Clear the Idle Line Detected bit in the status rerister by a read  ****/
+    424          /***** to the UART3_SR register followed by a Read to the UART3_DR register **/
+    425          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    425          void UART3_DeInit(void)
-    426          {
-    427              /* Clear the Idle Line Detected bit in the status rerister by a read
-    428                 to the UART3_SR register followed by a Read to the UART3_DR register */
-    429              (void) UART3->SR;
+    426          void UART3_DeInit(void)
+    427          {
+    428              /* Clear the Idle Line Detected bit in the status rerister by a read
+    429                 to the UART3_SR register followed by a Read to the UART3_DR register */
+    430              (void) UART3->SR;
    \                     UART3_DeInit:
    \   000000 C6 5240      LD        A, L:0x5240
    \   000003 B7 ..        LD        S:?b0, A
-    430              (void) UART3->DR;
+    431              (void) UART3->DR;
    \   000005 C6 5241      LD        A, L:0x5241
-    431          
-    432              UART3->BRR2 = UART3_BRR2_RESET_VALUE; /*Set UART3_BRR2 to reset value 0x00 */
+    432          
+    433              UART3->BRR2 = UART3_BRR2_RESET_VALUE; /*Set UART3_BRR2 to reset value 0x00 */
    \   000008 35 00 5243   MOV       L:0x5243, #0x0
-    433              UART3->BRR1 = UART3_BRR1_RESET_VALUE; /*Set UART3_BRR1 to reset value 0x00 */
+    434              UART3->BRR1 = UART3_BRR1_RESET_VALUE; /*Set UART3_BRR1 to reset value 0x00 */
    \   00000C 35 00 5242   MOV       L:0x5242, #0x0
-    434          
-    435              UART3->CR1 = UART3_CR1_RESET_VALUE;  /*Set UART3_CR1 to reset value 0x00  */
+    435          
+    436              UART3->CR1 = UART3_CR1_RESET_VALUE;  /*Set UART3_CR1 to reset value 0x00  */
    \   000010 35 00 5244   MOV       L:0x5244, #0x0
-    436              UART3->CR2 = UART3_CR2_RESET_VALUE;  /*Set UART3_CR2 to reset value 0x00  */
+    437              UART3->CR2 = UART3_CR2_RESET_VALUE;  /*Set UART3_CR2 to reset value 0x00  */
    \   000014 35 00 5245   MOV       L:0x5245, #0x0
-    437              UART3->CR3 = UART3_CR3_RESET_VALUE;  /*Set UART3_CR3 to reset value 0x00  */
+    438              UART3->CR3 = UART3_CR3_RESET_VALUE;  /*Set UART3_CR3 to reset value 0x00  */
    \   000018 35 00 5246   MOV       L:0x5246, #0x0
-    438              UART3->CR4 = UART3_CR4_RESET_VALUE;  /*Set UART3_CR4 to reset value 0x00  */
+    439              UART3->CR4 = UART3_CR4_RESET_VALUE;  /*Set UART3_CR4 to reset value 0x00  */
    \   00001C 35 00 5247   MOV       L:0x5247, #0x0
-    439              UART3->CR6 = UART3_CR6_RESET_VALUE;  /*Set UART3_CR6 to reset value 0x00  */
+    440              UART3->CR6 = UART3_CR6_RESET_VALUE;  /*Set UART3_CR6 to reset value 0x00  */
    \   000020 35 00 5249   MOV       L:0x5249, #0x0
-    440          
-    441          }
+    441          
+    442          }
    \   000024 87           RETF
-    442          
-    443          /*****************************************************************************/
-    444          /*****                          UART3_Init                                ****/
-    445          /*****************************************************************************/
-    446          /**
-    447            * @brief  Initializes the UART3 according to the specified parameters.
-    448            * @param  BaudRate: The baudrate.
-    449            * @param  WordLength : This parameter can be any of 
-    450            *         the @ref UART3_WordLength_TypeDef enumeration.
-    451            * @param  StopBits: This parameter can be any of the 
-    452            *         @ref UART3_StopBits_TypeDef enumeration.
-    453            * @param  Parity: This parameter can be any of the 
-    454            *         @ref UART3_Parity_TypeDef enumeration.
-    455            * @param  Mode: This parameter can be any of the @ref UART3_Mode_TypeDef values
-    456            * @retval None
-    457            */
+    443          
+    444          /*****************************************************************************/
+    445          /*****                          UART3_Init                                ****/
+    446          /*****************************************************************************/
+    447          /**
+    448            * @brief  Initializes the UART3 according to the specified parameters.
+    449            * @param  BaudRate: The baudrate.
+    450            * @param  WordLength : This parameter can be any of 
+    451            *         the @ref UART3_WordLength_TypeDef enumeration.
+    452            * @param  StopBits: This parameter can be any of the 
+    453            *         @ref UART3_StopBits_TypeDef enumeration.
+    454            * @param  Parity: This parameter can be any of the 
+    455            *         @ref UART3_Parity_TypeDef enumeration.
+    456            * @param  Mode: This parameter can be any of the @ref UART3_Mode_TypeDef values
+    457            * @retval None
+    458            */
 
    \                                 In section .far_func.text, align 1
-    458          void UART3_Init(uint32_t BaudRate, UART3_WordLength_TypeDef WordLength, 
-    459                          UART3_StopBits_TypeDef StopBits, UART3_Parity_TypeDef Parity, 
-    460                          UART3_Mode_TypeDef Mode)
-    461          {
+    459          void UART3_Init(uint32_t BaudRate, UART3_WordLength_TypeDef WordLength, 
+    460                          UART3_StopBits_TypeDef StopBits, UART3_Parity_TypeDef Parity, 
+    461                          UART3_Mode_TypeDef Mode)
+    462          {
    \                     UART3_Init:
    \   000000 8D ......    CALLF     L:?push_l2
    \   000004 8D ......    CALLF     L:?push_l3
@@ -1025,12 +1000,12 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   00000F 3B ....      PUSH      S:?b6
    \   000012 52 07        SUB       SP, #0x7
    \   000014 8D ......    CALLF     L:?mov_l2_l0
-    462              uint8_t BRR2_1 = 0, BRR2_2 = 0;
+    463              uint8_t BRR2_1 = 0, BRR2_2 = 0;
    \   000018 4F           CLR       A
    \   000019 6B 02        LD        (0x2,SP), A
    \   00001B 4F           CLR       A
    \   00001C 6B 01        LD        (0x1,SP), A
-    463              uint32_t BaudRate_Mantissa = 0, BaudRate_Mantissa100 = 0;
+    464              uint32_t BaudRate_Mantissa = 0, BaudRate_Mantissa100 = 0;
    \   00001E 5F           CLRW      X
    \   00001F BF ..        LDW       S:?w7, X
    \   000021 BF ..        LDW       S:?w6, X
@@ -1038,34 +1013,34 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   000026 1F 04        LDW       (0x4,SP), X
    \   000028 AE 0000      LDW       X, #0x0
    \   00002B 1F 06        LDW       (0x6,SP), X
-    464          
-    465                  /* Check the parameters */
-    466              assert_param(IS_UART3_WORDLENGTH_OK(WordLength));
+    465          
+    466                  /* Check the parameters */
+    467              assert_param(IS_UART3_WORDLENGTH_OK(WordLength));
    \   00002D 0D 0B        TNZ       (0xb,SP)
    \   00002F 27 15        JREQ      L:??UART3_Init_0
    \   000031 7B 0B        LD        A, (0xb,SP)
    \   000033 A1 10        CP        A, #0x10
    \   000035 27 0F        JREQ      L:??UART3_Init_0
-   \   000037 AE 01D2      LDW       X, #0x1d2
+   \   000037 AE 01D3      LDW       X, #0x1d3
    \   00003A BF ..        LDW       S:?w1, X
    \   00003C 5F           CLRW      X
    \   00003D BF ..        LDW       S:?w0, X
    \   00003F AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000042 8D ......    CALLF     assert_failed
-    467              assert_param(IS_UART3_STOPBITS_OK(StopBits));
+    468              assert_param(IS_UART3_STOPBITS_OK(StopBits));
    \                     ??UART3_Init_0:
    \   000046 0D 0A        TNZ       (0xa,SP)
    \   000048 27 15        JREQ      L:??UART3_Init_1
    \   00004A 7B 0A        LD        A, (0xa,SP)
    \   00004C A1 20        CP        A, #0x20
    \   00004E 27 0F        JREQ      L:??UART3_Init_1
-   \   000050 AE 01D3      LDW       X, #0x1d3
+   \   000050 AE 01D4      LDW       X, #0x1d4
    \   000053 BF ..        LDW       S:?w1, X
    \   000055 5F           CLRW      X
    \   000056 BF ..        LDW       S:?w0, X
    \   000058 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00005B 8D ......    CALLF     assert_failed
-    468              assert_param(IS_UART3_PARITY_OK(Parity));
+    469              assert_param(IS_UART3_PARITY_OK(Parity));
    \                     ??UART3_Init_1:
    \   00005F 0D 09        TNZ       (0x9,SP)
    \   000061 27 1B        JREQ      L:??UART3_Init_2
@@ -1075,13 +1050,13 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   000069 7B 09        LD        A, (0x9,SP)
    \   00006B A1 06        CP        A, #0x6
    \   00006D 27 0F        JREQ      L:??UART3_Init_2
-   \   00006F AE 01D4      LDW       X, #0x1d4
+   \   00006F AE 01D5      LDW       X, #0x1d5
    \   000072 BF ..        LDW       S:?w1, X
    \   000074 5F           CLRW      X
    \   000075 BF ..        LDW       S:?w0, X
    \   000077 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   00007A 8D ......    CALLF     assert_failed
-    469              assert_param(IS_UART3_BAUDRATE_OK(BaudRate));
+    470              assert_param(IS_UART3_BAUDRATE_OK(BaudRate));
    \                     ??UART3_Init_2:
    \   00007E BE ..        LDW       X, S:?w4
    \   000080 A3 0009      CPW       X, #0x9
@@ -1090,13 +1065,13 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   000087 A3 8969      CPW       X, #0x8969
    \                     ??UART3_Init_3:
    \   00008A 25 0F        JRC       L:??UART3_Init_4
-   \   00008C AE 01D5      LDW       X, #0x1d5
+   \   00008C AE 01D6      LDW       X, #0x1d6
    \   00008F BF ..        LDW       S:?w1, X
    \   000091 5F           CLRW      X
    \   000092 BF ..        LDW       S:?w0, X
    \   000094 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   000097 8D ......    CALLF     assert_failed
-    470              assert_param(IS_UART3_MODE_OK((uint8_t)Mode));
+    471              assert_param(IS_UART3_MODE_OK((uint8_t)Mode));
    \                     ??UART3_Init_4:
    \   00009B 7B 08        LD        A, (0x8,SP)
    \   00009D A1 08        CP        A, #0x8
@@ -1125,63 +1100,63 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   0000CB 7B 08        LD        A, (0x8,SP)
    \   0000CD A1 88        CP        A, #0x88
    \   0000CF 27 0F        JREQ      L:??UART3_Init_5
-   \   0000D1 AE 01D6      LDW       X, #0x1d6
+   \   0000D1 AE 01D7      LDW       X, #0x1d7
    \   0000D4 BF ..        LDW       S:?w1, X
    \   0000D6 5F           CLRW      X
    \   0000D7 BF ..        LDW       S:?w0, X
    \   0000D9 AE ....      LDW       X, #`?<Constant "C:\\\\Users\\\\jurban\\\\Docum...">`
    \   0000DC 8D ......    CALLF     assert_failed
-    471          
-    472              /* Clear the word length bit */
-    473              UART3->CR1 &= (uint8_t)(~UART3_CR1_M);     
+    472          
+    473              /* Clear the word length bit */
+    474              UART3->CR1 &= (uint8_t)(~UART3_CR1_M);     
    \                     ??UART3_Init_5:
    \   0000E0 7219 5244    BRES      L:0x5244, #0x4
-    474              /* Set the word length bit according to UART3_WordLength value */
-    475              UART3->CR1 |= (uint8_t)WordLength; 
+    475              /* Set the word length bit according to UART3_WordLength value */
+    476              UART3->CR1 |= (uint8_t)WordLength; 
    \   0000E4 7B 0B        LD        A, (0xb,SP)
    \   0000E6 CA 5244      OR        A, L:0x5244
    \   0000E9 C7 5244      LD        L:0x5244, A
-    476          
-    477              /* Clear the STOP bits */
-    478              UART3->CR3 &= (uint8_t)(~UART3_CR3_STOP);  
+    477          
+    478              /* Clear the STOP bits */
+    479              UART3->CR3 &= (uint8_t)(~UART3_CR3_STOP);  
    \   0000EC C6 5246      LD        A, L:0x5246
    \   0000EF A4 CF        AND       A, #0xcf
    \   0000F1 C7 5246      LD        L:0x5246, A
-    479              /* Set the STOP bits number according to UART3_StopBits value  */
-    480              UART3->CR3 |= (uint8_t)StopBits;  
+    480              /* Set the STOP bits number according to UART3_StopBits value  */
+    481              UART3->CR3 |= (uint8_t)StopBits;  
    \   0000F4 7B 0A        LD        A, (0xa,SP)
    \   0000F6 CA 5246      OR        A, L:0x5246
    \   0000F9 C7 5246      LD        L:0x5246, A
-    481          
-    482              /* Clear the Parity Control bit */
-    483              UART3->CR1 &= (uint8_t)(~(UART3_CR1_PCEN | UART3_CR1_PS));  
+    482          
+    483              /* Clear the Parity Control bit */
+    484              UART3->CR1 &= (uint8_t)(~(UART3_CR1_PCEN | UART3_CR1_PS));  
    \   0000FC C6 5244      LD        A, L:0x5244
    \   0000FF A4 F9        AND       A, #0xf9
    \   000101 C7 5244      LD        L:0x5244, A
-    484              /* Set the Parity Control bit to UART3_Parity value */
-    485              UART3->CR1 |= (uint8_t)Parity;     
+    485              /* Set the Parity Control bit to UART3_Parity value */
+    486              UART3->CR1 |= (uint8_t)Parity;     
    \   000104 7B 09        LD        A, (0x9,SP)
    \   000106 CA 5244      OR        A, L:0x5244
    \   000109 C7 5244      LD        L:0x5244, A
-    486          
-    487              /* Clear the LSB mantissa of UART3DIV  */
-    488              UART3->BRR1 &= (uint8_t)(~UART3_BRR1_DIVM);  
+    487          
+    488              /* Clear the LSB mantissa of UART3DIV  */
+    489              UART3->BRR1 &= (uint8_t)(~UART3_BRR1_DIVM);  
    \   00010C C6 5242      LD        A, L:0x5242
    \   00010F 6B 03        LD        (0x3,SP), A
    \   000111 35 00 5242   MOV       L:0x5242, #0x0
-    489              /* Clear the MSB mantissa of UART3DIV  */
-    490              UART3->BRR2 &= (uint8_t)(~UART3_BRR2_DIVM);  
+    490              /* Clear the MSB mantissa of UART3DIV  */
+    491              UART3->BRR2 &= (uint8_t)(~UART3_BRR2_DIVM);  
    \   000115 C6 5243      LD        A, L:0x5243
    \   000118 A4 0F        AND       A, #0xf
    \   00011A C7 5243      LD        L:0x5243, A
-    491              /* Clear the Fraction bits of UART3DIV */
-    492              UART3->BRR2 &= (uint8_t)(~UART3_BRR2_DIVF);  
+    492              /* Clear the Fraction bits of UART3DIV */
+    493              UART3->BRR2 &= (uint8_t)(~UART3_BRR2_DIVF);  
    \   00011D C6 5243      LD        A, L:0x5243
    \   000120 A4 F0        AND       A, #0xf0
    \   000122 C7 5243      LD        L:0x5243, A
-    493          
-    494              /* Set the UART3 BaudRates in BRR1 and BRR2 registers according to UART3_BaudRate value */
-    495              BaudRate_Mantissa    = ((uint32_t)CLK_GetClockFreq() / (BaudRate << 4));
+    494          
+    495              /* Set the UART3 BaudRates in BRR1 and BRR2 registers according to UART3_BaudRate value */
+    496              BaudRate_Mantissa    = ((uint32_t)CLK_GetClockFreq() / (BaudRate << 4));
    \   000125 8D ......    CALLF     L:?mov_l0_l2
    \   000129 A6 04        LD        A, #0x4
    \   00012B 8D ......    CALLF     L:?sll32_l0_l0_a
@@ -1190,7 +1165,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   000137 8D ......    CALLF     L:?pop_l1
    \   00013B 8D ......    CALLF     L:?udiv32_l0_l0_l1
    \   00013F 8D ......    CALLF     L:?mov_l3_l0
-    496              BaudRate_Mantissa100 = (((uint32_t)CLK_GetClockFreq() * 100) / (BaudRate << 4));
+    497              BaudRate_Mantissa100 = (((uint32_t)CLK_GetClockFreq() * 100) / (BaudRate << 4));
    \   000143 8D ......    CALLF     L:?mov_l0_l2
    \   000147 A6 04        LD        A, #0x4
    \   000149 8D ......    CALLF     L:?sll32_l0_l0_a
@@ -1206,10 +1181,10 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   000169 8D ......    CALLF     L:?udiv32_l0_l0_l1
    \   00016D AE 0004      LDW       X, #0x4
    \   000170 8D ......    CALLF     L:?load32_xsp_l0
-    497              /* The fraction and MSB mantissa should be loaded in one step in the BRR2 register */
-    498              /* Set the fraction of UART3DIV  */
-    499              BRR2_1 = (uint8_t)((uint8_t)(((BaudRate_Mantissa100 - (BaudRate_Mantissa * 100))
-    500                                  << 4) / 100) & (uint8_t)0x0F); 
+    498              /* The fraction and MSB mantissa should be loaded in one step in the BRR2 register */
+    499              /* Set the fraction of UART3DIV  */
+    500              BRR2_1 = (uint8_t)((uint8_t)(((BaudRate_Mantissa100 - (BaudRate_Mantissa * 100))
+    501                                  << 4) / 100) & (uint8_t)0x0F); 
    \   000174 AE 0064      LDW       X, #0x64
    \   000177 BF ..        LDW       S:?w3, X
    \   000179 5F           CLRW      X
@@ -1227,7 +1202,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   00019F B6 ..        LD        A, S:?b3
    \   0001A1 A4 0F        AND       A, #0xf
    \   0001A3 6B 02        LD        (0x2,SP), A
-    501              BRR2_2 = (uint8_t)((BaudRate_Mantissa >> 4) & (uint8_t)0xF0);
+    502              BRR2_2 = (uint8_t)((BaudRate_Mantissa >> 4) & (uint8_t)0xF0);
    \   0001A5 BE ..        LDW       X, S:?w7
    \   0001A7 54           SRLW      X
    \   0001A8 54           SRLW      X
@@ -1236,54 +1211,54 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \   0001AB 9F           LD        A, XL
    \   0001AC A4 F0        AND       A, #0xf0
    \   0001AE 6B 01        LD        (0x1,SP), A
-    502          
-    503              UART3->BRR2 = (uint8_t)(BRR2_1 | BRR2_2);
+    503          
+    504              UART3->BRR2 = (uint8_t)(BRR2_1 | BRR2_2);
    \   0001B0 7B 01        LD        A, (0x1,SP)
    \   0001B2 1A 02        OR        A, (0x2,SP)
    \   0001B4 C7 5243      LD        L:0x5243, A
-    504              /* Set the LSB mantissa of UART3DIV  */
-    505              UART3->BRR1 = (uint8_t)BaudRate_Mantissa;           
+    505              /* Set the LSB mantissa of UART3DIV  */
+    506              UART3->BRR1 = (uint8_t)BaudRate_Mantissa;           
    \   0001B7 B6 ..        LD        A, S:?b15
    \   0001B9 C7 5242      LD        L:0x5242, A
-    506          
-    507              if ((uint8_t)(Mode & UART3_MODE_TX_ENABLE))
+    507          
+    508              if ((uint8_t)(Mode & UART3_MODE_TX_ENABLE))
    \   0001BC 7B 08        LD        A, (0x8,SP)
    \   0001BE A4 04        AND       A, #0x4
    \   0001C0 A1 00        CP        A, #0x0
    \   0001C2 27 06        JREQ      L:??UART3_Init_6
-    508              {
-    509                  /* Set the Transmitter Enable bit */
-    510                  UART3->CR2 |= UART3_CR2_TEN;  
+    509              {
+    510                  /* Set the Transmitter Enable bit */
+    511                  UART3->CR2 |= UART3_CR2_TEN;  
    \   0001C4 7216 5245    BSET      L:0x5245, #0x3
    \   0001C8 20 04        JRA       L:??UART3_Init_7
-    511              }
-    512              else
-    513              {
-    514                  /* Clear the Transmitter Disable bit */
-    515                  UART3->CR2 &= (uint8_t)(~UART3_CR2_TEN);  
+    512              }
+    513              else
+    514              {
+    515                  /* Clear the Transmitter Disable bit */
+    516                  UART3->CR2 &= (uint8_t)(~UART3_CR2_TEN);  
    \                     ??UART3_Init_6:
    \   0001CA 7217 5245    BRES      L:0x5245, #0x3
-    516              }
-    517              if ((uint8_t)(Mode & UART3_MODE_RX_ENABLE))
+    517              }
+    518              if ((uint8_t)(Mode & UART3_MODE_RX_ENABLE))
    \                     ??UART3_Init_7:
    \   0001CE 7B 08        LD        A, (0x8,SP)
    \   0001D0 A4 08        AND       A, #0x8
    \   0001D2 A1 00        CP        A, #0x0
    \   0001D4 27 06        JREQ      L:??UART3_Init_8
-    518              {
-    519                  /* Set the Receiver Enable bit */
-    520                  UART3->CR2 |= UART3_CR2_REN;  
+    519              {
+    520                  /* Set the Receiver Enable bit */
+    521                  UART3->CR2 |= UART3_CR2_REN;  
    \   0001D6 7214 5245    BSET      L:0x5245, #0x2
    \   0001DA 20 04        JRA       L:??UART3_Init_9
-    521              }
-    522              else
-    523              {
-    524                  /* Clear the Receiver Disable bit */
-    525                  UART3->CR2 &= (uint8_t)(~UART3_CR2_REN);  
+    522              }
+    523              else
+    524              {
+    525                  /* Clear the Receiver Disable bit */
+    526                  UART3->CR2 &= (uint8_t)(~UART3_CR2_REN);  
    \                     ??UART3_Init_8:
    \   0001DC 7215 5245    BRES      L:0x5245, #0x2
-    526              }
-    527          }
+    527              }
+    528          }
    \                     ??UART3_Init_9:
    \   0001E0 5B 0B        ADD       SP, #0xb
    \   0001E2 AC ......    JPF       L:?epilogue_l2_l3
@@ -1308,39 +1283,39 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Device_Serial_Handlers.c
    \          5F 48 61 6E 
    \   000040 64 6C 65 72  DC8 64H, 6CH, 65H, 72H, 73H, 2EH, 63H, 0
    \          73 2E 63 00 
-    528          /******************* (C) COPYRIGHT 2013 MARS INTERNATIONAL *****END OF FILE****/
+    529          /******************* (C) COPYRIGHT 2013 MARS INTERNATIONAL *****END OF FILE****/
 
    Section sizes:
 
    Bytes  Function/Label
    -----  --------------
       72  ?<Constant "C:\\Users\\jurban\\Docum...">
-     138  Assemble_and_Checksum_device_message
-     122  Check_Checksum_Device_Buffer
-      85  Checksum_Device_Buffer
+     129  Assemble_and_Checksum_device_message
+      97  Check_Checksum_Device_Buffer
+      96  Checksum_Device_Buffer
       34  Convert_Update_Parameters
       37  Get_Device_Char
-      49  Handle_Device_State
       34  InitDeviceUART
       21  Initialize_Device_receiver_buffer
-      34  Process_Received_Update
+      30  Process_Received_Update
       77  Process_Receiver_Device_Message
-     188  Process_Xmit_Device_Message
+     186  Process_Xmit_Device_Message
+      22  Send_ACK_Message
        1  Send_Finished
-      85  Send_Next_Char_to_Device
+      79  Send_Next_Char_to_Device
       25  Send_Powered
       24  Send_Update
       22  Send_powered_Message
       57  Start_Device_Xmit
       37  UART3_DeInit
      486  UART3_Init
-      12  Wait_For_Update
+      16  Wait_For_Update
 
  
- 1 568 bytes in section .far_func.text
+ 1 510 bytes in section .far_func.text
     72 bytes in section .near.rodata
  
- 1 568 bytes of CODE  memory
+ 1 510 bytes of CODE  memory
     72 bytes of CONST memory
 
 Errors: none

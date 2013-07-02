@@ -1,11 +1,5 @@
 #include "stm8s.h"
-const char NULL = 0X00;
-const char STX = 0X02;
-const char ETX = 0x03;
-const char CR = 0x0d;
-const char DLE = 0X10;
-const int BFRSIZE = 255;
-const int BFRSIZEX2 = 512
+#include "SNAP_Defines.h"
 ;
 char SNAP_State;
 char Send_Update_State;

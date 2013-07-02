@@ -4,7 +4,7 @@
 /*------------------------------------------------------------------------------------*/
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "SNAP_states.h"
+#include "SNAP_Defines.h"
 extern char CID_Value;
 extern char SNAP_State;
 extern void Send_Powered(void);

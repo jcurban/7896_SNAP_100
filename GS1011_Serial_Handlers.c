@@ -24,7 +24,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s_uart1.h"
-#include "SNAP_states.h"
+#include "SNAP_Defines.h"
 
 /* definitions ---------------------------------------------------------------*/
 void InitGS1011UART(void);
@@ -69,7 +69,6 @@ void Initialize_GS011_Xmit_buffer(void);
 extern char SNAP_State;
 extern char CID_Value;
 extern char Send_Update_State;
-extern int BFRSIZE;
 extern int Found_String_At_Byte;
 extern char EEWRTimout;
 extern char GS1011_Rcvr_Timeout;
@@ -152,8 +151,6 @@ extern char CountGS1011Chars(void);
 extern char CountChars(char s[]);
 extern int Add_Char_to_Buffer (char *bufr,int ptr,char chr);
 void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm);
-#define CR 0x0D
-#define LF 0x0A
 /*****************************************************************************/
 /*****************************************************************************/
 /*****        GS1011 State machine                                       *****/
@@ -479,8 +476,8 @@ if (GS1011_Rcvr_Timeout == 1)
 void GetResponseFromGS1011(void){
   if (GS1011_Rcvr_Timeout == 1){
     GS1011_Received_Response_Flag = 0x00;
-      FindGS1011Chars(OKAYmsg);
-   }
+    FindGS1011Chars(OKAYmsg);
+  }
 }
 void Get_any_ResponseFromGS1011(char bufr[]){
   if (GS1011_Rcvr_Timeout == 1) {
@@ -559,7 +556,7 @@ void Start_GS1011_Send(void){
   *                                                                            *
   *****************************************************************************/
 void Sending_GS1011_Data_Handler(void){
-    if (UART1->SR &= UART3_FLAG_TXE){
+    if (UART1->SR & UART3_FLAG_TXE){
 
   GS1011_Xmit_Char = GS1011_Xmit_Buffer[GS1011_Xmit_Pointer];
   if (GS1011_Xmit_Char_Count!=0){

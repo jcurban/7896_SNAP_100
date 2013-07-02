@@ -14,15 +14,7 @@
 
 #include "stm8s_uart3.h"
 #include "stm8s_it.h"
-#include "SNAP_states.h"
-
-extern char NULL;
-extern char STX;
-extern char ETX;
-extern char CR;
-extern char DLE;
-extern int BFRSIZE;
-extern int BFRSIZEX2;
+#include "SNAP_Defines.h"
 /* EXTERNAL ROUTINES */
 extern void CopyBuffer (char *dest, char *srce);
 extern void CopyBufferDevice(char srce[]);
