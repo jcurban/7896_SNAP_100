@@ -1,30 +1,25 @@
 #include "main.h"
-char B2ASCBuf[8];
+extern char B2ASCBuf[];
+
 char Indx;
 char Temp;	
 char Temp1;	
 char Temp2;	
-char tempblock[4];
+extern char tempblock[4];
 char temphldf[5];
 char testbuffer[30];
 u32 LocalSum;
 char UartSendBlock[32];
-void StoreB2AscBuf( u32 BinNum, u8 Indx);
+void StoreB2AscBuf( u32 BinNum);
 void BIN2ASC(u32 BinNum);
 void Int2ASCII(void);
 void TESTHDR(void);
 
 void Int2ASCII(void){
-        tempblock[0] = 100;
-        tempblock[1] = 36;
-        tempblock[2] = 5;
         LocalSum = tempblock[0];
 	LocalSum = LocalSum + (tempblock[1] * 256);
  	LocalSum = LocalSum + (tempblock[2] * 65536);
-        /*LocalSum = (Temp2 * 65536);
-	LocalSum = LocalSum + (Temp1 * 256);
-	LocalSum = LocalSum + Temp;*/
-	StoreB2AscBuf( LocalSum, 0);	/*uses up 8 bytes in send block*/
+	StoreB2AscBuf( LocalSum);	/*uses up 8 bytes in send block*/
 }
 /****************************************************************/
 /*helper routine to take a binary number conver to ascii	*/
@@ -32,16 +27,8 @@ void Int2ASCII(void){
 /* input BinNum = number to convert to 8 digits			*/
 /*       Indx = index to store ascii into buffer B2ASCBuf	*/ 
 /****************************************************************/
-void StoreB2AscBuf( u32 BinNum, u8 Indx){
+void StoreB2AscBuf(u32 BinNum){
 	BIN2ASC(BinNum);	/*counts*/
-	UartSendBlock[Indx]= B2ASCBuf[0];
-	UartSendBlock[Indx + 1]= B2ASCBuf[1];
-	UartSendBlock[Indx + 2]= B2ASCBuf[2];
-	UartSendBlock[Indx + 3]= B2ASCBuf[3];
-	UartSendBlock[Indx + 4]= B2ASCBuf[4];
-	UartSendBlock[Indx + 5]= B2ASCBuf[5];
-	UartSendBlock[Indx + 6]= B2ASCBuf[6];
-	UartSendBlock[Indx + 7]= B2ASCBuf[7];
 }
 /*----------------------------------------------------------------------*/
 /*up to 3 bytes binary to ascii output					*/

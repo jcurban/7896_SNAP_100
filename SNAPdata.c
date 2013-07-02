@@ -15,6 +15,12 @@ u16 DEVICE_MSGLENGTH; /*LENGTH OF MESSAGE*/
 unsigned char DEVICE_COMMAND; /* COMMAND TYPE*/
 unsigned char DEVICE_PACKETDATA[512]; 
 unsigned char DEVICE_EOT; /*end of text*/
+/* conversion variables*/
+char tempblock[4];
+char B2ASCBuf[8];
+unsigned char PNumber;
+unsigned int PCount;
+unsigned char PHeaderBuffer[5];
 
 /* DEVICE DATA */
 char Device_State;
@@ -41,7 +47,7 @@ u8 Device_Xmit_Char_Count;
 char* Device_Processing_Pointer;
 unsigned char Device_Processing_Buffer[256];
 unsigned char Device_Xmit_Buffer[256];
-
+char Website_Parameter_ASCII_Buffer[256];
 /*GS1011 data*/
 char GS1011_Rcvr_EOM_Timer;
 char GS1011_Rcvr_Timeout;
@@ -66,7 +72,4 @@ unsigned char GS1011_Xmit_Buffer[256];
 
 char CID_Value;
 
-unsigned char PNumber;
-unsigned int PCount;
-unsigned char PBuffer[16];
 

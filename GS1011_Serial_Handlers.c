@@ -156,6 +156,13 @@ void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int 
 /*****        GS1011 State machine                                       *****/
 /*****************************************************************************/
 /*****************************************************************************/
+
+/*****************************************************************************
+ ****  SendShutEchoOff - used in GET_WEBSITE_IP_ADDRESS_STATE             ****
+ ****                                                                     ****
+ ****  GET_WEBSITE_IP_ADDRESS_STATE checks if there was an error and      ****
+ ****       resends if necessary                                          ****
+ ******************************************************************************/
 void SendShutEchoOff(void){
 Copy_Stock_Send_Message(ShutOffEchoMessage);
 while (GS1011_Received_Response_Flag == 0x01)
@@ -164,7 +171,7 @@ GetResponseFromGS1011();
 }
 }
 /*****************************************************************************
- ****   GetNetworkStatusFromGS1011  -  GET_GS1011_NETWORK_STATE                         ****
+ ****   GetNetworkStatusFromGS1011  -  GET_GS1011_NETWORK_STATE           ****
  ****                                                                     ****
  ******************************************************************************/
 void GetNetworkStatusFromGS1011 (void){
@@ -266,7 +273,7 @@ if (GS1011_String_Found == 1){
   }
 } 
 /*****************************************************************************
- ****   Convert_update_and_Send  - CONVERT_DEVICE_DATA_AND_SEND_STATE                             ****
+ ****   Convert_update_and_Send  - CONVERT_DEVICE_DATA_AND_SEND_STATE     ****
  ****                                                                     ****
  ****  GS1011 responds okay                                               ****
  ******************************************************************************/
@@ -274,7 +281,8 @@ if (GS1011_String_Found == 1){
     Copy_Stock_Send_Message(Dummy_update);
 while (GS1011_Received_Response_Flag == 0x01)
 {
-Get_any_ResponseFromGS1011(Good_Response);
+/*Get_any_ResponseFromGS1011(Good_Response);*/
+Get_any_ResponseFromGS1011(OKAYmsg);
 }
 if (GS1011_String_Found == 1){
     Send_ACK_Message();
@@ -516,7 +524,7 @@ void GS1011_Received_Data_Handler(void){
  if (GS1011_Rvcr_Count == 512)
    GS1011_Rvcr_Count =0;
  GS1011_Rcvr_Pointer++;
- GS1011_Rcvr_EOM_Timer = 200;
+ GS1011_Rcvr_EOM_Timer = 150;
 }
 /******************************************************************************
   *   Start_GS1011_Send                                                        *

@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             02/Jul/2013  07:39:06 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             02/Jul/2013  12:53:55 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData #
@@ -292,9 +292,9 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
    \          54 54 50 53 
 
    \                                 In section .far.rodata, align 1, root
-     53          __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog/"};   /*add CID, and status*/
+     53          __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog"};   /*add CID, and status*/
    \                     SendtoWebsiteHeader1:
-   \   000000 2C 31 2C 31  DC8 ",1,100,/account/api/setdevicelog/"
+   \   000000 2C 31 2C 31  DC8 ",1,100,/account/api/setdevicelog"
    \          30 30 2C 2F 
 
    Section sizes:
@@ -325,7 +325,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
       11  ResetAdaptorMessage
        6  SWReset_Response
       13  SendtoWebsiteHeader
-      34  SendtoWebsiteHeader1
+      33  SendtoWebsiteHeader1
       15  SetDHCPSRVRMessage
       47  SetInitialIPAddressMessage
       12  SetNDHCPMessage
@@ -339,9 +339,9 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
        3  pheader
 
  
- 616 bytes in section .far.rodata
+ 615 bytes in section .far.rodata
  
- 616 bytes of CONST memory
+ 615 bytes of CONST memory
 
 Errors: none
 Warnings: none

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
- ********************************************************************************
+ *******************************************************************************
   * @file    Device_Serial_handlers.c
   * @author  MCD Application Team
   * @version V2.1.0
@@ -28,10 +28,20 @@ extern int Add_String_to_Buffer (char *bufr, int ptr, char *srce);
 void Add_Char_to_GS1011_Buffer (char chr);
 extern void Initialize_GS011_Xmit_buffer(void);
 extern void CopyBufferGS1011 (char dest[], char srce[]);
+extern void Int2ASCII(void);
 void Add_String_to_GS1011_Buffer ( char *srce);
 void CopySerialNumber(void);
 void Send_ACK_Message(void);
-char Check_Checksum_Device_Buffer(char bufr[]);
+char Check_Checksum_Device_Buffer(void);
+void Make_Website_Update_from_Processing_Buffer(void);
+void makePNumberHeader(char numb);
+void convertPNumber_to_ASCII(char numb);
+
+/* conversion routines/data*/
+extern void Int2ASCII(void);
+extern char B2ASCBuf[];
+extern char tempblock[];
+extern char PHeaderBuffer[];
 /* EXTERNAL DATA */
 extern char Device_Serial_number[];
 extern char SNAP_State;
@@ -39,11 +49,11 @@ extern char checksum_Okay;
 extern char CID_Value;
 extern char Device_State;
 extern char checksum_this;
-extern char* procptr;
+
 extern char Device_Processing_Buffer[];
+extern char Website_Parameter_ASCII_Buffer[];
 extern char Device_Xmit_Buffer[];
 extern int cntr,gtchr;
-
 extern u8 Device_RX_InPtr;
 extern u8 Device_RX_OutPtr;
 extern int Device_Rcvr_Char_Count;
@@ -102,6 +112,8 @@ void Send_Update(void);
 void Send_Finished(void);
 void Convert_Update_Parameters(void);
 void Send_Powered_Wait_For_Update(void);
+void copyPHeaderToWebsite(void);
+void Copy_ASCII_data_to_Website(void);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****       device State machine                                        *****/
@@ -133,14 +145,14 @@ void Wait_For_Update(void){
 /*****************************************************************************/
 void Process_Received_Update(void){
   Process_Receiver_Device_Message();
-  checksum_Okay = Check_Checksum_Device_Buffer(Device_Processing_Buffer);
-  if (checksum_Okay != 55){
+  checksum_Okay = Check_Checksum_Device_Buffer();
+  if (checksum_Okay == 0x55){
     CopySerialNumber();
+    Make_Website_Update_from_Processing_Buffer();
     SNAP_State = 3;
   }
   else{                                 /*if checksum wrong ask for it again*/
   }
-
 }
 /*****************************************************************************/
 /* State 3 - Send_Update                                                     */
@@ -253,18 +265,21 @@ return checksum;
 /*****************************************************************************/
 /*** returns the checksum to the calling routine */
 /*****************************************************************************/
-char Check_Checksum_Device_Buffer(char bufr[]){
+char Check_Checksum_Device_Buffer(){
   char checksum;
   char gtchr;
   
   int cntr;
   checksum = 0;
-  cntr = bufr[1];
-  cntr = (cntr + bufr[2] * 256) - 2;  /* lenfffg*/
+  cntr = Device_Processing_Buffer[0];
+  cntr = (cntr + Device_Processing_Buffer[1] * 256);  /* number of bytes to checksum */
+                                      /* after stx and to etx */
  if (cntr < BFRSIZE){
-  for (gtchr = 1; gtchr <= cntr+3; gtchr++){
-      checksum += bufr[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
+  for (gtchr = 0; gtchr <= cntr; gtchr++){
+      checksum += Device_Processing_Buffer[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
   }
+  gtchr++;
+  checksum += Device_Processing_Buffer[gtchr];
  }
  return checksum;
 }
@@ -330,28 +345,84 @@ void Get_Device_Char(void){
 /*****************************************************************************/
 /*****************************************************************************/
 
+/*******************************************************************************
+*****        Make_Website_Update_from_Processing_Buffer                     ****
+*****   taskes the raw device data, and converts to ASCII for website       ****
+*****  makes a pnumber header in the following format:                      ****
+*****     /P1/... /P15/ then converts binary if necessary                   ****
+***** this creates a buffer with ONLY parameter data, no other headers are  ****
+*****   included. ex. /P1/0000010123456789/P2/700/P3/800/P4/900.....        ****
+***** the "httpsend = bwgroup.." is a stock block when ready to send the    ****
+***** httpsend block is copied to the xmit buffer, then the parameters are added
+*****                                                                       ****
+*****  all data going into the website_param+buffer uses Website_Param_Pointer
+*****  to put it into the buffer
+*******************************************************************************/
+void Make_Website_Update_from_Processing_Buffer(void){
+char PNumber;
+int ProcessPtr;
+int Website_Param_Pointer;
+/* Website_Parameter_ASCII_Buffer*/
+
+
+PNumber = 1;
+Website_Param_Pointer = 0;
+for (ProcessPtr =3; ProcessPtr <BFRSIZE;ProcessPtr++){
+  makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
+  if (Device_Processing_Buffer[ProcessPtr] == 'A'){
+    ProcessPtr++;
+    copyPHeaderToWebsite();
+    Copy_ASCII_data_to_Website();
+    /*Website_Parameter_ASCII_Buffer*/
+  }
+} 
+
+}
+void copyPHeaderToWebsite(void){
+}
+void Copy_ASCII_data_to_Website(void){
+}
+/*****************************************************************************
+ *****             makePNumberHeader                                      ****
+ ****************************************************************************/
+void makePNumberHeader(char numb){
+  FillBuffer(PHeaderBuffer,0x00, 5);
+  tempblock[0] = numb;
+  Int2ASCII();
+  PHeaderBuffer[0] = '/';
+  PHeaderBuffer[1] = 'P';
+    if (B2ASCBuf[6]!= '0'){
+      PHeaderBuffer[2] = B2ASCBuf[6];
+      PHeaderBuffer[3] = B2ASCBuf[7];
+      PHeaderBuffer[4] = '/';
+     }
+     else{
+      PHeaderBuffer[2] = B2ASCBuf[7];
+      PHeaderBuffer[3] = '/';
+     }
+}
 /*****************************************************************************/
 /*****             Process_Receiver_Device_Message                        ****/
 /*****   takes the buffer it's passed and unescapes where necess.         ****/
 /*****************************************************************************/
 void Process_Receiver_Device_Message(void){
- u16 bfrptr;
- u16 xmtptr;
+ u16 rcvrbfrptr;
+ u16 prcsbufrptr;
  u8 i;
-xmtptr =0;
-for (bfrptr = 0; bfrptr <BFRSIZE; bfrptr++){
-  i = Device_Receiver_Buffer[bfrptr];
+prcsbufrptr =0;
+for (rcvrbfrptr = 1; rcvrbfrptr <BFRSIZE; rcvrbfrptr++){
+  i = Device_Receiver_Buffer[rcvrbfrptr];
   if (i == 0x03) {
-    Device_Processing_Buffer[xmtptr] =  i;
+    Device_Processing_Buffer[prcsbufrptr] =  i;
     break;
     }
-  if (Device_Receiver_Buffer[bfrptr] == 0x10){
-    bfrptr++;
-    i = Device_Receiver_Buffer[bfrptr];
+  if (Device_Receiver_Buffer[rcvrbfrptr] == 0x10){
+    rcvrbfrptr++;
+    i = Device_Receiver_Buffer[rcvrbfrptr];
      i ^= 0xFF;
   }
-  Device_Processing_Buffer[xmtptr] =  i;
-  xmtptr++;
+  Device_Processing_Buffer[prcsbufrptr] =  i;
+  prcsbufrptr++;
  }
 }
 /*****************************************************************************/
