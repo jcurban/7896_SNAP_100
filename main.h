@@ -13,6 +13,8 @@
 #include "stm8s_flash.h"
 #include "stm8s_conf.h"
 
+
+
 /* Public variables ----------------------------------------------------------*/
 extern  u8 Mode1;   /* bit 0 = 1(DegF),0(DegC)*/
 extern  u8  SysError; /* bit 0 = 1 if Tempreading out of limits*/

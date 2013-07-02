@@ -1,21 +1,25 @@
 #include "stm8s.h"
-const char DLECHR = 0X10;
-const char ETXCHR = 0x03;
+const char NULL = 0X00;
+const char STX = 0X02;
+const char ETX = 0x03;
+const char CR = 0x0d;
+const char DLE = 0X10;
 const int BFRSIZE = 255;
+const int BFRSIZEX2 = 512
+;
 char SNAP_State;
 char Send_Update_State;
 
-u8 checksum;
+
 u8 checksum_Okay;   /* 0 = okay, 1 = not*/
-int cntr,gtchr;
-char Device_Serial_number[16];
+
+char Device_Serial_number[17];
 char Device_Type_Number[6];
 char website_IP_Address[15];
 unsigned char   DEVICE_SOH; /*START OF TEXT 0X02*/
 u16 DEVICE_MSGLENGTH; /*LENGTH OF MESSAGE*/
 unsigned char DEVICE_COMMAND; /* COMMAND TYPE*/
 unsigned char DEVICE_PACKETDATA[512]; 
-unsigned char DEVICE_CHECKSUM;
 unsigned char DEVICE_EOT; /*end of text*/
 
 /* DEVICE DATA */
@@ -30,14 +34,15 @@ u8 Device_Rcvr_State;
 u8 Device_Rcvr_char;
 char *Device_Rcvr_Pointer;
 char *Device_Rcvr_Dest_Pointer;
-unsigned char Device_Receiver_Buffer[255];
-unsigned char Packet_Data_Buffer[256];
+char Device_Receiver_Buffer[255];
+unsigned char Packet_Data_Buffer[255];
 
 /*device xmiting data*/
 char PHeader_Bufr[5];
 u8 Device_Xmit_Complete_Flag;
 u8 Device_Xmit_Char;
 char Device_Xmit_Pointer;
+char Device_Xmit_Setup_Char_Pointer;
 u8 Device_Xmit_Char_Count;
 char* Device_Processing_Pointer;
 unsigned char Device_Processing_Buffer[256];
@@ -61,6 +66,7 @@ char GS1011_Receiver_Buffer[512];
 /*GS1011 receiving data*/
 u8 GS1011_Xmit_Pointer;
 u8 GS1011_Xmit_Char_Count;
+char GS1011_Xmit_Setup_Char_Pointer;
 unsigned char GS1011_Xmit_Char;
 unsigned char GS1011_Xmit_Buffer[256];
 

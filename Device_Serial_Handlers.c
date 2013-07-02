@@ -14,9 +14,15 @@
 
 #include "stm8s_uart3.h"
 #include "stm8s_it.h"
-#define ETX 0x03
-#define STX 0x02
-#define DLE 0X10
+#include "SNAP_states.h"
+
+extern char NULL;
+extern char STX;
+extern char ETX;
+extern char CR;
+extern char DLE;
+extern int BFRSIZE;
+extern int BFRSIZEX2;
 /* EXTERNAL ROUTINES */
 extern void CopyBuffer (char *dest, char *srce);
 extern void CopyBufferDevice(char srce[]);
@@ -31,22 +37,21 @@ void Add_Char_to_GS1011_Buffer (char chr);
 extern void Initialize_GS011_Xmit_buffer(void);
 extern void CopyBufferGS1011 (char dest[], char srce[]);
 void Add_String_to_GS1011_Buffer ( char *srce);
-
-void Check_Checksum_Device_Buffer(char bufr[]);
+void CopySerialNumber(void);
+void Send_ACK_Message(void);
+char Check_Checksum_Device_Buffer(char bufr[]);
 /* EXTERNAL DATA */
 extern char Device_Serial_number[];
 extern char SNAP_State;
 extern char checksum_Okay;
 extern char CID_Value;
 extern char Device_State;
-extern char DLECHR;
-extern char ETXCHR;
 extern char checksum_this;
 extern char* procptr;
 extern char Device_Processing_Buffer[];
 extern char Device_Xmit_Buffer[];
 extern int cntr,gtchr;
-extern char checksum;
+
 extern u8 Device_RX_InPtr;
 extern u8 Device_RX_OutPtr;
 extern int Device_Rcvr_Char_Count;
@@ -59,6 +64,7 @@ extern int Device_Rcvr_Pointer;
 extern char  *Device_Rcvr_Dest_Pointer;
 extern char Device_Receiver_Buffer[];
 extern char GS1011_Xmit_Buffer[];
+extern char ACKMessage[];
 extern char Packet_Data_Buffer;
 extern u8 Device_Xmit_Complete_Flag;
 extern u8 Device_Xmit_Char;
@@ -66,9 +72,7 @@ extern char Device_Xmit_Pointer;
 extern u8 Device_Xmit_Char_Count;
 extern u8 GS1011_Xmit_Char_Count;
 extern char GS1011_Xmit_Buffer[];
-
 /* EXTERNAL DATA STOCK MESSAGES */
-extern const int BFRSIZE;
 extern char   DEVICE_SOH; /*START OF TEXT 0X02*/
 extern int DEVICE_MSGLENGTH; /*LENGTH OF MESSAGE*/
 extern char DEVICE_COMMAND; /* COMMAND TYPE*/
@@ -90,7 +94,7 @@ void Send_Next_Char_to_Device(void);
 void Initialize_Device_receiver_buffer(void);
 void Handle_Device_State(void);
 void Assemble_and_Checksum_device_message(void);
-void Checksum_Device_Buffer(char *bufr);
+char Checksum_Device_Buffer(char bufr[]);
 char Parse_Device_Rcvrd_Buffer(void);
 void Start_Device_Xmit (void);
 void Save_PValues(void);
@@ -111,25 +115,7 @@ void Send_Powered_Wait_For_Update(void);
 /*****       device State machine                                        *****/
 /*****************************************************************************/
 /*****************************************************************************/
-void Handle_Device_State(void) {
-  switch (Device_State) {
-  case 0:
-    Send_Powered();
-    break;
-  case 1:
-    Wait_For_Update();
-    break;
-  case 2:
-    Process_Received_Update();
-    break;
-  case 3:
-    Send_Update();
-    break;
-  case 4:
-    Send_Finished();
-    break;
-  }
-}
+
 /*****************************************************************************/
 /* State 0 - Send_Powered                                                    */
 /*      Lets the Device know we're ready for the update                      */
@@ -145,8 +131,9 @@ void Send_Powered(void){
 /*      can't do much without the update data                                */
 /*****************************************************************************/
 void Wait_For_Update(void){
-  if (Device_Rcvr_Complete_flag != 0)
-    SNAP_State = 2;
+  if (Device_Rcvr_Complete_flag != 0){
+      Device_Rcvr_Complete_flag = 0;
+      SNAP_State = 2;}
 }
 /*****************************************************************************/
 /* State 2 - Process_Update                                                  */
@@ -154,11 +141,14 @@ void Wait_For_Update(void){
 /*****************************************************************************/
 void Process_Received_Update(void){
   Process_Receiver_Device_Message();
-  Check_Checksum_Device_Buffer(Device_Processing_Buffer);
-  if (checksum_Okay == 00){
-      CopyBuffer(Device_Serial_number, Device_Processing_Buffer+4);
-      SNAP_State = 3;
+  checksum_Okay = Check_Checksum_Device_Buffer(Device_Processing_Buffer);
+  if (checksum_Okay != 55){
+    CopySerialNumber();
+    SNAP_State = 3;
   }
+  else{                                 /*if checksum wrong ask for it again*/
+  }
+
 }
 /*****************************************************************************/
 /* State 3 - Send_Update                                                     */
@@ -166,7 +156,7 @@ void Process_Received_Update(void){
 /*****************************************************************************/
 void Send_Update(void){
   if (CID_Value != 0x00) {
-  FillBuffer (GS1011_Xmit_Buffer,0x00, BFRSIZE);
+    FillBuffer (GS1011_Xmit_Buffer,0x00, BFRSIZE);
     Convert_Update_Parameters();   
   } 
 }
@@ -207,6 +197,16 @@ void Send_powered_Message(void){
   Start_Device_Xmit ();
 }
 /*****************************************************************************/
+/*****        Send_powered_Message                                ****/
+/*****        1st byte in Device processed buffer is the character count  ****/
+/*****************************************************************************/
+void Send_ACK_Message(void){
+  Initialize_Device_receiver_buffer();
+  CopyBufferDevice(ACKMessage);
+  Device_Xmit_Char_Count = Device_Xmit_Char_Count;
+  Start_Device_Xmit ();
+}
+/*****************************************************************************/
 /*****        Make_Send_SNAP_Ready_Message                                ****/
 /*****        1st byte in Device processed buffer is the character count  ****/
 /*****************************************************************************
@@ -241,31 +241,40 @@ void Assemble_and_Checksum_device_message(void){
 /*****                                                                    ****/
 /*****  bytes from 1st after count to checksum byte are checksumed        ****/
 /*****************************************************************************/
-void Checksum_Device_Buffer(char bufr[]){
-  checksum = 0;
+char Checksum_Device_Buffer(char bufr[]){
+  int cntr,gtchr;
+  int checksum;
+  checksum =0;
   cntr = bufr[1];
   cntr = (cntr + bufr[2] * 256)+ 1;
+  if (cntr < BFRSIZE){
   for (gtchr = 1; gtchr < cntr; gtchr++){
       checksum += bufr[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
     }
-    DEVICE_CHECKSUM = (0xFF55 - checksum);  /*Cksum to send*/
+    checksum = (0xFF55 - checksum);  /*Cksum to send*/
+  }
+  else {
+     /* error code here*/
+  }
+return checksum;
 }       
-void Check_Checksum_Device_Buffer(char bufr[]){
-  char chekchar;
+/*****************************************************************************/
+/*** returns the checksum to the calling routine */
+/*****************************************************************************/
+char Check_Checksum_Device_Buffer(char bufr[]){
+  char checksum;
+  char gtchr;
+  
+  int cntr;
   checksum = 0;
   cntr = bufr[1];
-  cntr = (cntr + bufr[2] * 256)+ 1;
-  for (gtchr = 1; gtchr < cntr; gtchr++){
+  cntr = (cntr + bufr[2] * 256) - 2;  /* lenfffg*/
+ if (cntr < BFRSIZE){
+  for (gtchr = 1; gtchr <= cntr+3; gtchr++){
       checksum += bufr[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
-    }
-  gtchr++;
-  chekchar = checksum += bufr[gtchr];
-  if (chekchar == 0x55)
-      checksum_Okay = 00;
-  else
-       checksum_Okay = 01;
-
-  DEVICE_CHECKSUM = (0xFF55 - checksum);  /*Cksum to send*/
+  }
+ }
+ return checksum;
 }
 
 /*****************************************************************************/
@@ -273,7 +282,7 @@ void Check_Checksum_Device_Buffer(char bufr[]){
 /*****        takes the buffer it's passed and inserts DLEs where necess. ****/
 /*****************************************************************************/
 void Process_Xmit_Device_Message(char bufr[], char bufr2[]){
- u16 bfrptr;
+int bfrptr;
  u16 xmtptr;
  u8 i;
  for (bfrptr = 0; bfrptr <3; bfrptr++){      /* PUT SOH, PACKET COUNT INTO*/
@@ -285,15 +294,15 @@ cntr = cntr + ((bufr[2] * 256)+3);
 
 for (bfrptr = bfrptr; bfrptr <cntr; bfrptr++){
   i = bufr[bfrptr];
-  if (bufr[bfrptr]== 0x02 || bufr[bfrptr] == 0x03 || bufr[bfrptr] == 0x10|| bufr[bfrptr] == ','){
+  if (bufr[bfrptr]== STX || bufr[bfrptr] == ETX || bufr[bfrptr] == DLE|| bufr[bfrptr] == ','){
      i ^= 0xFF;
-    bufr2[xmtptr] =  DLECHR;
+    bufr2[xmtptr] =  DLE;
     xmtptr++;
   }
   bufr2[xmtptr] =  i;
   xmtptr++;
  }
-bufr2[xmtptr] =  ETXCHR;
+bufr2[xmtptr] =  ETX;
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -384,23 +393,23 @@ void Start_Device_Xmit (void){
 /*****             turnf off the txmit enable, once TXE is low            ****/
 /*****************************************************************************/
 void Send_Next_Char_to_Device(void){
-  if (UART3->SR &= UART3_FLAG_TXE){
-  if (Device_Xmit_Char_Count != 0){
-    Device_Xmit_Char = Device_Xmit_Buffer[Device_Xmit_Pointer];
-  if (Device_Xmit_Char == 0x03){
-     Device_Xmit_Char_Count = 0;
-    UART3->DR = Device_Xmit_Char;
+  if (UART3->SR & UART3_FLAG_TXE){
+    if (Device_Xmit_Char_Count != 0){
+      Device_Xmit_Char = Device_Xmit_Buffer[Device_Xmit_Pointer];
+      if (Device_Xmit_Char == 0x03){
+        Device_Xmit_Char_Count = 0;
+        UART3->DR = Device_Xmit_Char;
+        }
+        else{
+          Device_Xmit_Pointer++;
+          Device_Xmit_Char_Count--;
+          UART3->DR = Device_Xmit_Char;
+          }
     }
-  else{
-    Device_Xmit_Pointer++;
-    Device_Xmit_Char_Count--;
-    UART3->DR = Device_Xmit_Char;
-  }
- }
-  else {
-    UART3->CR2 &= (uint8_t)(~(UART3_CR2_TIEN | UART3_CR2_TCIEN ));  
-    Device_Xmit_Complete_Flag = 0;
-  }
+    else {
+      UART3->CR2 &= (uint8_t)(~(UART3_CR2_TIEN | UART3_CR2_TCIEN ));  
+      Device_Xmit_Complete_Flag = 0;
+    }
   }
 }
 /*****************************************************************************/

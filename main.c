@@ -4,6 +4,7 @@
 /*------------------------------------------------------------------------------------*/
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "SNAP_states.h"
 extern char CID_Value;
 extern char SNAP_State;
 extern void Send_Powered(void);
@@ -11,7 +12,22 @@ extern void Wait_For_Update(void);
 extern void Process_Received_Update(void);
 extern void GetNetworkStatusFromGS1011(void);
 extern void Reset_Network_Access(void);
-extern void Send_Website_Update(void);
+extern void Get_Website_Response_and_Respond(void);
+extern void Get_Website_IP_address(void);
+extern void Set_Mars_as_Website(void);
+extern void Set_Keep_Alive(void);
+extern void HTTPOPEN_Get_CID(void);
+extern void Convert_update_and_Send(void);
+extern void Get_Website_Response_and_Respond(void);
+extern void Reset_Network_Access(void);
+extern void Set_FactoryReset(void);
+extern void ResetAdaptor(void);
+extern void DisassociateWeb(void);
+extern void SetupSendInitialIPAddress(void);
+extern void SendWM_2(void);
+extern void SendWA_Init(void);
+extern void setDHCPSRVR(void);
+extern void SetProvisioning(void);
 
 extern u16 EEWRTimout;
 extern u8 Device_Rcvr_Complete_flag;
@@ -70,23 +86,63 @@ int main( void ){
   while (1)
   {
     switch (SNAP_State){
-    case 0:
+    case SEND_POWERED_STATE:         /* let the device know we're ready*/
       Send_Powered();
       break;
-    case 1:
+    case WAIT_FOR_UPDATE_STATE:      /* wait for the device update */   
       Wait_For_Update();
       break;
     case 2:
-      Process_Received_Update();
+      Process_Received_Update();     /* de-escape and check checksum */
       break;
     case 3:
-      GetNetworkStatusFromGS1011();
-      break;
-    case 4:
-      Reset_Network_Access();
+      GetNetworkStatusFromGS1011();  /* check if gs1011 connected to router */ 
+      break;                         /* if connected send update, esle config */
+    case 4:                              
+      Get_Website_IP_address();      /* set GS1011 address to 192.168.1.1 */
       break;
     case 5:
-      Send_Website_Update();
+      Set_Mars_as_Website();         /* set the host to mars.bwgrp.com */
+      break;
+    case 6:
+      Set_Keep_Alive();             /* prevent a disconnect after status returned */
+      break;
+    case 7:
+      HTTPOPEN_Get_CID();           /* open the port, get CID (Connection ID 0-9) */
+      break;
+    case 8:
+      Convert_update_and_Send();
+      break;
+    case 9:
+      Get_Website_Response_and_Respond();
+      break;
+/*                                    reset the adaptor and provision*/ 
+    case 10:
+      Reset_Network_Access();
+      break;
+    case 11:
+      Set_FactoryReset();
+      break;
+    case 12:
+      ResetAdaptor();
+      break;
+    case 13:
+      DisassociateWeb();
+      break;
+    case 14:
+      SetupSendInitialIPAddress();
+      break;
+    case 15:
+      SendWM_2();
+      break;
+    case 16:
+      SendWA_Init();
+      break;
+    case 17:
+      setDHCPSRVR();
+      break;
+    case 18:
+      SetProvisioning();
       break;
     }
   }

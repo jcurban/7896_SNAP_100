@@ -11,10 +11,11 @@ __root const char IPmsg[] @ ".far.rodata" = {"IP:"};
 __root const char Powered[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x01,0xfe,0x03,0x00};
 __root const char AdaptorReady[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x04,0xfB,0x03,0x00};
 __root const char ConfiguringAdaptor[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x05,0xfA,0x03,0x00};
+__root const char ACKMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x55,0x06,0xf7,0x03,0x00};
 
 /*  Reset and provisioning GS1011 messages */
 __root const char YouThereMessage[] @ ".far.rodata" = {"AT\r\n"};
-__root const char ShutOffEchoMessage[] @ ".far.rodata" = {"ATE0\r\n"};
+__root const char ShutOffEchoMessage[] @ ".far.rodata" = {"ATE0\r"};
 __root const char ForceFactoryResetMessage[] @ ".far.rodata" = {"AT&F\r"};
 __root const char ClearW0Message[] @ ".far.rodata" ={"AT&W0\r"};
 __root const char ClearW1Message[] @ ".far.rodata" ={"AT&W1\r"};
@@ -28,13 +29,17 @@ __root const char SetSerialNumberasAccessPointHeader[] @ ".far.rodata" = {"AT+WA
 __root const char SetSerialNumberasAccessPointTail[] @ ".far.rodata" = {",,11\r"};
 __root const char SetDHCPSRVRMessage[] @ ".far.rodata" = {"AT+DHCPSRVR=1\r"};
 __root const char SetWEBPROVMessage[] @ ".far.rodata" = {"AT+WEBPROV=,,,2,,1\r"};
+__root const char NWCONN_Response[] @ ".far.rodata" = {"NEWCONN"};
+__root const char Good_Response[] @ ".far.rodata" = {"good"};
+__root const char SWReset_Response[] @ ".far.rodata" = {"RESET"};
 
 /*  setup update messages  */
 __root const char DNSLOOKUP_Message[] @ ".far.rodata" = {"AT+DNSLOOKUP=mars.bwgrp.com\r"};
 __root const char ConnectionType_CONF11_message[] @ ".far.rodata" = {"AT+HTTPCONF=11,mars.bwgrp.com\r"};
 __root const char KeepAlive_CONF3_Message[] @ ".far.rodata" ={"AT+HTTPCONF=3, keep-alive\r"};
-__root const char HTTPOPEN_FULL_MESSAGE[] @ ".far.rodata" ={"AT+HTTPOPEN=54.225.101.110"};   /*add ip Address*/
+__root const char HTTPOPEN_FULL_MESSAGE[] @ ".far.rodata" ={"AT+HTTPOPEN=54.225.101.110\r"};   /*add ip Address*/
 
+__root const char Dummy_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000001234512555/p2/12345/p3/D/p4/S/p5/S/p6/D/p7/00078901/p8/345678/p9/000789/p10/21221/p11/32222/p12/31111/p13/0/p14/0/p15/0\r"};
 
 /*  get network status message */
 __root const char GetNSTATMessage[] @ ".far.rodata" = {"AT+NSTAT=?\r"};
