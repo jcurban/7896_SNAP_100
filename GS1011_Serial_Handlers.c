@@ -42,13 +42,13 @@ void SetupGS1011Association(void);
 void SendUpdateToWebsite (void);
 void Send_ConnectionType_CONF11_Message(void);
 void Send_Keep_Alive_Message(void);
-
+void Assemble_Send_Update_to_Website(void);
 void Reset_Network_Access(void);
 void Set_FactoryReset(void);
 void ResetAdaptor(void);
 void DisassociateWeb(void);
 void SetupSendInitialIPAddress(void);
-
+void Add_Char_to_GS1011_Buffer (char chr);
 void SendWM_2(void);
 void SendWA_Init(void);
 void setDHCPSRVR(void);
@@ -68,6 +68,7 @@ void Initialize_GS011_Xmit_buffer(void);
 /* GS1011 DATA */
 extern char SNAP_State;
 extern char CID_Value;
+extern char Packet_Data_Count;
 extern char Send_Update_State;
 extern int Found_String_At_Byte;
 extern char EEWRTimout;
@@ -93,6 +94,7 @@ extern u16 GS1011_Rvcr_Count;
 extern u16 GS1011_Rcvr_Pointer;
 extern char website_IP_Address[];
 extern char GS1011_Receiver_Buffer[];
+extern char Packet_Data_Buffer[];
 extern char SWReset_Response[];
 extern char NWCONN_Response[];
 extern char Device_Serial_number[];
@@ -101,8 +103,8 @@ extern char Cigar_update[];
 extern char Good_Response[];
 extern char SetSerialNumberasAccessPointHeader[];
 extern char SetSerialNumberasAccessPointTail[];
-void Add_String_to_GS1011_Buffer ( char *srce);
-void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt);
+extern void Add_String_to_GS1011_Buffer ( char *srce);
+extern void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt);
 
 void CopyBufferGS1011(char srce[]);
 
@@ -136,7 +138,8 @@ extern char ConnectionType_CONF11_message[];
 extern char SetConnectionType;
 extern char SendKeepAliveMessage;
 extern char OpenMarsConnectionHeader;   /*add ip Address*/
-extern char SendtoWebsiteHeader;   /*add CID, and status*/
+extern char SendtoWebsiteHeader[];   /*add CID, and status*/
+extern char SendtoWebsiteHeader1[];
 extern char HTTPOPEN_FULL_MESSAGE[];
 /* sending update state maching*/ 
 void Get_Website_IP_address(void);
@@ -279,8 +282,11 @@ if (GS1011_String_Found == 1){
  ****  GS1011 responds okay                                               ****
  ******************************************************************************/
   void  Convert_update_and_Send(void){
-    /*Copy_Stock_Send_Message(Dummy_update);*/
-    Copy_Stock_Send_Message(Cigar_update);
+    Copy_Stock_Send_Message(Dummy_update);
+    /*Copy_Stock_Send_Message(Cigar_update);*/
+    /*Assemble_Send_Update_to_Website();*/
+    /*Start_GS1011_Send();*/                                /* kickstart the xmitter*/
+    /*GS1011_Received_Response_Flag = 0x01;*/
 while (GS1011_Received_Response_Flag == 0x01)
 {
 /*Get_any_ResponseFromGS1011(Good_Response);*/
@@ -292,6 +298,17 @@ if (GS1011_String_Found == 1){
 }
 
  }
+/*****************************************************************************
+******************************************************************************/
+void Assemble_Send_Update_to_Website(void){
+   InitializeGS1011Buffer();
+ Initialize_GS011_Xmit_buffer();
+ CopyBufferGS1011(SendtoWebsiteHeader);
+ Add_Char_to_GS1011_Buffer(CID_Value);
+ Add_String_to_GS1011_Buffer(SendtoWebsiteHeader1);
+ Add_String_to_GS1011_BufferCounted(Packet_Data_Buffer, Packet_Data_Count);
+ Add_Char_to_GS1011_Buffer(CR);
+}
   
 /*****************************************************************************
  ****   Get_Website_Response_and_Respond- GET_WEBSITE_RESPONSE_SEND_DEVICE_STATE                            ****
@@ -567,8 +584,7 @@ void Start_GS1011_Send(void){
   *****************************************************************************/
 void Sending_GS1011_Data_Handler(void){
     if (UART1->SR & UART3_FLAG_TXE){
-
-  GS1011_Xmit_Char = GS1011_Xmit_Buffer[GS1011_Xmit_Pointer];
+    GS1011_Xmit_Char = GS1011_Xmit_Buffer[GS1011_Xmit_Pointer];
   if (GS1011_Xmit_Char_Count!=0){
       UART1->DR= GS1011_Xmit_Char;
       GS1011_Xmit_Pointer++;

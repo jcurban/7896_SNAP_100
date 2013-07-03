@@ -3,14 +3,16 @@
 ;
 char SNAP_State;
 u8 checksum_Okay;   /* 0 = okay, 1 = not*/
-
+char CID_Value;
 char Device_Serial_number[16];
 char website_IP_Address[15];
 /* conversion variables*/
+char Packet_Data_Count;
 unsigned char PNumber;
-unsigned int PCount;
+char Packet_Data_Count;
 int ProcessPtr;
 int Packet_Data_Pointer;
+
 unsigned char PHeaderBuffer[6];
 char tempblock[4];
 char B2ASCBuf[8];
@@ -59,7 +61,5 @@ u8 GS1011_Xmit_Char_Count;
 char GS1011_Xmit_Setup_Char_Pointer;
 unsigned char GS1011_Xmit_Char;
 unsigned char GS1011_Xmit_Buffer[256];
-
-char CID_Value;
 
 

@@ -95,8 +95,8 @@ void Add_Char_to_Buffer (char bufr[], int ptr, char chr){
 /*****     CALLING ROUTINE IS RESPONSIBLE TO BE SURE THERE'S ROOM AVAILABLE****/
 /*****************************************************************************/
 void Add_Char_to_GS1011_Buffer (char chr){
-  GS1011_Xmit_Buffer[GS1011_Xmit_Setup_Char_Pointer] = chr;
-  GS1011_Xmit_Setup_Char_Pointer++;
+  GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = chr;
+  GS1011_Xmit_Char_Count++;
 }
 
 /*****************************************************************************/

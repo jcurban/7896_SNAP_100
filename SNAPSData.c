@@ -49,6 +49,5 @@ __root const char SetNDHCPMessage[] @ ".far.rodata" = {"AT+NDHCP=1\r"};
 __root const char GetProfileMessage[] @ ".far.rodata" = {"AT&V\r"};
 
 /*  send update message headers */
-__root const char  pheader[] @ ".far.rodata" = {"/P"};
 __root const char SendtoWebsiteHeader[] @ ".far.rodata" ={"AT+HTTPSEND="};   /*add CID, and status*/
 __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog"};   /*add CID, and status*/
