@@ -14,8 +14,6 @@
 /* external routines*/
 extern void FillBuffer (char bufr[],char filchr, int cntr);
 extern void Int2ASCII(void);
-void ProcessB2ASCBuf(void);
-
 /* local Routine prototypes */
 void Make_Website_Update_from_Processing_Buffer(void);
 void makePNumberHeader(char numb);
@@ -24,7 +22,6 @@ void copyPHeaderToWebsite(void);
 void Copy_ASCII_data_to_Website(void);
 void clear_tempblock(void);
 /* conversion routines/data*/
-extern char Packet_Data_Count;
 extern char PNumber;
 extern int PCount;
 extern int ProcessPtr;
@@ -74,12 +71,9 @@ for (ProcessPtr =3; ProcessPtr <BFRSIZE;ProcessPtr++){
       ProcessPtr++;
     }
       Int2ASCII();
-      ProcessB2ASCBuf();
     for (i=0;i<=7;i++){
-      if (B2ASCBuf[i] != ' '){
        Packet_Data_Buffer[Packet_Data_Pointer] = B2ASCBuf[i];
        Packet_Data_Pointer++;
-       }
       }
     }
     else if (Device_Processing_Buffer[ProcessPtr] == 0x00){
@@ -87,7 +81,6 @@ for (ProcessPtr =3; ProcessPtr <BFRSIZE;ProcessPtr++){
     }
       
   } 
-  Packet_Data_Count = Packet_Data_Pointer -1;
 }
 void clear_tempblock(void){
  char i;
@@ -103,15 +96,9 @@ while (PHeaderBuffer[pntr] != 0x00){
 }
  
 }
-
-void ProcessB2ASCBuf(void){
-char i;
-for (i=0; i<=7;i++){
-  if ((B2ASCBuf[i]=='0') && (i != 7))
-      B2ASCBuf[i]=' ';
-  else if (B2ASCBuf[i]!='0') break;
+void Copy_ASCII_data_to_Website(void){
 }
-}/*****************************************************************************
+/*****************************************************************************
  *****             makePNumberHeader                                      ****
  ****************************************************************************/
 void makePNumberHeader(char numb){

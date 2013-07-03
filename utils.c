@@ -1,6 +1,5 @@
 #include "main.h"
 extern char B2ASCBuf[];
-extern void FillBuffer (char bufr[],char filchr, int cntr);
 
 char Indx;
 char Temp;	
@@ -15,8 +14,6 @@ void StoreB2AscBuf( u32 BinNum);
 void BIN2ASC(u32 BinNum);
 void Int2ASCII(void);
 void TESTHDR(void);
-
-
 
 void Int2ASCII(void){
         LocalSum = tempblock[0];
@@ -41,7 +38,6 @@ void StoreB2AscBuf(u32 BinNum){
 void BIN2ASC(u32 InNum){
 char Bufptr;
 char Res;
-  FillBuffer(B2ASCBuf,' ', 8);
 	Bufptr = 0;
 	Res = InNum / (u32)10000000;
 	B2ASCBuf[Bufptr] = Res | 0x30;

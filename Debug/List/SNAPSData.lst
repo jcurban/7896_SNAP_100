@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             03/Jul/2013  11:50:55 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             03/Jul/2013  08:09:38 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData #
@@ -323,13 +323,18 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
      51          /*  send update message headers */
 
    \                                 In section .far.rodata, align 1, root
-     52          __root const char SendtoWebsiteHeader[] @ ".far.rodata" ={"AT+HTTPSEND="};   /*add CID, and status*/
+     52          __root const char  pheader[] @ ".far.rodata" = {"/P"};
+   \                     pheader:
+   \   000000 2F 50 00     DC8 "/P"
+
+   \                                 In section .far.rodata, align 1, root
+     53          __root const char SendtoWebsiteHeader[] @ ".far.rodata" ={"AT+HTTPSEND="};   /*add CID, and status*/
    \                     SendtoWebsiteHeader:
    \   000000 41 54 2B 48  DC8 "AT+HTTPSEND="
    \          54 54 50 53 
 
    \                                 In section .far.rodata, align 1, root
-     53          __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog"};   /*add CID, and status*/
+     54          __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog"};   /*add CID, and status*/
    \                     SendtoWebsiteHeader1:
    \   000000 2C 31 2C 31  DC8 ",1,100,/account/api/setdevicelog"
    \          30 30 2C 2F 
@@ -374,11 +379,12 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
        6  ShutOffEchoMessage
       17  WSTATECONNECTEDmsg
        5  YouThereMessage
+       3  pheader
 
  
- 762 bytes in section .far.rodata
+ 765 bytes in section .far.rodata
  
- 762 bytes of CONST memory
+ 765 bytes of CONST memory
 
 Errors: none
 Warnings: none
