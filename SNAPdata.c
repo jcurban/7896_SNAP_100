@@ -2,25 +2,18 @@
 #include "SNAP_Defines.h"
 ;
 char SNAP_State;
-char Send_Update_State;
-
-
 u8 checksum_Okay;   /* 0 = okay, 1 = not*/
 
-char Device_Serial_number[17];
-char Device_Type_Number[6];
+char Device_Serial_number[16];
 char website_IP_Address[15];
-unsigned char   DEVICE_SOH; /*START OF TEXT 0X02*/
-u16 DEVICE_MSGLENGTH; /*LENGTH OF MESSAGE*/
-unsigned char DEVICE_COMMAND; /* COMMAND TYPE*/
-unsigned char DEVICE_PACKETDATA[512]; 
-unsigned char DEVICE_EOT; /*end of text*/
 /* conversion variables*/
-char tempblock[4];
-char B2ASCBuf[8];
 unsigned char PNumber;
 unsigned int PCount;
-unsigned char PHeaderBuffer[5];
+int ProcessPtr;
+int Packet_Data_Pointer;
+unsigned char PHeaderBuffer[6];
+char tempblock[4];
+char B2ASCBuf[8];
 
 /* DEVICE DATA */
 char Device_State;
@@ -30,7 +23,6 @@ u8 Device_RX_OutPtr;
 u16 Device_Rcvr_Char_Count;
 u8 Device_Rcvr_Complete_flag;
 u8 Device_Update_Ready_for_Website_flag;
-u8 Device_Rcvr_State;
 u8 Device_Rcvr_char;
 char Device_Rcvr_Pointer;
 char Device_Rcvr_Dest_Pointer;
@@ -38,7 +30,6 @@ char Device_Receiver_Buffer[255];
 unsigned char Packet_Data_Buffer[255];
 
 /*device xmiting data*/
-char PHeader_Bufr[5];
 u8 Device_Xmit_Complete_Flag;
 u8 Device_Xmit_Char;
 char Device_Xmit_Pointer;

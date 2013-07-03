@@ -51,7 +51,6 @@ extern u8 Device_RX_OutPtr;
 extern int Device_Rcvr_Char_Count;
 extern u8 Device_Rcvr_Complete_flag;
 extern char Device_Update_Ready_for_Website_flag;
-extern u8 Device_Rcvr_State;
 extern u8 Device_Rcvr_char;
 extern int Device_Processing_Pointer;
 extern int Device_Rcvr_Pointer;
@@ -138,7 +137,7 @@ void Process_Received_Update(void){
   checksum_Okay = Check_Checksum_Device_Buffer();
   if (checksum_Okay == 0x55){
     CopySerialNumber();
-    /*Make_Website_Update_from_Processing_Buffer();*/
+    Make_Website_Update_from_Processing_Buffer();
     SNAP_State = 3;
   }
   else{                                 /*if checksum wrong ask for it again*/
@@ -218,14 +217,14 @@ void Make_Send_SNAP_Ready_Message(void){
 /*****        1st byte in Device processed buffer is the character count  ****/
 /*****************************************************************************/
 void Assemble_and_Checksum_device_message(void){
-  Device_Processing_Pointer = InitializeDeviceBuffer (Device_Processing_Buffer, 0x00, BFRSIZE/2);
+  /*Device_Processing_Pointer = InitializeDeviceBuffer (Device_Processing_Buffer, 0x00, BFRSIZE/2);
   Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_SOH);
   Device_Processing_Pointer = Add_Integer_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_MSGLENGTH);
   Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_COMMAND);
   Device_Processing_Pointer = Add_String_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, &DEVICE_PACKETDATA);
   Checksum_Device_Buffer(Device_Processing_Buffer);
   Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_CHECKSUM);
-  Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_EOT);
+  Device_Processing_Pointer = Add_Char_to_Buffer (Device_Processing_Buffer, Device_Processing_Pointer, DEVICE_EOT);*/
   /*Process_Device_Message(&Device_Xmit_Buffer, &Device_Processing_Buffer);
   Start_Device_Xmit ();          save the start of the buffer*/
 }
@@ -271,6 +270,9 @@ char Check_Checksum_Device_Buffer(){
   gtchr++;
   checksum += Device_Processing_Buffer[gtchr];
  }
+ Device_Processing_Buffer[gtchr] = 00; /*clear out checksum*/ 
+ gtchr++;
+ Device_Processing_Buffer[gtchr] = 00; /*clear out etx*/ 
  return checksum;
 }
 
@@ -419,7 +421,6 @@ void InitDeviceUART(void)
                  UART3_STOPBITS_1,  UART3_PARITY_NO, 
                  UART3_MODE_TXRX_ENABLE);
   UART3->CR2 |= 0x20;  /*UART3 RX INTERRUPT ENABLE*/
-  Device_Rcvr_State = 0;
   Device_Rcvr_Complete_flag = 0;
 }
 

@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             03/Jul/2013  05:48:34 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             03/Jul/2013  08:09:38 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata. #
@@ -34,294 +34,257 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata.c
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-      5          char Send_Update_State;
-   \                     Send_Update_State:
-   \   000000              DS8 1
-      6          
-      7          
-
-   \                                 In section .near.bss, align 1
-      8          u8 checksum_Okay;   /* 0 = okay, 1 = not*/
+      5          u8 checksum_Okay;   /* 0 = okay, 1 = not*/
    \                     checksum_Okay:
    \   000000              DS8 1
-      9          
+      6          
 
    \                                 In section .near.bss, align 1
-     10          char Device_Serial_number[17];
+      7          char Device_Serial_number[16];
    \                     Device_Serial_number:
-   \   000000              DS8 17
+   \   000000              DS8 16
 
    \                                 In section .near.bss, align 1
-     11          char Device_Type_Number[6];
-   \                     Device_Type_Number:
-   \   000000              DS8 6
-
-   \                                 In section .near.bss, align 1
-     12          char website_IP_Address[15];
+      8          char website_IP_Address[15];
    \                     website_IP_Address:
    \   000000              DS8 15
+      9          /* conversion variables*/
 
    \                                 In section .near.bss, align 1
-     13          unsigned char   DEVICE_SOH; /*START OF TEXT 0X02*/
-   \                     DEVICE_SOH:
-   \   000000              DS8 1
-
-   \                                 In section .near.bss, align 1
-     14          u16 DEVICE_MSGLENGTH; /*LENGTH OF MESSAGE*/
-   \                     DEVICE_MSGLENGTH:
-   \   000000              DS8 2
-
-   \                                 In section .near.bss, align 1
-     15          unsigned char DEVICE_COMMAND; /* COMMAND TYPE*/
-   \                     DEVICE_COMMAND:
-   \   000000              DS8 1
-
-   \                                 In section .near.bss, align 1
-     16          unsigned char DEVICE_PACKETDATA[512]; 
-   \                     DEVICE_PACKETDATA:
-   \   000000              DS8 512
-
-   \                                 In section .near.bss, align 1
-     17          unsigned char DEVICE_EOT; /*end of text*/
-   \                     DEVICE_EOT:
-   \   000000              DS8 1
-     18          /* conversion variables*/
-
-   \                                 In section .near.bss, align 1
-     19          char tempblock[4];
-   \                     tempblock:
-   \   000000              DS8 4
-
-   \                                 In section .near.bss, align 1
-     20          char B2ASCBuf[8];
-   \                     B2ASCBuf:
-   \   000000              DS8 8
-
-   \                                 In section .near.bss, align 1
-     21          unsigned char PNumber;
+     10          unsigned char PNumber;
    \                     PNumber:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     22          unsigned int PCount;
+     11          unsigned int PCount;
    \                     PCount:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     23          unsigned char PHeaderBuffer[5];
-   \                     PHeaderBuffer:
-   \   000000              DS8 5
-     24          
-     25          /* DEVICE DATA */
+     12          int ProcessPtr;
+   \                     ProcessPtr:
+   \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     26          char Device_State;
+     13          int Packet_Data_Pointer;
+   \                     Packet_Data_Pointer:
+   \   000000              DS8 2
+
+   \                                 In section .near.bss, align 1
+     14          unsigned char PHeaderBuffer[6];
+   \                     PHeaderBuffer:
+   \   000000              DS8 6
+
+   \                                 In section .near.bss, align 1
+     15          char tempblock[4];
+   \                     tempblock:
+   \   000000              DS8 4
+
+   \                                 In section .near.bss, align 1
+     16          char B2ASCBuf[8];
+   \                     B2ASCBuf:
+   \   000000              DS8 8
+     17          
+     18          /* DEVICE DATA */
+
+   \                                 In section .near.bss, align 1
+     19          char Device_State;
    \                     Device_State:
    \   000000              DS8 1
-     27          /*device receiving data*/
+     20          /*device receiving data*/
 
    \                                 In section .near.bss, align 1
-     28          u8 Device_RX_InPtr;
+     21          u8 Device_RX_InPtr;
    \                     Device_RX_InPtr:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     29          u8 Device_RX_OutPtr;
+     22          u8 Device_RX_OutPtr;
    \                     Device_RX_OutPtr:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     30          u16 Device_Rcvr_Char_Count;
+     23          u16 Device_Rcvr_Char_Count;
    \                     Device_Rcvr_Char_Count:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     31          u8 Device_Rcvr_Complete_flag;
+     24          u8 Device_Rcvr_Complete_flag;
    \                     Device_Rcvr_Complete_flag:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     32          u8 Device_Update_Ready_for_Website_flag;
+     25          u8 Device_Update_Ready_for_Website_flag;
    \                     Device_Update_Ready_for_Website_flag:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     33          u8 Device_Rcvr_State;
-   \                     Device_Rcvr_State:
-   \   000000              DS8 1
-
-   \                                 In section .near.bss, align 1
-     34          u8 Device_Rcvr_char;
+     26          u8 Device_Rcvr_char;
    \                     Device_Rcvr_char:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     35          char Device_Rcvr_Pointer;
+     27          char Device_Rcvr_Pointer;
    \                     Device_Rcvr_Pointer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     36          char Device_Rcvr_Dest_Pointer;
+     28          char Device_Rcvr_Dest_Pointer;
    \                     Device_Rcvr_Dest_Pointer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     37          char Device_Receiver_Buffer[255];
+     29          char Device_Receiver_Buffer[255];
    \                     Device_Receiver_Buffer:
    \   000000              DS8 255
 
    \                                 In section .near.bss, align 1
-     38          unsigned char Packet_Data_Buffer[255];
+     30          unsigned char Packet_Data_Buffer[255];
    \                     Packet_Data_Buffer:
    \   000000              DS8 255
-     39          
-     40          /*device xmiting data*/
+     31          
+     32          /*device xmiting data*/
 
    \                                 In section .near.bss, align 1
-     41          char PHeader_Bufr[5];
-   \                     PHeader_Bufr:
-   \   000000              DS8 5
-
-   \                                 In section .near.bss, align 1
-     42          u8 Device_Xmit_Complete_Flag;
+     33          u8 Device_Xmit_Complete_Flag;
    \                     Device_Xmit_Complete_Flag:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     43          u8 Device_Xmit_Char;
+     34          u8 Device_Xmit_Char;
    \                     Device_Xmit_Char:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     44          char Device_Xmit_Pointer;
+     35          char Device_Xmit_Pointer;
    \                     Device_Xmit_Pointer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     45          char Device_Xmit_Setup_Char_Pointer;
+     36          char Device_Xmit_Setup_Char_Pointer;
    \                     Device_Xmit_Setup_Char_Pointer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     46          u8 Device_Xmit_Char_Count;
+     37          u8 Device_Xmit_Char_Count;
    \                     Device_Xmit_Char_Count:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     47          char* Device_Processing_Pointer;
+     38          char* Device_Processing_Pointer;
    \                     Device_Processing_Pointer:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     48          unsigned char Device_Processing_Buffer[255];
+     39          unsigned char Device_Processing_Buffer[255];
    \                     Device_Processing_Buffer:
    \   000000              DS8 255
 
    \                                 In section .near.bss, align 1
-     49          unsigned char Device_Xmit_Buffer[128];
+     40          unsigned char Device_Xmit_Buffer[128];
    \                     Device_Xmit_Buffer:
    \   000000              DS8 128
-     50          /*GS1011 data*/
+     41          /*GS1011 data*/
 
    \                                 In section .near.bss, align 1
-     51          char GS1011_Rcvr_EOM_Timer;
+     42          char GS1011_Rcvr_EOM_Timer;
    \                     GS1011_Rcvr_EOM_Timer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     52          char GS1011_Rcvr_Timeout;
+     43          char GS1011_Rcvr_Timeout;
    \                     GS1011_Rcvr_Timeout:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     53          char GS1011_State;
+     44          char GS1011_State;
    \                     GS1011_State:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     54          char GS1011_State_State;
+     45          char GS1011_State_State;
    \                     GS1011_State_State:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     55          char GS1011_Rcvr_Char;
+     46          char GS1011_Rcvr_Char;
    \                     GS1011_Rcvr_Char:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     56          char GS1011_Received_Response_Flag;
+     47          char GS1011_Received_Response_Flag;
    \                     GS1011_Received_Response_Flag:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     57          int Found_String_At_Byte;
+     48          int Found_String_At_Byte;
    \                     Found_String_At_Byte:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     58          u8 GS1011_String_Found;
+     49          u8 GS1011_String_Found;
    \                     GS1011_String_Found:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     59          u16 GS1011_Rcvr_InPtr;
+     50          u16 GS1011_Rcvr_InPtr;
    \                     GS1011_Rcvr_InPtr:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     60          u16 GS1011_Rcvr_OutPtr;
+     51          u16 GS1011_Rcvr_OutPtr;
    \                     GS1011_Rcvr_OutPtr:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     61          u16 GS1011_Rvcr_Count;
+     52          u16 GS1011_Rvcr_Count;
    \                     GS1011_Rvcr_Count:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     62          u16 GS1011_Rcvr_Pointer;
+     53          u16 GS1011_Rcvr_Pointer;
    \                     GS1011_Rcvr_Pointer:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     63          char GS1011_Receiver_Buffer[512];
+     54          char GS1011_Receiver_Buffer[512];
    \                     GS1011_Receiver_Buffer:
    \   000000              DS8 512
-     64          
-     65          /*GS1011 receiving data*/
+     55          
+     56          /*GS1011 receiving data*/
 
    \                                 In section .near.bss, align 1
-     66          u8 GS1011_Xmit_Pointer;
+     57          u8 GS1011_Xmit_Pointer;
    \                     GS1011_Xmit_Pointer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     67          u8 GS1011_Xmit_Char_Count;
+     58          u8 GS1011_Xmit_Char_Count;
    \                     GS1011_Xmit_Char_Count:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     68          char GS1011_Xmit_Setup_Char_Pointer;
+     59          char GS1011_Xmit_Setup_Char_Pointer;
    \                     GS1011_Xmit_Setup_Char_Pointer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     69          unsigned char GS1011_Xmit_Char;
+     60          unsigned char GS1011_Xmit_Char;
    \                     GS1011_Xmit_Char:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     70          unsigned char GS1011_Xmit_Buffer[256];
+     61          unsigned char GS1011_Xmit_Buffer[256];
    \                     GS1011_Xmit_Buffer:
    \   000000              DS8 256
-     71          
+     62          
 
    \                                 In section .near.bss, align 1
-     72          char CID_Value;
+     63          char CID_Value;
    \                     CID_Value:
    \   000000              DS8 1
-     73          
-     74          
+     64          
+     65          
 
    Section sizes:
 
@@ -329,11 +292,6 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata.c
    -----  --------------
        8  B2ASCBuf
        1  CID_Value
-       1  DEVICE_COMMAND
-       1  DEVICE_EOT
-       2  DEVICE_MSGLENGTH
-     512  DEVICE_PACKETDATA
-       1  DEVICE_SOH
      255  Device_Processing_Buffer
        2  Device_Processing_Pointer
        1  Device_RX_InPtr
@@ -342,12 +300,10 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata.c
        1  Device_Rcvr_Complete_flag
        1  Device_Rcvr_Dest_Pointer
        1  Device_Rcvr_Pointer
-       1  Device_Rcvr_State
        1  Device_Rcvr_char
      255  Device_Receiver_Buffer
-      17  Device_Serial_number
+      16  Device_Serial_number
        1  Device_State
-       6  Device_Type_Number
        1  Device_Update_Ready_for_Website_flag
      128  Device_Xmit_Buffer
        1  Device_Xmit_Char
@@ -374,20 +330,20 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata.c
        1  GS1011_Xmit_Pointer
        1  GS1011_Xmit_Setup_Char_Pointer
        2  PCount
-       5  PHeaderBuffer
-       5  PHeader_Bufr
+       6  PHeaderBuffer
        1  PNumber
      255  Packet_Data_Buffer
+       2  Packet_Data_Pointer
+       2  ProcessPtr
        1  SNAP_State
-       1  Send_Update_State
        1  checksum_Okay
        4  tempblock
       15  website_IP_Address
 
  
- 2 284 bytes in section .near.bss
+ 1 758 bytes in section .near.bss
  
- 2 284 bytes of DATA memory
+ 1 758 bytes of DATA memory
 
 Errors: none
 Warnings: none

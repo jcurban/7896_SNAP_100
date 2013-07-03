@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=67584904
+Checksum=1808497050
 [CallStack]
 ShowArgs=0
 [Disassembly]
@@ -121,7 +121,7 @@ Bp29=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.56.1" 0 0 0 0 "" 
 Bp30=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.56.3" 0 0 0 0 "" 0 ""
 Bp31=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\GS1011_Serial_Handlers.c}.171.1" 0 0 0 0 "" 0 ""
 Bp32=_ "STD_DATA" "0x000252" 0 0 0 3 0 "" 0 ""
-Bp33=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.221.1" 1 0 0 0 "" 0 ""
+Bp33=_ "STD_CODE" "{$PROJ_DIR$\ParameterBlockHandlers.c}.54.3" 1 0 0 0 "" 0 ""
 Count=34
 [Log file]
 LoggingEnabled=_ 0

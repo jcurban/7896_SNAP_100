@@ -13,15 +13,19 @@
 #include "SNAP_Defines.h"
 /* external routines*/
 extern void FillBuffer (char bufr[],char filchr, int cntr);
+extern void Int2ASCII(void);
 /* local Routine prototypes */
 void Make_Website_Update_from_Processing_Buffer(void);
 void makePNumberHeader(char numb);
 void convertPNumber_to_ASCII(char numb);
 void copyPHeaderToWebsite(void);
 void Copy_ASCII_data_to_Website(void);
-
+void clear_tempblock(void);
 /* conversion routines/data*/
-extern void Int2ASCII(void);
+extern char PNumber;
+extern int PCount;
+extern int ProcessPtr;
+extern int Packet_Data_Pointer;
 extern char B2ASCBuf[];
 extern char tempblock[];
 extern char PHeaderBuffer[];
@@ -38,33 +42,59 @@ extern char Device_Processing_Buffer[];
 ***** the "httpsend = bwgroup.." is a stock block when ready to send the    ****
 ***** httpsend block is copied to the xmit buffer, then the parameters are added
 *****                                                                       ****
-*****  all data going into the website_param+buffer uses Website_Param_Pointer
+*****  all data going into the Packet_Data_Buffer uses Website_Param_Pointer
 *****  to put it into the buffer
 *******************************************************************************/
 void Make_Website_Update_from_Processing_Buffer(void){
-char PNumber;
-int ProcessPtr;
-int Packet_Data_Pointer;
-/* Website_Parameter_ASCII_Buffer*/
-
-
+char i;
 PNumber = 1;
 Packet_Data_Pointer = 0;
 for (ProcessPtr =3; ProcessPtr <BFRSIZE;ProcessPtr++){
   makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
   if (Device_Processing_Buffer[ProcessPtr] == 'A'){
-    ProcessPtr++;
+     copyPHeaderToWebsite();
+     ProcessPtr++;
     for (ProcessPtr=ProcessPtr ; ProcessPtr<BFRSIZE;ProcessPtr++){
         if (Device_Processing_Buffer[ProcessPtr] == ',') break;
       Packet_Data_Buffer[Packet_Data_Pointer] = Device_Processing_Buffer[ProcessPtr];
+      Packet_Data_Pointer++;
     }
   }
+  else if (Device_Processing_Buffer[ProcessPtr] == 'B'){
+    clear_tempblock();
+    copyPHeaderToWebsite();
+    ProcessPtr++;
+    i = 0;
+    while (Device_Processing_Buffer[ProcessPtr]!= ',') {
+      tempblock[i] = Device_Processing_Buffer[ProcessPtr];
+      i++;
       ProcessPtr++;
-
-} 
-
+    }
+      Int2ASCII();
+    for (i=0;i<=7;i++){
+       Packet_Data_Buffer[Packet_Data_Pointer] = B2ASCBuf[i];
+       Packet_Data_Pointer++;
+      }
+    }
+    else if (Device_Processing_Buffer[ProcessPtr] == 0x00){
+      break;
+    }
+      
+  } 
+}
+void clear_tempblock(void){
+ char i;
+ for (i=0; i <= 4; i++)
+   tempblock[i]=0x00;
 }
 void copyPHeaderToWebsite(void){
+char pntr=0;
+while (PHeaderBuffer[pntr] != 0x00){
+  Packet_Data_Buffer[Packet_Data_Pointer] = PHeaderBuffer[pntr];
+  Packet_Data_Pointer++;
+  pntr++;
+}
+ 
 }
 void Copy_ASCII_data_to_Website(void){
 }
@@ -72,7 +102,8 @@ void Copy_ASCII_data_to_Website(void){
  *****             makePNumberHeader                                      ****
  ****************************************************************************/
 void makePNumberHeader(char numb){
-  FillBuffer(PHeaderBuffer,0x00, 5);
+  FillBuffer(PHeaderBuffer,0x00, 6);
+  clear_tempblock();
   tempblock[0] = numb;
   Int2ASCII();
   PHeaderBuffer[0] = '/';
@@ -86,4 +117,5 @@ void makePNumberHeader(char numb){
       PHeaderBuffer[2] = B2ASCBuf[7];
       PHeaderBuffer[3] = '/';
      }
+      PNumber++;
 }
