@@ -97,6 +97,7 @@ extern char SWReset_Response[];
 extern char NWCONN_Response[];
 extern char Device_Serial_number[];
 extern char Dummy_update[];
+extern char Cigar_update[];
 extern char Good_Response[];
 extern char SetSerialNumberasAccessPointHeader[];
 extern char SetSerialNumberasAccessPointTail[];
@@ -278,7 +279,8 @@ if (GS1011_String_Found == 1){
  ****  GS1011 responds okay                                               ****
  ******************************************************************************/
   void  Convert_update_and_Send(void){
-    Copy_Stock_Send_Message(Dummy_update);
+    /*Copy_Stock_Send_Message(Dummy_update);*/
+    Copy_Stock_Send_Message(Cigar_update);
 while (GS1011_Received_Response_Flag == 0x01)
 {
 /*Get_any_ResponseFromGS1011(Good_Response);*/

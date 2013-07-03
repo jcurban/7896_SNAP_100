@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             02/Jul/2013  13:48:43 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             03/Jul/2013  05:48:34 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata. #
@@ -156,14 +156,14 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata.c
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     35          char *Device_Rcvr_Pointer;
+     35          char Device_Rcvr_Pointer;
    \                     Device_Rcvr_Pointer:
-   \   000000              DS8 2
+   \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     36          char *Device_Rcvr_Dest_Pointer;
+     36          char Device_Rcvr_Dest_Pointer;
    \                     Device_Rcvr_Dest_Pointer:
-   \   000000              DS8 2
+   \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
      37          char Device_Receiver_Buffer[255];
@@ -213,120 +213,115 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata.c
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     48          unsigned char Device_Processing_Buffer[256];
+     48          unsigned char Device_Processing_Buffer[255];
    \                     Device_Processing_Buffer:
-   \   000000              DS8 256
+   \   000000              DS8 255
 
    \                                 In section .near.bss, align 1
-     49          unsigned char Device_Xmit_Buffer[256];
+     49          unsigned char Device_Xmit_Buffer[128];
    \                     Device_Xmit_Buffer:
-   \   000000              DS8 256
+   \   000000              DS8 128
+     50          /*GS1011 data*/
 
    \                                 In section .near.bss, align 1
-     50          char Website_Parameter_ASCII_Buffer[256];
-   \                     Website_Parameter_ASCII_Buffer:
-   \   000000              DS8 256
-     51          /*GS1011 data*/
-
-   \                                 In section .near.bss, align 1
-     52          char GS1011_Rcvr_EOM_Timer;
+     51          char GS1011_Rcvr_EOM_Timer;
    \                     GS1011_Rcvr_EOM_Timer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     53          char GS1011_Rcvr_Timeout;
+     52          char GS1011_Rcvr_Timeout;
    \                     GS1011_Rcvr_Timeout:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     54          char GS1011_State;
+     53          char GS1011_State;
    \                     GS1011_State:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     55          char GS1011_State_State;
+     54          char GS1011_State_State;
    \                     GS1011_State_State:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     56          char GS1011_Rcvr_Char;
+     55          char GS1011_Rcvr_Char;
    \                     GS1011_Rcvr_Char:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     57          char GS1011_Received_Response_Flag;
+     56          char GS1011_Received_Response_Flag;
    \                     GS1011_Received_Response_Flag:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     58          int Found_String_At_Byte;
+     57          int Found_String_At_Byte;
    \                     Found_String_At_Byte:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     59          u8 GS1011_String_Found;
+     58          u8 GS1011_String_Found;
    \                     GS1011_String_Found:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     60          u16 GS1011_Rcvr_InPtr;
+     59          u16 GS1011_Rcvr_InPtr;
    \                     GS1011_Rcvr_InPtr:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     61          u16 GS1011_Rcvr_OutPtr;
+     60          u16 GS1011_Rcvr_OutPtr;
    \                     GS1011_Rcvr_OutPtr:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     62          u16 GS1011_Rvcr_Count;
+     61          u16 GS1011_Rvcr_Count;
    \                     GS1011_Rvcr_Count:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     63          u16 GS1011_Rcvr_Pointer;
+     62          u16 GS1011_Rcvr_Pointer;
    \                     GS1011_Rcvr_Pointer:
    \   000000              DS8 2
 
    \                                 In section .near.bss, align 1
-     64          char GS1011_Receiver_Buffer[512];
+     63          char GS1011_Receiver_Buffer[512];
    \                     GS1011_Receiver_Buffer:
    \   000000              DS8 512
-     65          
-     66          /*GS1011 receiving data*/
+     64          
+     65          /*GS1011 receiving data*/
 
    \                                 In section .near.bss, align 1
-     67          u8 GS1011_Xmit_Pointer;
+     66          u8 GS1011_Xmit_Pointer;
    \                     GS1011_Xmit_Pointer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     68          u8 GS1011_Xmit_Char_Count;
+     67          u8 GS1011_Xmit_Char_Count;
    \                     GS1011_Xmit_Char_Count:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     69          char GS1011_Xmit_Setup_Char_Pointer;
+     68          char GS1011_Xmit_Setup_Char_Pointer;
    \                     GS1011_Xmit_Setup_Char_Pointer:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     70          unsigned char GS1011_Xmit_Char;
+     69          unsigned char GS1011_Xmit_Char;
    \                     GS1011_Xmit_Char:
    \   000000              DS8 1
 
    \                                 In section .near.bss, align 1
-     71          unsigned char GS1011_Xmit_Buffer[256];
+     70          unsigned char GS1011_Xmit_Buffer[256];
    \                     GS1011_Xmit_Buffer:
    \   000000              DS8 256
-     72          
+     71          
 
    \                                 In section .near.bss, align 1
-     73          char CID_Value;
+     72          char CID_Value;
    \                     CID_Value:
    \   000000              DS8 1
+     73          
      74          
-     75          
 
    Section sizes:
 
@@ -339,14 +334,14 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata.c
        2  DEVICE_MSGLENGTH
      512  DEVICE_PACKETDATA
        1  DEVICE_SOH
-     256  Device_Processing_Buffer
+     255  Device_Processing_Buffer
        2  Device_Processing_Pointer
        1  Device_RX_InPtr
        1  Device_RX_OutPtr
        2  Device_Rcvr_Char_Count
        1  Device_Rcvr_Complete_flag
-       2  Device_Rcvr_Dest_Pointer
-       2  Device_Rcvr_Pointer
+       1  Device_Rcvr_Dest_Pointer
+       1  Device_Rcvr_Pointer
        1  Device_Rcvr_State
        1  Device_Rcvr_char
      255  Device_Receiver_Buffer
@@ -354,7 +349,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata.c
        1  Device_State
        6  Device_Type_Number
        1  Device_Update_Ready_for_Website_flag
-     256  Device_Xmit_Buffer
+     128  Device_Xmit_Buffer
        1  Device_Xmit_Char
        1  Device_Xmit_Char_Count
        1  Device_Xmit_Complete_Flag
@@ -385,15 +380,14 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPdata.c
      255  Packet_Data_Buffer
        1  SNAP_State
        1  Send_Update_State
-     256  Website_Parameter_ASCII_Buffer
        1  checksum_Okay
        4  tempblock
       15  website_IP_Address
 
  
- 2 671 bytes in section .near.bss
+ 2 284 bytes in section .near.bss
  
- 2 671 bytes of DATA memory
+ 2 284 bytes of DATA memory
 
 Errors: none
 Warnings: none

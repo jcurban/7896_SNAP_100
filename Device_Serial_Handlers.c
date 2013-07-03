@@ -28,20 +28,12 @@ extern int Add_String_to_Buffer (char *bufr, int ptr, char *srce);
 void Add_Char_to_GS1011_Buffer (char chr);
 extern void Initialize_GS011_Xmit_buffer(void);
 extern void CopyBufferGS1011 (char dest[], char srce[]);
-extern void Int2ASCII(void);
+
+extern void Make_Website_Update_from_Processing_Buffer(void);
 void Add_String_to_GS1011_Buffer ( char *srce);
 void CopySerialNumber(void);
 void Send_ACK_Message(void);
 char Check_Checksum_Device_Buffer(void);
-void Make_Website_Update_from_Processing_Buffer(void);
-void makePNumberHeader(char numb);
-void convertPNumber_to_ASCII(char numb);
-
-/* conversion routines/data*/
-extern void Int2ASCII(void);
-extern char B2ASCBuf[];
-extern char tempblock[];
-extern char PHeaderBuffer[];
 /* EXTERNAL DATA */
 extern char Device_Serial_number[];
 extern char SNAP_State;
@@ -112,8 +104,6 @@ void Send_Update(void);
 void Send_Finished(void);
 void Convert_Update_Parameters(void);
 void Send_Powered_Wait_For_Update(void);
-void copyPHeaderToWebsite(void);
-void Copy_ASCII_data_to_Website(void);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****       device State machine                                        *****/
@@ -148,7 +138,7 @@ void Process_Received_Update(void){
   checksum_Okay = Check_Checksum_Device_Buffer();
   if (checksum_Okay == 0x55){
     CopySerialNumber();
-    Make_Website_Update_from_Processing_Buffer();
+    /*Make_Website_Update_from_Processing_Buffer();*/
     SNAP_State = 3;
   }
   else{                                 /*if checksum wrong ask for it again*/
@@ -345,62 +335,6 @@ void Get_Device_Char(void){
 /*****************************************************************************/
 /*****************************************************************************/
 
-/*******************************************************************************
-*****        Make_Website_Update_from_Processing_Buffer                     ****
-*****   taskes the raw device data, and converts to ASCII for website       ****
-*****  makes a pnumber header in the following format:                      ****
-*****     /P1/... /P15/ then converts binary if necessary                   ****
-***** this creates a buffer with ONLY parameter data, no other headers are  ****
-*****   included. ex. /P1/0000010123456789/P2/700/P3/800/P4/900.....        ****
-***** the "httpsend = bwgroup.." is a stock block when ready to send the    ****
-***** httpsend block is copied to the xmit buffer, then the parameters are added
-*****                                                                       ****
-*****  all data going into the website_param+buffer uses Website_Param_Pointer
-*****  to put it into the buffer
-*******************************************************************************/
-void Make_Website_Update_from_Processing_Buffer(void){
-char PNumber;
-int ProcessPtr;
-int Website_Param_Pointer;
-/* Website_Parameter_ASCII_Buffer*/
-
-
-PNumber = 1;
-Website_Param_Pointer = 0;
-for (ProcessPtr =3; ProcessPtr <BFRSIZE;ProcessPtr++){
-  makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
-  if (Device_Processing_Buffer[ProcessPtr] == 'A'){
-    ProcessPtr++;
-    copyPHeaderToWebsite();
-    Copy_ASCII_data_to_Website();
-    /*Website_Parameter_ASCII_Buffer*/
-  }
-} 
-
-}
-void copyPHeaderToWebsite(void){
-}
-void Copy_ASCII_data_to_Website(void){
-}
-/*****************************************************************************
- *****             makePNumberHeader                                      ****
- ****************************************************************************/
-void makePNumberHeader(char numb){
-  FillBuffer(PHeaderBuffer,0x00, 5);
-  tempblock[0] = numb;
-  Int2ASCII();
-  PHeaderBuffer[0] = '/';
-  PHeaderBuffer[1] = 'P';
-    if (B2ASCBuf[6]!= '0'){
-      PHeaderBuffer[2] = B2ASCBuf[6];
-      PHeaderBuffer[3] = B2ASCBuf[7];
-      PHeaderBuffer[4] = '/';
-     }
-     else{
-      PHeaderBuffer[2] = B2ASCBuf[7];
-      PHeaderBuffer[3] = '/';
-     }
-}
 /*****************************************************************************/
 /*****             Process_Receiver_Device_Message                        ****/
 /*****   takes the buffer it's passed and unescapes where necess.         ****/

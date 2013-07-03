@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             02/Jul/2013  12:53:55 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             03/Jul/2013  05:48:34 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData #
@@ -256,43 +256,85 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
    \          31 34 2F 30 
    \   0000A8 2F 70 31 35  DC8 2FH, 70H, 31H, 35H, 2FH, 30H, 0DH, 0
    \          2F 30 0D 00 
-     43          
-     44          /*  get network status message */
 
    \                                 In section .far.rodata, align 1, root
-     45          __root const char GetNSTATMessage[] @ ".far.rodata" = {"AT+NSTAT=?\r"};
+     43          __root const char Cigar_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000051122334455/p2/700/p3/500/p4/0/p5/700/p6/0/p7/2000/p8/680/p9/800/p10/500/p11/700/p12/200/p13/0\r"};
+   \                     Cigar_update:
+   \   000000 41 54 2B 48  DC8 41H, 54H, 2BH, 48H, 54H, 54H, 50H, 53H
+   \          54 54 50 53 
+   \   000008 45 4E 44 3D  DC8 45H, 4EH, 44H, 3DH, 30H, 2CH, 31H, 2CH
+   \          30 2C 31 2C 
+   \   000010 31 30 30 2C  DC8 31H, 30H, 30H, 2CH, 2FH, 61H, 63H, 63H
+   \          2F 61 63 63 
+   \   000018 6F 75 6E 74  DC8 6FH, 75H, 6EH, 74H, 2FH, 61H, 70H, 69H
+   \          2F 61 70 69 
+   \   000020 2F 73 65 74  DC8 2FH, 73H, 65H, 74H, 64H, 65H, 76H, 69H
+   \          64 65 76 69 
+   \   000028 63 65 6C 6F  DC8 63H, 65H, 6CH, 6FH, 67H, 2FH, 70H, 31H
+   \          67 2F 70 31 
+   \   000030 2F 30 30 30  DC8 2FH, 30H, 30H, 30H, 30H, 30H, 35H, 31H
+   \          30 30 35 31 
+   \   000038 31 32 32 33  DC8 31H, 32H, 32H, 33H, 33H, 34H, 34H, 35H
+   \          33 34 34 35 
+   \   000040 35 2F 70 32  DC8 35H, 2FH, 70H, 32H, 2FH, 37H, 30H, 30H
+   \          2F 37 30 30 
+   \   000048 2F 70 33 2F  DC8 2FH, 70H, 33H, 2FH, 35H, 30H, 30H, 2FH
+   \          35 30 30 2F 
+   \   000050 70 34 2F 30  DC8 70H, 34H, 2FH, 30H, 2FH, 70H, 35H, 2FH
+   \          2F 70 35 2F 
+   \   000058 37 30 30 2F  DC8 37H, 30H, 30H, 2FH, 70H, 36H, 2FH, 30H
+   \          70 36 2F 30 
+   \   000060 2F 70 37 2F  DC8 2FH, 70H, 37H, 2FH, 32H, 30H, 30H, 30H
+   \          32 30 30 30 
+   \   000068 2F 70 38 2F  DC8 2FH, 70H, 38H, 2FH, 36H, 38H, 30H, 2FH
+   \          36 38 30 2F 
+   \   000070 70 39 2F 38  DC8 70H, 39H, 2FH, 38H, 30H, 30H, 2FH, 70H
+   \          30 30 2F 70 
+   \   000078 31 30 2F 35  DC8 31H, 30H, 2FH, 35H, 30H, 30H, 2FH, 70H
+   \          30 30 2F 70 
+   \   000080 31 31 2F 37  DC8 31H, 31H, 2FH, 37H, 30H, 30H, 2FH, 70H
+   \          30 30 2F 70 
+   \   000088 31 32 2F 32  DC8 31H, 32H, 2FH, 32H, 30H, 30H, 2FH, 70H
+   \          30 30 2F 70 
+   \   000090 31 33 2F 30  DC8 31H, 33H, 2FH, 30H, 0DH, 0
+   \          0D 00       
+     44          
+     45          /*  get network status message */
+
+   \                                 In section .far.rodata, align 1, root
+     46          __root const char GetNSTATMessage[] @ ".far.rodata" = {"AT+NSTAT=?\r"};
    \                     GetNSTATMessage:
    \   000000 41 54 2B 4E  DC8 "AT+NSTAT=?\015"
    \          53 54 41 54 
-     46          /* setup GS1011 to connect to WIFI */
+     47          /* setup GS1011 to connect to WIFI */
 
    \                                 In section .far.rodata, align 1, root
-     47          __root const char SetNDHCPMessage[] @ ".far.rodata" = {"AT+NDHCP=1\r"};
+     48          __root const char SetNDHCPMessage[] @ ".far.rodata" = {"AT+NDHCP=1\r"};
    \                     SetNDHCPMessage:
    \   000000 41 54 2B 4E  DC8 "AT+NDHCP=1\015"
    \          44 48 43 50 
 
    \                                 In section .far.rodata, align 1, root
-     48          __root const char GetProfileMessage[] @ ".far.rodata" = {"AT&V\r"};
+     49          __root const char GetProfileMessage[] @ ".far.rodata" = {"AT&V\r"};
    \                     GetProfileMessage:
    \   000000 41 54 26 56  DC8 "AT&V\015"
    \          0D 00       
-     49          
-     50          /*  send update message headers */
+     50          
+     51          /*  send update message headers */
 
    \                                 In section .far.rodata, align 1, root
-     51          __root const char  pheader[] @ ".far.rodata" = {"/P"};
+     52          __root const char  pheader[] @ ".far.rodata" = {"/P"};
    \                     pheader:
    \   000000 2F 50 00     DC8 "/P"
 
    \                                 In section .far.rodata, align 1, root
-     52          __root const char SendtoWebsiteHeader[] @ ".far.rodata" ={"AT+HTTPSEND="};   /*add CID, and status*/
+     53          __root const char SendtoWebsiteHeader[] @ ".far.rodata" ={"AT+HTTPSEND="};   /*add CID, and status*/
    \                     SendtoWebsiteHeader:
    \   000000 41 54 2B 48  DC8 "AT+HTTPSEND="
    \          54 54 50 53 
 
    \                                 In section .far.rodata, align 1, root
-     53          __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog"};   /*add CID, and status*/
+     54          __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog"};   /*add CID, and status*/
    \                     SendtoWebsiteHeader1:
    \   000000 2C 31 2C 31  DC8 ",1,100,/account/api/setdevicelog"
    \          30 30 2C 2F 
@@ -303,6 +345,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
    -----  --------------
        9  ACKMessage
        9  AdaptorReady
+     150  Cigar_update
        7  ClearW0Message
        7  ClearW1Message
        7  ClearY0Message
@@ -339,9 +382,9 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
        3  pheader
 
  
- 615 bytes in section .far.rodata
+ 765 bytes in section .far.rodata
  
- 615 bytes of CONST memory
+ 765 bytes of CONST memory
 
 Errors: none
 Warnings: none

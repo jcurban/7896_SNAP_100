@@ -32,8 +32,8 @@ u8 Device_Rcvr_Complete_flag;
 u8 Device_Update_Ready_for_Website_flag;
 u8 Device_Rcvr_State;
 u8 Device_Rcvr_char;
-char *Device_Rcvr_Pointer;
-char *Device_Rcvr_Dest_Pointer;
+char Device_Rcvr_Pointer;
+char Device_Rcvr_Dest_Pointer;
 char Device_Receiver_Buffer[255];
 unsigned char Packet_Data_Buffer[255];
 
@@ -45,9 +45,8 @@ char Device_Xmit_Pointer;
 char Device_Xmit_Setup_Char_Pointer;
 u8 Device_Xmit_Char_Count;
 char* Device_Processing_Pointer;
-unsigned char Device_Processing_Buffer[256];
-unsigned char Device_Xmit_Buffer[256];
-char Website_Parameter_ASCII_Buffer[256];
+unsigned char Device_Processing_Buffer[255];
+unsigned char Device_Xmit_Buffer[128];
 /*GS1011 data*/
 char GS1011_Rcvr_EOM_Timer;
 char GS1011_Rcvr_Timeout;

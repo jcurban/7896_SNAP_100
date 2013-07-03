@@ -40,6 +40,7 @@ __root const char KeepAlive_CONF3_Message[] @ ".far.rodata" ={"AT+HTTPCONF=3, ke
 __root const char HTTPOPEN_FULL_MESSAGE[] @ ".far.rodata" ={"AT+HTTPOPEN=54.225.101.110\r"};   /*add ip Address*/
 
 __root const char Dummy_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000001234512555/p2/12345/p3/D/p4/S/p5/S/p6/D/p7/00078901/p8/345678/p9/000789/p10/21221/p11/32222/p12/31111/p13/0/p14/0/p15/0\r"};
+__root const char Cigar_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000051122334455/p2/700/p3/500/p4/0/p5/700/p6/0/p7/2000/p8/680/p9/800/p10/500/p11/700/p12/200/p13/0\r"};
 
 /*  get network status message */
 __root const char GetNSTATMessage[] @ ".far.rodata" = {"AT+NSTAT=?\r"};

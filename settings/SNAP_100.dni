@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-25902858
+Checksum=67584904
 [CallStack]
 ShowArgs=0
 [Disassembly]
@@ -87,13 +87,6 @@ LogEnabled=0
 GraphEnabled=0
 ShowTimeLog=1
 ShowTimeSum=1
-[Log file]
-LoggingEnabled=_ 0
-LogFile=_ ""
-Category=_ 0
-[TermIOLog]
-LoggingEnabled=_ 0
-LogFile=_ ""
 [Breakpoints]
 Bp0=_ "STD_CODE" "{$PROJ_DIR$}.64.7" 0 0 0 0 "" 0 ""
 Bp1=_ "STD_CODE" "{$PROJ_DIR$}.51.3" 0 0 0 0 "" 0 ""
@@ -128,7 +121,15 @@ Bp29=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.56.1" 0 0 0 0 "" 
 Bp30=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.56.3" 0 0 0 0 "" 0 ""
 Bp31=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\GS1011_Serial_Handlers.c}.171.1" 0 0 0 0 "" 0 ""
 Bp32=_ "STD_DATA" "0x000252" 0 0 0 3 0 "" 0 ""
-Count=33
+Bp33=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.221.1" 1 0 0 0 "" 0 ""
+Count=34
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
 [Aliases]
 A0=_ "C:\GITHUB_PROJECTS\7896_SNAP\main.c" ""
 A1=_ "C:\SNAP\7896_SNAP\stm8s_it.c" ""

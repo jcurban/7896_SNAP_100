@@ -10,89 +10,80 @@
   ******************************************************************************
   ******************************************************************************
   */
+#include "SNAP_Defines.h"
+/* external routines*/
+extern void FillBuffer (char bufr[],char filchr, int cntr);
 /* local Routine prototypes */
-void Save_PValues(void);
-void get_Serial_Number(void);
-void get_Device_type(void);
-void SaveParameterInBlock(char PNumb, char *PBfr);
-/* external routine prototypes */
-extern void CopyBufferCounted (char *dest, char *srce, int cntr);
-void CopyBufferCounted (char *dest, char *srce, int cntr);
-extern void FillBuffer (char *bufr,char filchr, int cntr);
-/* external data */
-extern int PPointer;
-extern char PNumber;
-extern int PCount;
-extern char PBuffer;
-extern char Device_Serial_number;
-extern char Device_Type_Number;
-extern char Packet_Data_Buffer;
-extern char Device_Receiver_Buffer;
-extern int Device_Rcvr_Char_Count;
-/*
-******************************************************************************
-****
-****    Save_PValues
-****
-**** finds the serial number, uses it to determine class, save the parameters
-****            into the proper block, in the correct format.
-****
-******************************************************************************
-*/
-void Save_PValues(void){
-char *PSrceIndx;
-char *PDestIndx;
-int PCount;
-    CopyBufferCounted (&Packet_Data_Buffer, &Device_Receiver_Buffer + 4, Device_Rcvr_Char_Count - 6);
-    PNumber = 0;
-    PSrceIndx = 0;
-    PCount = Device_Rcvr_Char_Count - 6;
-    get_Serial_Number();
-    get_Device_type();
-    while ((int)PSrceIndx <= PCount){  /* do this till pointer at end of buf*/
-      FillBuffer (&PBuffer, 0x00, 16);
-      PDestIndx = 0;
-      while (Packet_Data_Buffer[PSrceIndx] != ',') { /* copy till ','*/
-        PBuffer[PDestIndx++] = Packet_Data_Buffer[PSrceIndx++];
-      }
-      SaveParameterInBlock(PNumber, &PBuffer);
-    }
-}
+void Make_Website_Update_from_Processing_Buffer(void);
+void makePNumberHeader(char numb);
+void convertPNumber_to_ASCII(char numb);
+void copyPHeaderToWebsite(void);
+void Copy_ASCII_data_to_Website(void);
 
-/*
-******************************************************************************
-****
-****    get_Serial_Number
-****
-**** finds the serial number, uses it to determine class, save the parameters
-****            into the proper block, in the correct format.
-****
-******************************************************************************\
-*/
-void get_Serial_Number(){
-  CopyBufferCounted (&Device_Serial_number, &Packet_Data_Buffer, 16);
+/* conversion routines/data*/
+extern void Int2ASCII(void);
+extern char B2ASCBuf[];
+extern char tempblock[];
+extern char PHeaderBuffer[];
+extern char Packet_Data_Buffer[];
+extern char Device_Processing_Buffer[];
+
+/*******************************************************************************
+*****        Make_Website_Update_from_Processing_Buffer                     ****
+*****   taskes the raw device data, and converts to ASCII for website       ****
+*****  makes a pnumber header in the following format:                      ****
+*****     /P1/... /P15/ then converts binary if necessary                   ****
+***** this creates a buffer with ONLY parameter data, no other headers are  ****
+*****   included. ex. /P1/0000010123456789/P2/700/P3/800/P4/900.....        ****
+***** the "httpsend = bwgroup.." is a stock block when ready to send the    ****
+***** httpsend block is copied to the xmit buffer, then the parameters are added
+*****                                                                       ****
+*****  all data going into the website_param+buffer uses Website_Param_Pointer
+*****  to put it into the buffer
+*******************************************************************************/
+void Make_Website_Update_from_Processing_Buffer(void){
+char PNumber;
+int ProcessPtr;
+int Packet_Data_Pointer;
+/* Website_Parameter_ASCII_Buffer*/
+
+
+PNumber = 1;
+Packet_Data_Pointer = 0;
+for (ProcessPtr =3; ProcessPtr <BFRSIZE;ProcessPtr++){
+  makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
+  if (Device_Processing_Buffer[ProcessPtr] == 'A'){
+    ProcessPtr++;
+    for (ProcessPtr=ProcessPtr ; ProcessPtr<BFRSIZE;ProcessPtr++){
+        if (Device_Processing_Buffer[ProcessPtr] == ',') break;
+      Packet_Data_Buffer[Packet_Data_Pointer] = Device_Processing_Buffer[ProcessPtr];
+    }
+  }
+      ProcessPtr++;
+
+} 
+
 }
-/*
-******************************************************************************
-****
-****    get_Device_Class_Number
-****
-**** finds the serial number, uses it to determine class, save the parameters
-****            into the proper block, in the correct format.
-****
-******************************************************************************\
-*/
-void get_Device_type(){
-  CopyBufferCounted (&Device_Type_Number, &Device_Serial_number, 6);
+void copyPHeaderToWebsite(void){
 }
-/******************************************************************************
-****
-****    Save_PValues
-****
-**** finds the serial number, uses it to determine class, save the parameters
-****            into the proper block, in the correct format.
-****
-******************************************************************************
-*/
-void SaveParameterInBlock(char PNumb, char *PBfr){
+void Copy_ASCII_data_to_Website(void){
+}
+/*****************************************************************************
+ *****             makePNumberHeader                                      ****
+ ****************************************************************************/
+void makePNumberHeader(char numb){
+  FillBuffer(PHeaderBuffer,0x00, 5);
+  tempblock[0] = numb;
+  Int2ASCII();
+  PHeaderBuffer[0] = '/';
+  PHeaderBuffer[1] = 'P';
+    if (B2ASCBuf[6]!= '0'){
+      PHeaderBuffer[2] = B2ASCBuf[6];
+      PHeaderBuffer[3] = B2ASCBuf[7];
+      PHeaderBuffer[4] = '/';
+     }
+     else{
+      PHeaderBuffer[2] = B2ASCBuf[7];
+      PHeaderBuffer[3] = '/';
+     }
 }
