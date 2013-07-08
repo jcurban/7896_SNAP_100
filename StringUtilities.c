@@ -16,6 +16,10 @@ extern char GS1011_Receiver_Buffer[];
 extern char Device_Receiver_Buffer[];
 extern u16 GS1011_Rcvr_InPtr;
 extern u16 GS1011_Rcvr_OutPtr;
+extern char Device_Rcvr_EOM_Timer;
+extern char Device_Rcvr_Timeout;
+extern char Device_Rcvr_Complete_flag;
+
 extern u8 Device_RX_InPtr;
 extern u8 Device_RX_OutPtr;
 extern char Device_Serial_number[];
@@ -56,9 +60,12 @@ void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int 
 void InitializeDeviceBuffer (void){
 int ptr;
   for (ptr = 0; ptr < 255; ptr++) 
-   Device_Receiver_Buffer[ptr] = 0x00;
-Device_RX_InPtr = 0;
-Device_RX_OutPtr = 0;
+    Device_Receiver_Buffer[ptr] = 0x00;
+    Device_RX_InPtr = 0;
+    Device_RX_OutPtr = 0;
+    Device_Rcvr_EOM_Timer = 0;
+    Device_Rcvr_Timeout = 0;
+    Device_Rcvr_Complete_flag = 0;
 }
 /*****************************************************************************/
 /***** InitializeDeviceBuffer (buffer pointer)                            ****/
@@ -95,8 +102,8 @@ void Add_Char_to_Buffer (char bufr[], int ptr, char chr){
 /*****     CALLING ROUTINE IS RESPONSIBLE TO BE SURE THERE'S ROOM AVAILABLE****/
 /*****************************************************************************/
 void Add_Char_to_GS1011_Buffer (char chr){
-  GS1011_Xmit_Buffer[GS1011_Xmit_Setup_Char_Pointer] = chr;
-  GS1011_Xmit_Setup_Char_Pointer++;
+  GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = chr;
+  GS1011_Xmit_Char_Count++;
 }
 
 /*****************************************************************************/
@@ -170,11 +177,11 @@ void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt){
 /*****************************************************************************/
 void FillBuffer (char bufr[],char filchr, char cntr){
  u8 i;
- if (cntr < sizeof(bufr)){
+ if (cntr < sizeof(bufr)) {
  for (i = 0; i < cntr; i++) {
    bufr[i] = filchr;
- }
- }
+   }
+  }
 }
 /*****************************************************************************/
 /***** copy buffer (pointer to destination, pointer to source buffer)     ****/

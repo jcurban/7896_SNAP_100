@@ -7,11 +7,11 @@ u8 checksum_Okay;   /* 0 = okay, 1 = not*/
 char Device_Serial_number[16];
 char website_IP_Address[15];
 /* conversion variables*/
-unsigned char PNumber;
-unsigned int PCount;
+char PNumber;
+char PacketCount;
 int ProcessPtr;
 int Packet_Data_Pointer;
-unsigned char PHeaderBuffer[6];
+char PHeaderBuffer[6];
 char tempblock[4];
 char B2ASCBuf[8];
 
@@ -30,12 +30,15 @@ char Device_Receiver_Buffer[255];
 unsigned char Packet_Data_Buffer[255];
 
 /*device xmiting data*/
+char Device_Rcvr_EOM_Timer;
+char Device_Rcvr_Timeout;
 u8 Device_Xmit_Complete_Flag;
 u8 Device_Xmit_Char;
 char Device_Xmit_Pointer;
 char Device_Xmit_Setup_Char_Pointer;
 u8 Device_Xmit_Char_Count;
 char* Device_Processing_Pointer;
+int Processing_Byte_Count;
 unsigned char Device_Processing_Buffer[255];
 unsigned char Device_Xmit_Buffer[128];
 /*GS1011 data*/
@@ -53,6 +56,7 @@ u16 GS1011_Rvcr_Count;
 u16 GS1011_Rcvr_Pointer;
 char GS1011_Receiver_Buffer[512];
 
+char ACK_message_response_number;
 /*GS1011 receiving data*/
 u8 GS1011_Xmit_Pointer;
 u8 GS1011_Xmit_Char_Count;

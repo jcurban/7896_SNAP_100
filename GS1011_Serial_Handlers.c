@@ -56,6 +56,10 @@ void SetProvisioning(void);
 void SendShutEchoOff(void);
 /*******************************  ; state machine handlers end ************/
 void Send_ACK_Message(void);
+void Send_Request_Message(void);
+void Send_Request1_Message(void);
+void Send_ConfiguringAdaptor_Message(void);
+void Send_AdaptorReady_Message(void);
 void Copy_Stock_Send_Message(char strng[]);
 void GetResponseFromGS1011(void);
 void GetResetResponseFromGS1011(void);
@@ -101,6 +105,11 @@ extern char Cigar_update[];
 extern char Good_Response[];
 extern char SetSerialNumberasAccessPointHeader[];
 extern char SetSerialNumberasAccessPointTail[];
+
+extern char ACK_message_response_number;
+extern char Packet_Data_Buffer[];
+extern char PacketCount;
+
 void Add_String_to_GS1011_Buffer ( char *srce);
 void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt);
 
@@ -136,7 +145,8 @@ extern char ConnectionType_CONF11_message[];
 extern char SetConnectionType;
 extern char SendKeepAliveMessage;
 extern char OpenMarsConnectionHeader;   /*add ip Address*/
-extern char SendtoWebsiteHeader;   /*add CID, and status*/
+extern char SendtoWebsiteHeader[];   /*add CID, and status*/
+extern char SendtoWebsiteHeader1[];
 extern char HTTPOPEN_FULL_MESSAGE[];
 /* sending update state maching*/ 
 void Get_Website_IP_address(void);
@@ -145,9 +155,11 @@ void Set_Keep_Alive(void);
 void  HTTPOPEN_Get_CID(void);
 void  Convert_update_and_Send(void);
 void  Get_Website_Response_and_Respond(void);
+void Make_Send_Update_to_website(void);
 void Send_HTTP_Open_Message(void); 
 void GetWebsite_ResponseFromGS1011(void);
 /* external functions */
+extern void Add_Char_to_GS1011_Buffer(char chr);
 extern char CountGS1011Chars(void);
 extern char CountChars(char s[]);
 extern int Add_Char_to_Buffer (char *bufr,int ptr,char chr);
@@ -190,16 +202,18 @@ void GetNetworkStatusFromGS1011 (void){
 }
 void GetNSTAT_ResponseFromGS1011(void){
   if (GS1011_Rcvr_Timeout == 1) {
-    GS1011_Received_Response_Flag = 0x00;
     FindGS1011Chars(OKAYmsg);
       
     if (GS1011_String_Found == 1){
         FindGS1011Chars(WSTATECONNECTEDmsg);
         if (GS1011_String_Found == 1){
-          SNAP_State = 4;
+          Send_AdaptorReady_Message();
+          SNAP_State = GET_WEBSITE_IP_ADDRESS_STATE;
           }
-        else 
-           SNAP_State = 10;
+        else {
+           Send_ConfiguringAdaptor_Message();
+           SNAP_State = RESET_NETWORK_ACCESS_STATE;
+        }
     }
   }
 }
@@ -223,7 +237,7 @@ if (GS1011_String_Found == 1){
   Found_String_At_Byte += 3;
   copy_buffer_from_offset_to_terminator(GS1011_Receiver_Buffer, website_IP_Address, Found_String_At_Byte, CR);
   }
-  SNAP_State = 5;
+  SNAP_State = SET_MARS_AS_WEBSITE_STATE;
 } 
   
   
@@ -239,7 +253,7 @@ while (GS1011_Received_Response_Flag == 0x01)
 GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 6;
+  SNAP_State = SET_KEEP_ALIVE_STATE;
   }
 }
 /*****************************************************************************
@@ -254,7 +268,7 @@ while (GS1011_Received_Response_Flag == 0x01)
 GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 7;
+  SNAP_State = HTTPOPEN_GET_CID_STATE;
   }
 }
 /*****************************************************************************
@@ -270,7 +284,7 @@ GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
   CID_Value = GS1011_Receiver_Buffer[2];
-  SNAP_State = 8;
+  SNAP_State = CONVERT_DEVICE_DATA_AND_SEND_STATE;
   }
 } 
 /*****************************************************************************
@@ -279,20 +293,42 @@ if (GS1011_String_Found == 1){
  ****  GS1011 responds okay                                               ****
  ******************************************************************************/
   void  Convert_update_and_Send(void){
-    /*Copy_Stock_Send_Message(Dummy_update);*/
-    Copy_Stock_Send_Message(Cigar_update);
+    //Copy_Stock_Send_Message(Dummy_update);
+    //Copy_Stock_Send_Message(Cigar_update);
+    Make_Send_Update_to_website();
 while (GS1011_Received_Response_Flag == 0x01)
 {
 /*Get_any_ResponseFromGS1011(Good_Response);*/
 Get_any_ResponseFromGS1011(OKAYmsg);
 }
 if (GS1011_String_Found == 1){
-    Send_ACK_Message();
-    SNAP_State = 1;
+  switch (ACK_message_response_number){  /*thi is just for testing purposes*/
+    case 0:
+      Send_Request_Message();
+      ACK_message_response_number = 1;
+      SNAP_State = WAIT_FOR_UPDATE_STATE;
+      break;
+    case 1:
+      Send_Request1_Message();
+      ACK_message_response_number = 0;
+      SNAP_State = WAIT_FOR_UPDATE_STATE;
+      break;
+  }
 }
 
  }
-  
+
+void Make_Send_Update_to_website(void){
+   InitializeGS1011Buffer();
+   CopyBufferGS1011(SendtoWebsiteHeader);
+   Add_Char_to_GS1011_Buffer(CID_Value);
+   Add_String_to_GS1011_Buffer(SendtoWebsiteHeader1);
+   Add_String_to_GS1011_BufferCounted(Packet_Data_Buffer,PacketCount);
+   Start_GS1011_Send();
+   GS1011_Received_Response_Flag = 0x01;
+
+}
+
 /*****************************************************************************
  ****   Get_Website_Response_and_Respond- GET_WEBSITE_RESPONSE_SEND_DEVICE_STATE                            ****
  ****                                                                     ****
@@ -322,7 +358,7 @@ while (GS1011_Received_Response_Flag == 0x01)
 GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 11;
+  SNAP_State = SET_FACTORY_RESET_STATE;
   }
  }
 /*****************************************************************************
@@ -350,7 +386,7 @@ while (GS1011_Received_Response_Flag == 0x01)
 GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 12;
+  SNAP_State = RESET_GS1011_ADAPTOR_STATE;
   }
 }
 /*****************************************************************************
@@ -365,7 +401,7 @@ GetResetResponseFromGS1011();
 }
 
 if (GS1011_String_Found == 1){
-  SNAP_State = 13;
+  SNAP_State = DISACSSOCIATE_WEB_ACCESS_STATE;
   }
 }
 /*****************************************************************************
@@ -379,7 +415,7 @@ while (GS1011_Received_Response_Flag == 0x01)
 GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 14;
+  SNAP_State = SET_INITIAL_IPADDRESS_STATE;
   }
 }
 /*****************************************************************************
@@ -393,7 +429,7 @@ while (GS1011_Received_Response_Flag == 0x01)
 GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 15;
+  SNAP_State = SET_WEB_MODE_TO_LIMITED_STATE;
   }
 }
 /*****************************************************************************
@@ -407,7 +443,7 @@ while (GS1011_Received_Response_Flag == 0x01)
 GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 16;
+  SNAP_State = INIT_WEB_ACCESS_STATE;
   }
 }
 /*****************************************************************************
@@ -426,7 +462,7 @@ while (GS1011_Received_Response_Flag == 0x01)
 GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 17;
+  SNAP_State = SET_DHCPSRVR_STATE;
   }
 }
 /*****************************************************************************
@@ -440,7 +476,7 @@ while (GS1011_Received_Response_Flag == 0x01)
 GetResponseFromGS1011();
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 18;
+  SNAP_State = SET_PROVISIONING_STATE;
   }
 }
 /*****************************************************************************
@@ -454,7 +490,7 @@ while (GS1011_Received_Response_Flag == 0x01)
   Get_any_ResponseFromGS1011(NWCONN_Response);
 }
 if (GS1011_String_Found == 1){
-  SNAP_State = 8;
+  SNAP_State = CONVERT_DEVICE_DATA_AND_SEND_STATE;
   }
 }
 
@@ -519,12 +555,13 @@ void GetResetResponseFromGS1011(void){
   *                                                                            *
   *****************************************************************************/
 void GS1011_Received_Data_Handler(void){
+ (void)UART1->SR;
  GS1011_Rcvr_Char = UART1->DR;
  GS1011_Receiver_Buffer[GS1011_Rcvr_InPtr] = GS1011_Rcvr_Char;
  GS1011_Rcvr_InPtr++;
  GS1011_Rvcr_Count++;
- if (GS1011_Rvcr_Count == 512)
-   GS1011_Rvcr_Count =0;
+ if (GS1011_Rcvr_InPtr == 512)
+   GS1011_Rcvr_InPtr =0;
  GS1011_Rcvr_Pointer++;
  GS1011_Rcvr_EOM_Timer = 150;
 }

@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             03/Jul/2013  08:09:39 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             08/Jul/2013  08:35:27 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c   #
@@ -71,11 +71,12 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
      14          void BIN2ASC(u32 BinNum);
      15          void Int2ASCII(void);
      16          void TESTHDR(void);
-     17          
+     17          void clearB2ASCBuf(void);
+     18          
 
    \                                 In section .far_func.text, align 1
-     18          void Int2ASCII(void){
-     19                  LocalSum = tempblock[0];
+     19          void Int2ASCII(void){
+     20                  LocalSum = tempblock[0];
    \                     Int2ASCII:
    \   000000 C6 ....      LD        A, L:tempblock
    \   000003 5F           CLRW      X
@@ -85,7 +86,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   000008 BF ..        LDW       S:?w0, X
    \   00000A AE ....      LDW       X, #LocalSum
    \   00000D 8D ......    CALLF     L:?load32_0x_l0
-     20          	LocalSum = LocalSum + (tempblock[1] * 256);
+     21          	LocalSum = LocalSum + (tempblock[1] * 256);
    \   000011 C6 ....      LD        A, L:tempblock + 1
    \   000014 905F         CLRW      Y
    \   000016 9097         LD        YL, A
@@ -98,7 +99,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   000029 8D ......    CALLF     L:?add32_l0_l0_0x
    \   00002D AE ....      LDW       X, #LocalSum
    \   000030 8D ......    CALLF     L:?load32_0x_l0
-     21           	LocalSum = LocalSum + (tempblock[2] * 65536);
+     22           	LocalSum = LocalSum + (tempblock[2] * 65536);
    \   000034 C6 ....      LD        A, L:tempblock + 2
    \   000037 5F           CLRW      X
    \   000038 97           LD        XL, A
@@ -114,52 +115,52 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   00004B 8D ......    CALLF     L:?add32_l0_l0_0x
    \   00004F AE ....      LDW       X, #LocalSum
    \   000052 8D ......    CALLF     L:?load32_0x_l0
-     22          	StoreB2AscBuf( LocalSum);	/*uses up 8 bytes in send block*/
+     23          	StoreB2AscBuf( LocalSum);	/*uses up 8 bytes in send block*/
    \   000056 AE ....      LDW       X, #LocalSum
    \   000059 8D ......    CALLF     L:?load32_l0_0x
    \   00005D 8D ......    CALLF     StoreB2AscBuf
-     23          }
+     24          }
    \   000061 87           RETF
-     24          /****************************************************************/
-     25          /*helper routine to take a binary number conver to ascii	*/
-     26          /*then put into B2ASCBuf					*/
-     27          /* input BinNum = number to convert to 8 digits			*/
-     28          /*       Indx = index to store ascii into buffer B2ASCBuf	*/ 
-     29          /****************************************************************/
+     25          /****************************************************************/
+     26          /*helper routine to take a binary number conver to ascii	*/
+     27          /*then put into B2ASCBuf					*/
+     28          /* input BinNum = number to convert to 8 digits			*/
+     29          /*       Indx = index to store ascii into buffer B2ASCBuf	*/ 
+     30          /****************************************************************/
 
    \                                 In section .far_func.text, align 1
-     30          void StoreB2AscBuf(u32 BinNum){
+     31          void StoreB2AscBuf(u32 BinNum){
    \                     StoreB2AscBuf:
    \   000000 8D ......    CALLF     L:?push_l2
    \   000004 8D ......    CALLF     L:?mov_l2_l0
-     31          	BIN2ASC(BinNum);	/*counts*/
+     32          	BIN2ASC(BinNum);	/*counts*/
    \   000008 8D ......    CALLF     L:?mov_l0_l2
    \   00000C 8D ......    CALLF     BIN2ASC
-     32          }
+     33          }
    \   000010 AC ......    JPF       L:?epilogue_l2
-     33          /*----------------------------------------------------------------------*/
-     34          /*up to 3 bytes binary to ascii output					*/
-     35          /*leading zero not supressed. to buffer B2ASCBuf[8] returns number count*/
-     36          /*STK =1								*/
-     37          /*----------------------------------------------------------------------*/
+     34          /*----------------------------------------------------------------------*/
+     35          /*up to 3 bytes binary to ascii output					*/
+     36          /*leading zero not supressed. to buffer B2ASCBuf[8] returns number count*/
+     37          /*STK =1								*/
+     38          /*----------------------------------------------------------------------*/
 
    \                                 In section .far_func.text, align 1
-     38          void BIN2ASC(u32 InNum){
+     39          void BIN2ASC(u32 InNum){
    \                     BIN2ASC:
    \   000000 8D ......    CALLF     L:?push_l2
    \   000004 8D ......    CALLF     L:?push_w6
    \   000008 8D ......    CALLF     L:?mov_l2_l0
-     39          char Bufptr;
-     40          char Res;
-     41          	Bufptr = 0;
+     40          char Bufptr;
+     41          char Res;
+     42          	Bufptr = 0;
    \   00000C 4F           CLR       A
    \   00000D B7 ..        LD        S:?b12, A
-     42          	Res = InNum / (u32)10000000;
+     43          	Res = InNum / (u32)10000000;
    \   00000F 8D ......    CALLF     L:?mov_l0_l2
    \   000013 8D ......    CALLF     L:?udiv32_l0_l0_dl
    \   000017 00989680     DC32      0x989680
    \   00001B 45 .. ..     MOV       S:?b13, S:?b3
-     43          	B2ASCBuf[Bufptr] = Res | 0x30;
+     44          	B2ASCBuf[Bufptr] = Res | 0x30;
    \   00001E 5F           CLRW      X
    \   00001F 41           EXG       A, XL
    \   000020 B6 ..        LD        A, S:?b12
@@ -167,7 +168,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   000023 B6 ..        LD        A, S:?b13
    \   000025 AA 30        OR        A, #0x30
    \   000027 D7 ....      LD        (L:B2ASCBuf,X), A
-     44          	InNum = InNum - (Res * (u32)10000000);
+     45          	InNum = InNum - (Res * (u32)10000000);
    \   00002A 5F           CLRW      X
    \   00002B 41           EXG       A, XL
    \   00002C B6 ..        LD        A, S:?b13
@@ -184,17 +185,17 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   000046 8D ......    CALLF     L:?mov_l0_l2
    \   00004A 8D ......    CALLF     L:?sub32_l0_l0_l1
    \   00004E 8D ......    CALLF     L:?mov_l2_l0
-     45          	Bufptr++;
+     46          	Bufptr++;
    \   000052 B6 ..        LD        A, S:?b12
    \   000054 AB 01        ADD       A, #0x1
    \   000056 B7 ..        LD        S:?b12, A
-     46          
-     47          	Res = InNum / (u32)1000000;
+     47          
+     48          	Res = InNum / (u32)1000000;
    \   000058 8D ......    CALLF     L:?mov_l0_l2
    \   00005C 8D ......    CALLF     L:?udiv32_l0_l0_dl
    \   000060 000F4240     DC32      0xf4240
    \   000064 45 .. ..     MOV       S:?b13, S:?b3
-     48          	B2ASCBuf[Bufptr] = Res | 0x30;
+     49          	B2ASCBuf[Bufptr] = Res | 0x30;
    \   000067 5F           CLRW      X
    \   000068 41           EXG       A, XL
    \   000069 B6 ..        LD        A, S:?b12
@@ -202,7 +203,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   00006C B6 ..        LD        A, S:?b13
    \   00006E AA 30        OR        A, #0x30
    \   000070 D7 ....      LD        (L:B2ASCBuf,X), A
-     49          	InNum = InNum - (Res * (u32)1000000);
+     50          	InNum = InNum - (Res * (u32)1000000);
    \   000073 5F           CLRW      X
    \   000074 41           EXG       A, XL
    \   000075 B6 ..        LD        A, S:?b13
@@ -219,17 +220,17 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   00008F 8D ......    CALLF     L:?mov_l0_l2
    \   000093 8D ......    CALLF     L:?sub32_l0_l0_l1
    \   000097 8D ......    CALLF     L:?mov_l2_l0
-     50          	Bufptr++;
+     51          	Bufptr++;
    \   00009B B6 ..        LD        A, S:?b12
    \   00009D AB 01        ADD       A, #0x1
    \   00009F B7 ..        LD        S:?b12, A
-     51          
-     52          	Res = InNum / (u32)100000;
+     52          
+     53          	Res = InNum / (u32)100000;
    \   0000A1 8D ......    CALLF     L:?mov_l0_l2
    \   0000A5 8D ......    CALLF     L:?udiv32_l0_l0_dl
    \   0000A9 000186A0     DC32      0x186a0
    \   0000AD 45 .. ..     MOV       S:?b13, S:?b3
-     53          	B2ASCBuf[Bufptr] = Res | 0x30;
+     54          	B2ASCBuf[Bufptr] = Res | 0x30;
    \   0000B0 5F           CLRW      X
    \   0000B1 41           EXG       A, XL
    \   0000B2 B6 ..        LD        A, S:?b12
@@ -237,7 +238,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   0000B5 B6 ..        LD        A, S:?b13
    \   0000B7 AA 30        OR        A, #0x30
    \   0000B9 D7 ....      LD        (L:B2ASCBuf,X), A
-     54          	InNum = InNum - (Res * (u32)100000);
+     55          	InNum = InNum - (Res * (u32)100000);
    \   0000BC 5F           CLRW      X
    \   0000BD 41           EXG       A, XL
    \   0000BE B6 ..        LD        A, S:?b13
@@ -255,17 +256,17 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   0000D7 8D ......    CALLF     L:?mov_l0_l2
    \   0000DB 8D ......    CALLF     L:?sub32_l0_l0_l1
    \   0000DF 8D ......    CALLF     L:?mov_l2_l0
-     55          	Bufptr++;
+     56          	Bufptr++;
    \   0000E3 B6 ..        LD        A, S:?b12
    \   0000E5 AB 01        ADD       A, #0x1
    \   0000E7 B7 ..        LD        S:?b12, A
-     56          
-     57          	Res = InNum / (u32)10000;
+     57          
+     58          	Res = InNum / (u32)10000;
    \   0000E9 8D ......    CALLF     L:?mov_l0_l2
    \   0000ED 8D ......    CALLF     L:?udiv32_l0_l0_dl
    \   0000F1 00002710     DC32      0x2710
    \   0000F5 45 .. ..     MOV       S:?b13, S:?b3
-     58          	B2ASCBuf[Bufptr] = Res | 0x30;
+     59          	B2ASCBuf[Bufptr] = Res | 0x30;
    \   0000F8 5F           CLRW      X
    \   0000F9 41           EXG       A, XL
    \   0000FA B6 ..        LD        A, S:?b12
@@ -273,7 +274,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   0000FD B6 ..        LD        A, S:?b13
    \   0000FF AA 30        OR        A, #0x30
    \   000101 D7 ....      LD        (L:B2ASCBuf,X), A
-     59          	InNum = InNum - (Res * (u32)10000);
+     60          	InNum = InNum - (Res * (u32)10000);
    \   000104 5F           CLRW      X
    \   000105 41           EXG       A, XL
    \   000106 B6 ..        LD        A, S:?b13
@@ -290,17 +291,17 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   00011E 8D ......    CALLF     L:?mov_l0_l2
    \   000122 8D ......    CALLF     L:?sub32_l0_l0_l1
    \   000126 8D ......    CALLF     L:?mov_l2_l0
-     60          	Bufptr++;
+     61          	Bufptr++;
    \   00012A B6 ..        LD        A, S:?b12
    \   00012C AB 01        ADD       A, #0x1
    \   00012E B7 ..        LD        S:?b12, A
-     61          
-     62          	Res = InNum / (u32)1000;
+     62          
+     63          	Res = InNum / (u32)1000;
    \   000130 8D ......    CALLF     L:?mov_l0_l2
    \   000134 8D ......    CALLF     L:?udiv32_l0_l0_dl
    \   000138 000003E8     DC32      0x3e8
    \   00013C 45 .. ..     MOV       S:?b13, S:?b3
-     63          	B2ASCBuf[Bufptr] = Res | 0x30;
+     64          	B2ASCBuf[Bufptr] = Res | 0x30;
    \   00013F 5F           CLRW      X
    \   000140 41           EXG       A, XL
    \   000141 B6 ..        LD        A, S:?b12
@@ -308,7 +309,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   000144 B6 ..        LD        A, S:?b13
    \   000146 AA 30        OR        A, #0x30
    \   000148 D7 ....      LD        (L:B2ASCBuf,X), A
-     64          	InNum = InNum - (Res * (u32)1000);
+     65          	InNum = InNum - (Res * (u32)1000);
    \   00014B 5F           CLRW      X
    \   00014C 41           EXG       A, XL
    \   00014D B6 ..        LD        A, S:?b13
@@ -325,17 +326,17 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   000165 8D ......    CALLF     L:?mov_l0_l2
    \   000169 8D ......    CALLF     L:?sub32_l0_l0_l1
    \   00016D 8D ......    CALLF     L:?mov_l2_l0
-     65          	Bufptr++;
+     66          	Bufptr++;
    \   000171 B6 ..        LD        A, S:?b12
    \   000173 AB 01        ADD       A, #0x1
    \   000175 B7 ..        LD        S:?b12, A
-     66          
-     67          	Res = InNum / (u32)100;
+     67          
+     68          	Res = InNum / (u32)100;
    \   000177 8D ......    CALLF     L:?mov_l0_l2
    \   00017B 8D ......    CALLF     L:?udiv32_l0_l0_dl
    \   00017F 00000064     DC32      0x64
    \   000183 45 .. ..     MOV       S:?b13, S:?b3
-     68          	B2ASCBuf[Bufptr] = Res | 0x30;
+     69          	B2ASCBuf[Bufptr] = Res | 0x30;
    \   000186 5F           CLRW      X
    \   000187 41           EXG       A, XL
    \   000188 B6 ..        LD        A, S:?b12
@@ -343,7 +344,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   00018B B6 ..        LD        A, S:?b13
    \   00018D AA 30        OR        A, #0x30
    \   00018F D7 ....      LD        (L:B2ASCBuf,X), A
-     69          	InNum = InNum - (Res * (u32)100);
+     70          	InNum = InNum - (Res * (u32)100);
    \   000192 5F           CLRW      X
    \   000193 41           EXG       A, XL
    \   000194 B6 ..        LD        A, S:?b13
@@ -360,17 +361,17 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   0001AC 8D ......    CALLF     L:?mov_l0_l2
    \   0001B0 8D ......    CALLF     L:?sub32_l0_l0_l1
    \   0001B4 8D ......    CALLF     L:?mov_l2_l0
-     70          	Bufptr++;
+     71          	Bufptr++;
    \   0001B8 B6 ..        LD        A, S:?b12
    \   0001BA AB 01        ADD       A, #0x1
    \   0001BC B7 ..        LD        S:?b12, A
-     71          
-     72          	Res = InNum / (u32)10;
+     72          
+     73          	Res = InNum / (u32)10;
    \   0001BE 8D ......    CALLF     L:?mov_l0_l2
    \   0001C2 8D ......    CALLF     L:?udiv32_l0_l0_dl
    \   0001C6 0000000A     DC32      0xa
    \   0001CA 45 .. ..     MOV       S:?b13, S:?b3
-     73          	B2ASCBuf[Bufptr] = Res | 0x30;
+     74          	B2ASCBuf[Bufptr] = Res | 0x30;
    \   0001CD 5F           CLRW      X
    \   0001CE 41           EXG       A, XL
    \   0001CF B6 ..        LD        A, S:?b12
@@ -378,7 +379,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   0001D2 B6 ..        LD        A, S:?b13
    \   0001D4 AA 30        OR        A, #0x30
    \   0001D6 D7 ....      LD        (L:B2ASCBuf,X), A
-     74          	InNum = InNum - (Res * (u32)10);
+     75          	InNum = InNum - (Res * (u32)10);
    \   0001D9 5F           CLRW      X
    \   0001DA 41           EXG       A, XL
    \   0001DB B6 ..        LD        A, S:?b13
@@ -395,12 +396,12 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   0001F3 8D ......    CALLF     L:?mov_l0_l2
    \   0001F7 8D ......    CALLF     L:?sub32_l0_l0_l1
    \   0001FB 8D ......    CALLF     L:?mov_l2_l0
-     75          	Bufptr++;
+     76          	Bufptr++;
    \   0001FF B6 ..        LD        A, S:?b12
    \   000201 AB 01        ADD       A, #0x1
    \   000203 B7 ..        LD        S:?b12, A
-     76          
-     77          	B2ASCBuf[Bufptr] = InNum | 0x30;
+     77          
+     78          	B2ASCBuf[Bufptr] = InNum | 0x30;
    \   000205 B6 ..        LD        A, S:?b11
    \   000207 AA 30        OR        A, #0x30
    \   000209 5F           CLRW      X
@@ -408,15 +409,59 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   00020B B6 ..        LD        A, S:?b12
    \   00020D 41           EXG       A, XL
    \   00020E D7 ....      LD        (L:B2ASCBuf,X), A
-     78          }
-   \   000211 AC ......    JPF       L:?epilogue_l2_w6
-     79          
+     79                  clearB2ASCBuf();
+   \   000211 8D ......    CALLF     clearB2ASCBuf
+     80          }
+   \   000215 AC ......    JPF       L:?epilogue_l2_w6
+
+   \                                 In section .far_func.text, align 1
+     81          void clearB2ASCBuf(void){
+     82           char i;
+     83           for (i=0;i<=8;i++){
+   \                     clearB2ASCBuf:
+   \   000000 4F           CLR       A
+   \   000001 B7 ..        LD        S:?b0, A
+   \                     ??clearB2ASCBuf_0:
+   \   000003 B6 ..        LD        A, S:?b0
+   \   000005 A1 09        CP        A, #0x9
+   \   000007 24 28        JRNC      L:??clearB2ASCBuf_1
+     84                if (B2ASCBuf[i] != '0') break;
+   \   000009 5F           CLRW      X
+   \   00000A 41           EXG       A, XL
+   \   00000B B6 ..        LD        A, S:?b0
+   \   00000D 41           EXG       A, XL
+   \   00000E A6 30        LD        A, #0x30
+   \   000010 D1 ....      CP        A, (L:B2ASCBuf,X)
+   \   000013 27 02        JREQ      L:??clearB2ASCBuf_2
+   \   000015 20 1A        JRA       L:??clearB2ASCBuf_1
+     85                if (i == 7) break;
+   \                     ??clearB2ASCBuf_2:
+   \   000017 B6 ..        LD        A, S:?b0
+   \   000019 A1 07        CP        A, #0x7
+   \   00001B 26 02        JRNE      L:??clearB2ASCBuf_3
+   \   00001D 20 12        JRA       L:??clearB2ASCBuf_1
+     86                B2ASCBuf[i] = ' ';
+   \                     ??clearB2ASCBuf_3:
+   \   00001F 5F           CLRW      X
+   \   000020 41           EXG       A, XL
+   \   000021 B6 ..        LD        A, S:?b0
+   \   000023 41           EXG       A, XL
+   \   000024 A6 20        LD        A, #0x20
+   \   000026 D7 ....      LD        (L:B2ASCBuf,X), A
+     87                }
+   \   000029 B6 ..        LD        A, S:?b0
+   \   00002B AB 01        ADD       A, #0x1
+   \   00002D B7 ..        LD        S:?b0, A
+   \   00002F 20 D2        JRA       L:??clearB2ASCBuf_0
+     88          }
+   \                     ??clearB2ASCBuf_1:
+   \   000031 87           RETF
 
    Section sizes:
 
    Bytes  Function/Label
    -----  --------------
-     533  BIN2ASC
+     537  BIN2ASC
        1  Indx
       98  Int2ASCII
        4  LocalSum
@@ -425,14 +470,15 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
        1  Temp1
        1  Temp2
       32  UartSendBlock
+      50  clearB2ASCBuf
        5  temphldf
       30  testbuffer
 
  
- 651 bytes in section .far_func.text
+ 705 bytes in section .far_func.text
   75 bytes in section .near.bss
  
- 651 bytes of CODE memory
+ 705 bytes of CODE memory
   75 bytes of DATA memory
 
 Errors: none

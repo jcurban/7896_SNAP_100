@@ -14,6 +14,7 @@ void StoreB2AscBuf( u32 BinNum);
 void BIN2ASC(u32 BinNum);
 void Int2ASCII(void);
 void TESTHDR(void);
+void clearB2ASCBuf(void);
 
 void Int2ASCII(void){
         LocalSum = tempblock[0];
@@ -75,5 +76,13 @@ char Res;
 	Bufptr++;
 
 	B2ASCBuf[Bufptr] = InNum | 0x30;
+        clearB2ASCBuf();
 }
-
+void clearB2ASCBuf(void){
+ char i;
+ for (i=0;i<=8;i++){
+      if (B2ASCBuf[i] != '0') break;
+      if (i == 7) break;
+      B2ASCBuf[i] = ' ';
+      }
+}

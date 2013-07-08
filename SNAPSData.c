@@ -8,10 +8,18 @@ __root const char WSTATECONNECTEDmsg[] @ ".far.rodata" = {"WSTATE=CONNECTED"};
 __root const char IPmsg[] @ ".far.rodata" = {"IP:"};
 
 /*  DEVICE status message */
-__root const char Powered[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x01,0xfe,0x03,0x00};
-__root const char AdaptorReady[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x04,0xfB,0x03,0x00};
-__root const char ConfiguringAdaptor[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x05,0xfA,0x03,0x00};
-__root const char ACKMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x55,0x06,0xf7,0x03,0x00};
+__root const char Powered[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x01,0xFF,0x03,0x00}; /* 02,02,00,53,01,ff,03*/
+__root const char AdaptorReady[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x04,0xFC,0x03,0x00};/* 02,02,00,53,04,fc,03*/
+__root const char ConfiguringAdaptor[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x05,0xFB,0x03,0x00};/* 02,02,00,53,05,fb,03*/
+__root const char ACKMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x55,0x06,0xf8,0x03,0x00};/* 02,02,00,55,06,f8,03*/
+__root const char ResendMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x07,0xf9,0x03,0x00}; /* 02,02,00,53,07,f9,03*/
+
+__root const char RequestMessage[] @ ".far.rodata" =  {0x02,0x07,0x00,0x52,0x50,0x32,0x5C,0x90,0x01,0xBA,0x03,0x00};  /*02,07,00,52,50,32,5C,90,01,CS,03 */
+__root const char Request1Message[] @ ".far.rodata" = {0x02,0x07,0x00,0x52,0x50,0x32,0x5C,0xfa,0x01,0x50,0x03,0x00};  /*02,07,00,52,50,32,5C,fa,01,CS,03 */
+
+__root const char ASCII_RequestMessage[] @ ".far.rodata" =  {0x02,0x08,0x00,0x52,0x50,0x32,0x5C,0x37,0x30,0x30,0xF3,0x03,0x00};  /*02,08,00,52,50,32,5C,37,30,30,b6,03 */
+__root const char ASCII_Request1Message[] @ ".far.rodata" = {0x02,0x08,0x00,0x52,0x50,0x32,0x5C,0x38,0x30,0x30,0xaf,0x03,0x00};  /*02,08,00,52,50,32,5C,38,30,30,aF,03 */
+
 
 /*  Reset and provisioning GS1011 messages */
 __root const char YouThereMessage[] @ ".far.rodata" = {"AT\r\n"};
@@ -40,7 +48,7 @@ __root const char KeepAlive_CONF3_Message[] @ ".far.rodata" ={"AT+HTTPCONF=3, ke
 __root const char HTTPOPEN_FULL_MESSAGE[] @ ".far.rodata" ={"AT+HTTPOPEN=54.225.101.110\r"};   /*add ip Address*/
 
 __root const char Dummy_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000001234512555/p2/12345/p3/D/p4/S/p5/S/p6/D/p7/00078901/p8/345678/p9/000789/p10/21221/p11/32222/p12/31111/p13/0/p14/0/p15/0\r"};
-__root const char Cigar_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000051122334455/p2/700/p3/500/p4/0/p5/700/p6/0/p7/2000/p8/680/p9/800/p10/500/p11/700/p12/200/p13/0\r"};
+__root const char Cigar_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000051122334455/p2/999/p3/2703/p4/0/p5/688/p6/0/p7/1/p8/680/p9/900/p10/0/p11/700/p12/0/p13/0\r"};
 
 /*  get network status message */
 __root const char GetNSTATMessage[] @ ".far.rodata" = {"AT+NSTAT=?\r"};

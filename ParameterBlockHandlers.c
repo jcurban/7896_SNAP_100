@@ -3,7 +3,7 @@
  ********************************************************************************
   * @file    Parameter Block Handlers.c
   * @author  JUrban
-  * @version V1.0
+ *  @version V1.0                                           7/4
   * @date    12-June-2013
   * @brief   This file contains all the functions for handling 
                 the parameter blocks.
@@ -21,9 +21,11 @@ void convertPNumber_to_ASCII(char numb);
 void copyPHeaderToWebsite(void);
 void Copy_ASCII_data_to_Website(void);
 void clear_tempblock(void);
+void Clear_PHeaderBuffer(void);
 /* conversion routines/data*/
+extern int Processing_Byte_Count;
 extern char PNumber;
-extern int PCount;
+extern char PacketCount;
 extern int ProcessPtr;
 extern int Packet_Data_Pointer;
 extern char B2ASCBuf[];
@@ -31,7 +33,7 @@ extern char tempblock[];
 extern char PHeaderBuffer[];
 extern char Packet_Data_Buffer[];
 extern char Device_Processing_Buffer[];
-
+extern char Device_Receiver_Buffer[];
 /*******************************************************************************
 *****        Make_Website_Update_from_Processing_Buffer                     ****
 *****   taskes the raw device data, and converts to ASCII for website       ****
@@ -49,9 +51,9 @@ void Make_Website_Update_from_Processing_Buffer(void){
 char i;
 PNumber = 1;
 Packet_Data_Pointer = 0;
-for (ProcessPtr =3; ProcessPtr <BFRSIZE;ProcessPtr++){
-  makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
-  if (Device_Processing_Buffer[ProcessPtr] == 'A'){
+for (ProcessPtr =3; ProcessPtr <=Processing_Byte_Count;ProcessPtr++){
+if (Device_Processing_Buffer[ProcessPtr] == 'A'){
+    makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
      copyPHeaderToWebsite();
      ProcessPtr++;
     for (ProcessPtr=ProcessPtr ; ProcessPtr<BFRSIZE;ProcessPtr++){
@@ -61,10 +63,22 @@ for (ProcessPtr =3; ProcessPtr <BFRSIZE;ProcessPtr++){
     }
   }
   else if (Device_Processing_Buffer[ProcessPtr] == 'B'){
+    makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
     clear_tempblock();
     copyPHeaderToWebsite();
     ProcessPtr++;
+    //if (PNumber == 5) {
+    //  Packet_Data_Buffer[Packet_Data_Pointer] = '0'; /*temp p4 fix*/
+    //  Packet_Data_Pointer++;
+    //  }
+    //else { /*temp p4 fix*/
+    if (Device_Processing_Buffer[ProcessPtr] == ','){
     i = 0;
+    tempblock[i] = Device_Processing_Buffer[ProcessPtr];
+    ProcessPtr++;
+    i++;
+    }
+    else i = 0;
     while (Device_Processing_Buffer[ProcessPtr]!= ',') {
       tempblock[i] = Device_Processing_Buffer[ProcessPtr];
       i++;
@@ -72,21 +86,35 @@ for (ProcessPtr =3; ProcessPtr <BFRSIZE;ProcessPtr++){
     }
       Int2ASCII();
     for (i=0;i<=7;i++){
+      if (B2ASCBuf[i]!=' '){
        Packet_Data_Buffer[Packet_Data_Pointer] = B2ASCBuf[i];
        Packet_Data_Pointer++;
       }
+      else if (i==7) Packet_Data_Buffer[Packet_Data_Pointer] = 0;
+      }
+     //}   /*temp p4 fix*/
     }
     else if (Device_Processing_Buffer[ProcessPtr] == 0x00){
+      Packet_Data_Buffer[Packet_Data_Pointer] = CR;
+      PacketCount = Packet_Data_Pointer;
       break;
     }
-      
+  }  
+  FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
+
   } 
-}
+
 void clear_tempblock(void){
  char i;
  for (i=0; i <= 4; i++)
    tempblock[i]=0x00;
 }
+void Clear_PHeaderBuffer(void){
+char i;
+  for (i=0; i<=6;i++)
+    PHeaderBuffer[i] = 0;
+}
+
 void copyPHeaderToWebsite(void){
 char pntr=0;
 while (PHeaderBuffer[pntr] != 0x00){
@@ -94,21 +122,18 @@ while (PHeaderBuffer[pntr] != 0x00){
   Packet_Data_Pointer++;
   pntr++;
 }
- 
-}
-void Copy_ASCII_data_to_Website(void){
 }
 /*****************************************************************************
  *****             makePNumberHeader                                      ****
  ****************************************************************************/
 void makePNumberHeader(char numb){
-  FillBuffer(PHeaderBuffer,0x00, 6);
-  clear_tempblock();
+  Clear_PHeaderBuffer();
+   clear_tempblock();
   tempblock[0] = numb;
   Int2ASCII();
   PHeaderBuffer[0] = '/';
-  PHeaderBuffer[1] = 'P';
-    if (B2ASCBuf[6]!= '0'){
+  PHeaderBuffer[1] = 'p';
+    if (B2ASCBuf[6]!= ' '){
       PHeaderBuffer[2] = B2ASCBuf[6];
       PHeaderBuffer[3] = B2ASCBuf[7];
       PHeaderBuffer[4] = '/';
@@ -119,3 +144,4 @@ void makePNumberHeader(char numb){
      }
       PNumber++;
 }
+

@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-354141908
+Checksum=443777164
 [CallStack]
 ShowArgs=0
 [Disassembly]
@@ -99,17 +99,17 @@ Bp7=_ "STD_CODE" "0x008E01" 0 0 0 0 "" 0 ""
 Bp8=_ "STD_CODE" "{$PROJ_DIR$\SNAPSData.c}.44.1" 0 0 0 0 "" 0 ""
 Bp9=_ "STD_CODE" "{$PROJ_DIR$}.165.3" 0 0 0 0 "" 0 ""
 Bp10=_ "STD_CODE" "{$PROJ_DIR$}.266.1" 0 0 0 0 "" 0 ""
-Bp11=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.728.1" 0 0 0 0 "" 0 ""
+Bp11=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.729.5" 0 0 0 0 "" 0 ""
 Bp12=_ "STD_CODE" "{$PROJ_DIR$}.237.1" 0 0 0 0 "" 0 ""
 Bp13=_ "STD_CODE" "{$PROJ_DIR$}.242.3" 0 0 0 0 "" 0 ""
-Bp14=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.728.1" 0 0 0 0 "" 0 ""
+Bp14=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.729.5" 0 0 0 0 "" 0 ""
 Bp15=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\GS1011_Serial_Handlers.c}.195.9" 0 0 0 0 "" 0 ""
 Bp16=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\GS1011_Serial_Handlers.c}.191.3" 0 0 0 0 "" 0 ""
 Bp17=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\GS1011_Serial_Handlers.c}.199.4" 0 0 0 0 "" 0 ""
 Bp18=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.74.1" 0 0 0 0 "" 0 ""
-Bp19=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.728.1" 0 0 0 0 "" 0 ""
-Bp20=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.728.1" 0 0 0 0 "" 0 ""
-Bp21=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.728.1" 0 0 0 0 "" 0 ""
+Bp19=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.729.5" 0 0 0 0 "" 0 ""
+Bp20=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.729.5" 0 0 0 0 "" 0 ""
+Bp21=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.729.5" 0 0 0 0 "" 0 ""
 Bp22=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.56.1" 0 0 0 0 "" 0 ""
 Bp23=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.56.1" 0 0 0 0 "" 0 ""
 Bp24=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.56.1" 0 0 0 0 "" 0 ""
@@ -121,10 +121,7 @@ Bp29=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.56.1" 0 0 0 0 "" 
 Bp30=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\main.c}.56.3" 0 0 0 0 "" 0 ""
 Bp31=_ "STD_CODE" "{$PROJ_DIR$\..\..\..\..\..\SNAP_101\GS1011_Serial_Handlers.c}.171.1" 0 0 0 0 "" 0 ""
 Bp32=_ "STD_DATA" "0x000252" 0 0 0 3 0 "" 0 ""
-Bp33=_ "STD_CODE" "{$PROJ_DIR$\ParameterBlockHandlers.c}.54.3" 1 0 0 0 "" 0 ""
-Bp34=_ "STD_CODE" "{$PROJ_DIR$\Device_Serial_Handlers.c}.276.2" 1 0 0 0 "" 0 ""
-Bp35=_ "STD_CODE" "{$PROJ_DIR$\Device_Serial_Handlers.c}.271.3" 1 0 0 0 "" 0 ""
-Count=36
+Count=33
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""

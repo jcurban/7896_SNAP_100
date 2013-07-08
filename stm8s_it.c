@@ -38,16 +38,9 @@ void Sending_GS1011_Data_Handler(void);
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 extern char GS1011_Rcvr_EOM_Timer;
-;
-u16 StartupTimer;
-u16 SetCmdTempTimer1;
-u16 SetCmdTempTimer2;
-u16 SetCmdExitTimer;
-u16 SysOnOffTmr;
-u16 LoopControlDelay;
-u16 FCTimer;
-u16 SysSSTimer;
 extern char GS1011_Rcvr_Timeout;
+extern char Device_Rcvr_EOM_Timer;
+extern char Device_Rcvr_Timeout;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /* Public functions ----------------------------------------------------------*/
@@ -239,6 +232,12 @@ INTERRUPT_HANDLER(TIM1_UPD_OVF_TRG_BRK_IRQHandler, 11){
     GS1011_Rcvr_EOM_Timer--;
     if (GS1011_Rcvr_EOM_Timer == 0)
       GS1011_Rcvr_Timeout = 1;
+  }
+ if (Device_Rcvr_EOM_Timer){
+    Device_Rcvr_EOM_Timer--;
+    if (Device_Rcvr_EOM_Timer == 0)
+      Device_Rcvr_Timeout = 1; 
+    
   }
   TIM1->SR1 &= 0x7E;  /*CLR UIF INT BIT*/
 }
