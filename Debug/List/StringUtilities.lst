@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             08/Jul/2013  08:35:26 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             08/Jul/2013  10:55:03 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUti #
@@ -87,32 +87,37 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
 
    \                                 In section .far_func.text, align 1
      60          void InitializeDeviceBuffer (void){
-     61          int ptr;
-     62            for (ptr = 0; ptr < 255; ptr++) 
+     61            for (Device_RX_InPtr = 0; Device_RX_InPtr < 255; Device_RX_InPtr++) 
    \                     InitializeDeviceBuffer:
-   \   000000 905F         CLRW      Y
-   \   000002 93           LDW       X, Y
+   \   000000 35 00 ....   MOV       L:Device_RX_InPtr, #0x0
    \                     ??InitializeDeviceBuffer_0:
-   \   000003 A3 00FF      CPW       X, #0xff
-   \   000006 2E 07        JRSGE     L:??InitializeDeviceBuffer_1
-     63              Device_Receiver_Buffer[ptr] = 0x00;
-   \   000008 4F           CLR       A
-   \   000009 D7 ....      LD        (L:Device_Receiver_Buffer,X), A
-   \   00000C 5C           INCW      X
-   \   00000D 20 F4        JRA       L:??InitializeDeviceBuffer_0
+   \   000004 C6 ....      LD        A, L:Device_RX_InPtr
+   \   000007 A1 FF        CP        A, #0xff
+   \   000009 27 13        JREQ      L:??InitializeDeviceBuffer_1
+     62              Device_Receiver_Buffer[Device_RX_InPtr] = 0x00;
+   \   00000B C6 ....      LD        A, L:Device_RX_InPtr
+   \   00000E 5F           CLRW      X
+   \   00000F 97           LD        XL, A
+   \   000010 4F           CLR       A
+   \   000011 D7 ....      LD        (L:Device_Receiver_Buffer,X), A
+   \   000014 C6 ....      LD        A, L:Device_RX_InPtr
+   \   000017 AB 01        ADD       A, #0x1
+   \   000019 C7 ....      LD        L:Device_RX_InPtr, A
+   \   00001C 20 E6        JRA       L:??InitializeDeviceBuffer_0
+     63            
      64              Device_RX_InPtr = 0;
    \                     ??InitializeDeviceBuffer_1:
-   \   00000F 35 00 ....   MOV       L:Device_RX_InPtr, #0x0
+   \   00001E 35 00 ....   MOV       L:Device_RX_InPtr, #0x0
      65              Device_RX_OutPtr = 0;
-   \   000013 35 00 ....   MOV       L:Device_RX_OutPtr, #0x0
+   \   000022 35 00 ....   MOV       L:Device_RX_OutPtr, #0x0
      66              Device_Rcvr_EOM_Timer = 0;
-   \   000017 35 00 ....   MOV       L:Device_Rcvr_EOM_Timer, #0x0
+   \   000026 35 00 ....   MOV       L:Device_Rcvr_EOM_Timer, #0x0
      67              Device_Rcvr_Timeout = 0;
-   \   00001B 35 00 ....   MOV       L:Device_Rcvr_Timeout, #0x0
+   \   00002A 35 00 ....   MOV       L:Device_Rcvr_Timeout, #0x0
      68              Device_Rcvr_Complete_flag = 0;
-   \   00001F 35 00 ....   MOV       L:Device_Rcvr_Complete_flag, #0x0
+   \   00002E 35 00 ....   MOV       L:Device_Rcvr_Complete_flag, #0x0
      69          }
-   \   000023 87           RETF
+   \   000032 87           RETF
      70          /*****************************************************************************/
      71          /***** InitializeDeviceBuffer (buffer pointer)                            ****/
      72          /*****                  source buffer must terminate with a 0x00.         ****/
@@ -1005,14 +1010,14 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
       23  CountGS1011Chars
       42  FillBuffer
      214  FindGS1011Chars
-      36  InitializeDeviceBuffer
+      51  InitializeDeviceBuffer
       57  InitializeGS1011Buffer
       74  copy_buffer_from_offset_to_terminator
 
  
- 1 011 bytes in section .far_func.text
+ 1 026 bytes in section .far_func.text
  
- 1 011 bytes of CODE memory
+ 1 026 bytes of CODE memory
 
 Errors: none
 Warnings: none

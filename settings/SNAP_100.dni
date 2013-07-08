@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=443777164
+Checksum=1440156463
 [CallStack]
 ShowArgs=0
 [Disassembly]
@@ -96,7 +96,7 @@ Bp4=_ "STD_DATA" "Device_Xmit_Complete_Flag" 0 0 0 3 0 "" 0 ""
 Bp5=_ "STD_DATA" "if" 0 0 0 3 0 "" 0 ""
 Bp6=_ "STD_DATA" "UART1->DR" 0 0 0 3 0 "" 0 ""
 Bp7=_ "STD_CODE" "0x008E01" 0 0 0 0 "" 0 ""
-Bp8=_ "STD_CODE" "{$PROJ_DIR$\SNAPSData.c}.44.1" 0 0 0 0 "" 0 ""
+Bp8=_ "STD_CODE" "{$PROJ_DIR$\SNAPSData.c}.43.1" 0 0 0 0 "" 0 ""
 Bp9=_ "STD_CODE" "{$PROJ_DIR$}.165.3" 0 0 0 0 "" 0 ""
 Bp10=_ "STD_CODE" "{$PROJ_DIR$}.266.1" 0 0 0 0 "" 0 ""
 Bp11=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.729.5" 0 0 0 0 "" 0 ""

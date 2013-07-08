@@ -58,9 +58,9 @@ void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int 
 /*****          Returns an integer for number of characters in the buffer ****/
 /*****************************************************************************/
 void InitializeDeviceBuffer (void){
-int ptr;
-  for (ptr = 0; ptr < 255; ptr++) 
-    Device_Receiver_Buffer[ptr] = 0x00;
+  for (Device_RX_InPtr = 0; Device_RX_InPtr < 255; Device_RX_InPtr++) 
+    Device_Receiver_Buffer[Device_RX_InPtr] = 0x00;
+  
     Device_RX_InPtr = 0;
     Device_RX_OutPtr = 0;
     Device_Rcvr_EOM_Timer = 0;

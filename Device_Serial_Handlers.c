@@ -33,7 +33,6 @@ extern void Make_Website_Update_from_Processing_Buffer(void);
 void Add_String_to_GS1011_Buffer ( char *srce);
 void CopySerialNumber(void);
 void Send_ACK_Message(void);
-char Check_Checksum_Device_Buffer(void);
 /* EXTERNAL DATA */
 extern char Device_Rcvr_EOM_Timer;
 extern char Device_Rcvr_Timeout;
@@ -102,6 +101,8 @@ void Initialize_Device_receiver_buffer(void);
 void Handle_Device_State(void);
 void Assemble_and_Checksum_device_message(void);
 char Checksum_Device_Buffer(char bufr[]);
+char Check_Checksum_Device_Buffer(void);
+
 char Parse_Device_Rcvrd_Buffer(void);
 void Start_Device_Xmit (void);
 void Save_PValues(void);
@@ -187,8 +188,8 @@ void Process_Received_Update(void){
   }
 }
 /*****************************************************************************/
-/**************************e wai***************************************************/
-/****         Send messagt response routines                          ***/
+/*****************************************************************************/
+/****         Convert_Update_Parameters                                   ****/
 /*****************************************************************************/
 /*****************************************************************************/
 void Convert_Update_Parameters(void){
@@ -254,10 +255,9 @@ void Send_Resend_Message(void){
 /*****************************************************************************/
 void Send_Request_Message(void){
   Initialize_Device_receiver_buffer();
-  CopyBufferDevice(RequestMessage);
+  /*CopyBufferDevice(RequestMessage);*/
   /*CopyBufferDevice(NC_RequestMessage);*/
-  /*CopyBufferDevice(ASCII_RequestMessage);*/
-  
+  CopyBufferDevice(ASCII_RequestMessage);
   Device_Xmit_Char_Count = Device_Xmit_Char_Count;
   Start_Device_Xmit ();
 }
@@ -267,25 +267,12 @@ void Send_Request_Message(void){
 /*****************************************************************************/
 void Send_Request1_Message(void){
   Initialize_Device_receiver_buffer();
-  CopyBufferDevice(Request1Message);
+  /*CopyBufferDevice(Request1Message);*/
   /*CopyBufferDevice(NC_Request1Message);*/
-  /*CopyBufferDevice(ASCII_Request1Message);*/
+  CopyBufferDevice(ASCII_Request1Message);
   Device_Xmit_Char_Count = Device_Xmit_Char_Count;
   Start_Device_Xmit ();
 }
-/*****************************************************************************/
-/*****        Make_Send_SNAP_Ready_Message                                ****/
-/*****        1st byte in Device processed buffer is the character count  ****/
-/*****************************************************************************
-void Make_Send_SNAP_Ready_Message(void){
-  FillBuffer (&Device_Xmit_Buffer,0x00, BFRSIZE);
-  Device_Processing_Pointer = 0;
-  Device_Processing_Pointer = Add_String_to_Buffer (&Device_Xmit_Buffer, Device_Processing_Pointer, &SNAPREADYHDR);
-  Device_Processing_Pointer = Add_String_to_Buffer (&Device_Xmit_Buffer, Device_Processing_Pointer, &SNAPREADY);
-  Device_Processing_Pointer = Add_String_to_Buffer (&Device_Xmit_Buffer, Device_Processing_Pointer, &SNAPREADYEND);
-  Device_Xmit_Char_Count = CountChars(&Device_Xmit_Buffer);
-  Start_Device_Xmit ();
-} */
 /*****************************************************************************/
 /*****        Assemble_and_Checksum_device_message                        ****/
 /*****        1st byte in Device processed buffer is the character count  ****/
@@ -306,7 +293,7 @@ void Assemble_and_Checksum_device_message(void){
 /*****             Checksum_Device_Buffer                                 ****/
 /*****        1st byte in Device processed buffer is the character count  ****/
 /*****                                                                    ****/
-/*****  bytes from 1st after count to checksum byte are checksumed        ****/
+/*****  bytes from count to one before the checksum byte are checksumed    ****/
 /*****************************************************************************/
 char Checksum_Device_Buffer(char bufr[]){
   int cntr,gtchr;
@@ -341,7 +328,6 @@ char Check_Checksum_Device_Buffer(){
   for (gtchr = 0; gtchr <= cntr; gtchr++){
       checksum += Device_Processing_Buffer[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
   }
-  //gtchr++;
   checksum += Device_Processing_Buffer[gtchr];
  }
  Device_Processing_Buffer[gtchr] = 00; /*clear out checksum*/ 

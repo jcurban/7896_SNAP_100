@@ -2,37 +2,36 @@
 extern char B2ASCBuf[];
 
 char Indx;
-char Temp;	
-char Temp1;	
-char Temp2;	
 extern char tempblock[4];
-char temphldf[5];
-char testbuffer[30];
 u32 LocalSum;
-char UartSendBlock[32];
-void StoreB2AscBuf( u32 BinNum);
 void BIN2ASC(u32 BinNum);
 void Int2ASCII(void);
-void TESTHDR(void);
 void clearB2ASCBuf(void);
-
+/****************************************************************/
+/*** clear the binary to ascii buffer                         ***/
+/****************************************************************/
+void clearB2ASCBuf(void){
+ char i;
+ for (i=0;i<=7;i++){
+      if (B2ASCBuf[i] != '0') break;
+      if (i == 7) break;
+      B2ASCBuf[i] = ' ';
+      }
+}
+/****************************************************************/
+/*** Int2ASCII                                                ***/
+/*** convert binary to ascii                                  ***/
+/*** templock = binary number  up to 4 bytes lsb - msb        ***/
+/*** B2ASCBuf = ascii number with leading zero                ***/
+/****************************************************************/
 void Int2ASCII(void){
         LocalSum = tempblock[0];
 	LocalSum = LocalSum + (tempblock[1] * 256);
  	LocalSum = LocalSum + (tempblock[2] * 65536);
-	StoreB2AscBuf( LocalSum);	/*uses up 8 bytes in send block*/
-}
-/****************************************************************/
-/*helper routine to take a binary number conver to ascii	*/
-/*then put into B2ASCBuf					*/
-/* input BinNum = number to convert to 8 digits			*/
-/*       Indx = index to store ascii into buffer B2ASCBuf	*/ 
-/****************************************************************/
-void StoreB2AscBuf(u32 BinNum){
-	BIN2ASC(BinNum);	/*counts*/
+        BIN2ASC(LocalSum);
 }
 /*----------------------------------------------------------------------*/
-/*up to 3 bytes binary to ascii output					*/
+/*up to 4 bytes binary to ascii output					*/
 /*leading zero not supressed. to buffer B2ASCBuf[8] returns number count*/
 /*STK =1								*/
 /*----------------------------------------------------------------------*/
@@ -77,12 +76,4 @@ char Res;
 
 	B2ASCBuf[Bufptr] = InNum | 0x30;
         clearB2ASCBuf();
-}
-void clearB2ASCBuf(void){
- char i;
- for (i=0;i<=8;i++){
-      if (B2ASCBuf[i] != '0') break;
-      if (i == 7) break;
-      B2ASCBuf[i] = ' ';
-      }
 }

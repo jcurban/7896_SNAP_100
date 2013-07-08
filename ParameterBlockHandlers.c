@@ -57,7 +57,7 @@ if (Device_Processing_Buffer[ProcessPtr] == 'A'){
      copyPHeaderToWebsite();
      ProcessPtr++;
     for (ProcessPtr=ProcessPtr ; ProcessPtr<BFRSIZE;ProcessPtr++){
-        if (Device_Processing_Buffer[ProcessPtr] == ',') break;
+      if (Device_Processing_Buffer[ProcessPtr] == ',') break;
       Packet_Data_Buffer[Packet_Data_Pointer] = Device_Processing_Buffer[ProcessPtr];
       Packet_Data_Pointer++;
     }
@@ -67,11 +67,6 @@ if (Device_Processing_Buffer[ProcessPtr] == 'A'){
     clear_tempblock();
     copyPHeaderToWebsite();
     ProcessPtr++;
-    //if (PNumber == 5) {
-    //  Packet_Data_Buffer[Packet_Data_Pointer] = '0'; /*temp p4 fix*/
-    //  Packet_Data_Pointer++;
-    //  }
-    //else { /*temp p4 fix*/
     if (Device_Processing_Buffer[ProcessPtr] == ','){
     i = 0;
     tempblock[i] = Device_Processing_Buffer[ProcessPtr];
@@ -92,8 +87,7 @@ if (Device_Processing_Buffer[ProcessPtr] == 'A'){
       }
       else if (i==7) Packet_Data_Buffer[Packet_Data_Pointer] = 0;
       }
-     //}   /*temp p4 fix*/
-    }
+     }
     else if (Device_Processing_Buffer[ProcessPtr] == 0x00){
       Packet_Data_Buffer[Packet_Data_Pointer] = CR;
       PacketCount = Packet_Data_Pointer;
