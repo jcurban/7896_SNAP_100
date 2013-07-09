@@ -1,303 +1,453 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             28/May/2013  13:15:19 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             09/Jul/2013  07:12:48 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
-#    Source file  =  C:\SNAP\SNAP_100\main.c                                  #
-#    Command line =  C:\SNAP\SNAP_100\main.c -e -Oh --code_model small        #
-#                    --data_model small -o C:\SNAP\SNAP_100\Release\Obj\      #
-#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
-#                    Workbench 6.5\stm8\LIB\dlstm8ssn.h" -D NDEBUG -D         #
-#                    STM8S007 -lC C:\SNAP\SNAP_100\Release\List\ -I .\        #
-#                    --no_system_include --vregs 16                           #
-#    List file    =  C:\SNAP\SNAP_100\Release\List\main.lst                   #
-#    Object file  =  C:\SNAP\SNAP_100\Release\Obj\main.o                      #
+#    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\main.c    #
+#    Command line =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\main.c    #
+#                    -e -On --no_cse --no_unroll --no_inline                  #
+#                    --no_code_motion --no_tbaa --no_cross_call --code_model  #
+#                    medium --data_model medium -o                            #
+#                    C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Release\O #
+#                    bj\ --dlib_config "C:\Program Files\IAR                  #
+#                    Systems\Embedded Workbench 6.5\stm8\LIB\dlstm8mmn.h" -D  #
+#                    NDEBUG -D STM8S007 -lC C:\Users\jurban\Documents\GitHub\ #
+#                    7896_SNAP_100\Release\List\ -I .\ --no_system_include    #
+#                    --vregs 16                                               #
+#    List file    =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Release\L #
+#                    ist\main.lst                                             #
+#    Object file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Release\O #
+#                    bj\main.o                                                #
 #                                                                             #
 #                                                                             #
 ###############################################################################
 
-C:\SNAP\SNAP_100\main.c
-      1          /*------------------------------------------------------------------------------------*/
+C:\Users\jurban\Documents\GitHub\7896_SNAP_100\main.c
+      1          /*-------------extern -----------------------------------------------------------------------*/
       2          /* SNAP JOB#7896 USES STM8007C8T6 PROCESSOR                                           */
       3          /* - 32K FLASH 2KRAM  128 EEPROM  ver 1.00                                            */
       4          /*------------------------------------------------------------------------------------*/
       5          /* Includes ------------------------------------------------------------------*/
       6          #include "main.h"
-      7          /* Local Var------------------------------------------------------------------*/
+      7          #include "SNAP_Defines.h"
+      8          extern char CID_Value;
+      9          extern char SNAP_State;
+     10          extern void Send_Powered(void);
+     11          extern void Wait_For_Update(void);
+     12          extern void Process_Received_Update(void);
+     13          extern void GetNetworkStatusFromGS1011(void);
+     14          extern void Reset_Network_Access(void);
+     15          extern void Get_Website_Response_and_Respond(void);
+     16          extern void Get_Website_IP_address(void);
+     17          extern void Set_Mars_as_Website(void);
+     18          extern void Set_Keep_Alive(void);
+     19          extern void HTTPOPEN_Get_CID(void);
+     20          extern void Convert_update_and_Send(void);
+     21          extern void Get_Website_Response_and_Respond(void);
+     22          extern void Reset_Network_Access(void);
+     23          extern void Set_FactoryReset(void);
+     24          extern void ResetAdaptor(void);
+     25          extern void DisassociateWeb(void);
+     26          extern void SetupSendInitialIPAddress(void);
+     27          extern void SendWM_2(void);
+     28          extern void SendWA_Init(void);
+     29          extern void setDHCPSRVR(void);
+     30          extern void SetProvisioning(void);
+     31          
+     32          extern u16 EEWRTimout;
+     33          extern u8 Device_Rcvr_Complete_flag;
+     34          extern int GS1011_Rvcr_Count;
+     35          extern char GS1011_Xmit_Buffer;
+     36          extern char *GS1011_Rcvr_Pointer;
+     37          extern char GS1011_Received_Response_Flag;
+     38          void SendYouThereMessageToGS1011(void);
+     39          void InitializeGS1011Buffer(void);
+     40          void InitializeDeviceBuffer (void);
+     41          
+     42          
+     43          /* Local Var------------------------------------------------------------------*/
 
-   \                                 In section .tiny.bss, align 1
-      8          u8  Mode1;   /* bit 0 = 1(DegF),0(DegC)*/
-   \                     Mode1:
+   \                                 In section .near.bss, align 1
+     44          u8  TEST;
+   \                     TEST:
    \   000000              DS8 1
 
-   \                                 In section .tiny.bss, align 1
-      9          u8  BLCNT_INDX;
+   \                                 In section .near.bss, align 1
+     45          u8  BLCNT_INDX;
    \                     BLCNT_INDX:
    \   000000              DS8 1
 
-   \                                 In section .tiny.bss, align 1
-     10          u8  BLCNT_STATE;
+   \                                 In section .near.bss, align 1
+     46          u8  BLCNT_STATE;
    \                     BLCNT_STATE:
    \   000000              DS8 1
 
-   \                                 In section .tiny.bss, align 1
-     11          u8  BLCNT_VAL;         /*VERSION BLINK VALUE*/
+   \                                 In section .near.bss, align 1
+     47          u8  BLCNT_VAL;         /*VERSION BLINK VALUE*/
    \                     BLCNT_VAL:
    \   000000              DS8 1
 
-   \                                 In section .tiny.bss, align 1
-     12          u8  SysError;          /* bit 0 = 1 if Temp reading out of limits
+   \                                 In section .near.bss, align 1
+     48          u8  SysError;          /* bit 0 = 1 if Temp reading ou   t of limits
    \                     SysError:
    \   000000              DS8 1
-     13                                    bit 1 = 1 if command start and no response*/
-     14          /*--------------VERSION NUMBER OF THIS FIRMWARE-------------------------------*/
+     49                                    bit 1 = 1 if command start and no response*/
+     50          /*--------------VERSION NUMBER OF THIS FIRMWARE-------------------------------*/
 
-   \                                 In section .tiny.data, align 1
-     15          u8 VER[4] = {VER0,VER1,VER2,VER3};
+   \                                 In section .near.data, align 1
+     51          u8 VER[4] = {VER0,VER1,VER2,VER3};
    \                     VER:
    \   000000 00 02 00 04  DC8 0, 2, 0, 4
-     16          /*----------------------------------------------------------------------------*/
-     17          
-     18          /* Private function prototypes -----------------------------------------------*/
-     19          void RCC_Configuration(void);
-     20          void GPIO_Configuration(void);
-     21          void TIMER1_Configuration (void);
-     22          void InitEEData(void);
-     23          void InitDeviceUART(void);
-     24          void InitGS1011UART(void);
-     25          void assert_failed(uint8_t* file, uint32_t line);
-     26          /*external Functions ---------------------------------------------------------*/
-     27          void UART1_Init(uint32_t BaudRate, UART1_WordLength_TypeDef WordLength, 
-     28                          UART1_StopBits_TypeDef StopBits, UART1_Parity_TypeDef Parity, 
-     29                          UART1_SyncMode_TypeDef SyncMode, UART1_Mode_TypeDef Mode);
-     30          void UART3_Init(uint32_t BaudRate, UART3_WordLength_TypeDef WordLength, 
-     31                          UART3_StopBits_TypeDef StopBits, UART3_Parity_TypeDef Parity, 
-     32                          UART3_Mode_TypeDef Mode);
+     52          /*----------------------------------------------------------------------------*/
+     53          
+     54          /* Private function prototypes -----------------------------------------------*/
+     55          void RCC_Configuration(void);
+     56          void GPIO_Configuration(void);
+     57          void TIMER1_Configuration (void);
+     58          void InitEEData(void);
+     59          void InitDeviceUART(void);
+     60          void InitGS1011UART(void);
+     61          /*external Functions ---------------------------------------------------------*/
+     62          /*void Make_Send_SNAP_Ready_Message(void);*/
+     63          void Send_powered_Message(void);
+     64          void Save_PValues(void);
+     65          /* Main powerup/main loop -----------------------------------------------*/
+     66          extern char * GS1011_Xmit_Pointer;
 
-   \                                 In section .near_func.text, align 1
-     33          int main( void ){
-     34          
-     35            /* System Clocks Configuration */
-     36            RCC_Configuration();
+   \                                 In section .far_func.text, align 1
+     67          int main( void ){
+     68            /* System Clocks Configuration */
+     69            RCC_Configuration();
    \                     main:
-   \   000000 CD ....      CALL      L:?Subroutine1
-     37            /* Configure the GPIO ports */
-     38            GPIO_Configuration();
-   \                     ??CrossCallReturnLabel_1:
-   \   000003 CD ....      CALL      L:GPIO_Configuration
-     39            /*CONFIGURE TIMER1*/
-     40            TIMER1_Configuration();
-   \   000006 CD ....      CALL      L:TIMER1_Configuration
-     41            /*Configure device UART*/
-     42            InitDeviceUART();
-   \   000009 CD ....      CALL      L:?Subroutine0
-   \                     ??CrossCallReturnLabel_5:
-   \   00000C CD ....      CALL      L:UART1_Init
-     43            /*Configure GS101 UART*/
-     44            InitGS1011UART();
-   \   00000F 35 0C ....   MOV       S:?b6, #0xc
-   \   000013 CD ....      CALL      L:??Subroutine2_0
-   \                     ??CrossCallReturnLabel_3:
-   \   000016 CD ....      CALL      L:UART3_Init
-     45            /*get data from EEPROM */
-     46            
-     47            
-     48            InitEEData();
-     49             /* Infinite loop */
-     50            while (1)
+   \   000000 8D ......    CALLF     RCC_Configuration
+     70            /* Configure the GPIO ports */
+     71            GPIO_Configuration();
+   \   000004 8D ......    CALLF     GPIO_Configuration
+     72            /*CONFIGURE TIMER1*/
+     73            TIMER1_Configuration();
+   \   000008 8D ......    CALLF     TIMER1_Configuration
+     74            /*Configure device UART*/
+     75            InitDeviceUART();
+   \   00000C 8D ......    CALLF     InitDeviceUART
+     76            /*Configure GS101 UART*/
+     77            InitGS1011UART();
+   \   000010 8D ......    CALLF     InitGS1011UART
+     78            InitializeGS1011Buffer();
+   \   000014 8D ......    CALLF     InitializeGS1011Buffer
+     79            InitializeDeviceBuffer();
+   \   000018 8D ......    CALLF     InitializeDeviceBuffer
+     80            enableInterrupts();
+   \   00001C 9A           RIM
+     81            SNAP_State = 0;
+   \   00001D 35 00 ....   MOV       L:SNAP_State, #0x0
+     82            CID_Value = 0x00;
+   \   000021 35 00 ....   MOV       L:CID_Value, #0x0
+     83            GS1011_Received_Response_Flag = 0x00;
+   \   000025 35 00 ....   MOV       L:GS1011_Received_Response_Flag, #0x0
+     84            SendYouThereMessageToGS1011();                /* sacrificial message*/
+   \   000029 8D ......    CALLF     SendYouThereMessageToGS1011
+     85          
+     86            while (1)
+     87            {
+     88              switch (SNAP_State){
    \                     ??main_0:
-   \   000019 20 FE        JRA       L:??main_0
-     51            {}
-     52           /*infinite loop*/
-     53          }
-     54          /* Get the EEData on startup-------------------------------------------------*/
-     55          /*                                                                           */
-     56          /*---------------------------------------------------------------------------*/
+   \   00002D C6 ....      LD        A, L:SNAP_State
+   \   000030 4D           TNZ       A
+   \   000031 27 38        JREQ      L:??main_1
+   \   000033 4A           DEC       A
+   \   000034 27 3B        JREQ      L:??main_2
+   \   000036 4A           DEC       A
+   \   000037 27 3E        JREQ      L:??main_3
+   \   000039 4A           DEC       A
+   \   00003A 27 41        JREQ      L:??main_4
+   \   00003C 4A           DEC       A
+   \   00003D 27 44        JREQ      L:??main_5
+   \   00003F 4A           DEC       A
+   \   000040 27 47        JREQ      L:??main_6
+   \   000042 4A           DEC       A
+   \   000043 27 4A        JREQ      L:??main_7
+   \   000045 4A           DEC       A
+   \   000046 27 4D        JREQ      L:??main_8
+   \   000048 4A           DEC       A
+   \   000049 27 50        JREQ      L:??main_9
+   \   00004B 4A           DEC       A
+   \   00004C 27 53        JREQ      L:??main_10
+   \   00004E 4A           DEC       A
+   \   00004F 27 56        JREQ      L:??main_11
+   \   000051 4A           DEC       A
+   \   000052 27 59        JREQ      L:??main_12
+   \   000054 4A           DEC       A
+   \   000055 27 5D        JREQ      L:??main_13
+   \   000057 4A           DEC       A
+   \   000058 27 61        JREQ      L:??main_14
+   \   00005A 4A           DEC       A
+   \   00005B 27 65        JREQ      L:??main_15
+   \   00005D 4A           DEC       A
+   \   00005E 27 69        JREQ      L:??main_16
+   \   000060 4A           DEC       A
+   \   000061 27 6D        JREQ      L:??main_17
+   \   000063 4A           DEC       A
+   \   000064 27 71        JREQ      L:??main_18
+   \   000066 4A           DEC       A
+   \   000067 27 75        JREQ      L:??main_19
+   \   000069 20 C2        JRA       L:??main_0
+     89              case SEND_POWERED_STATE:         /* let the device know we're ready*/
+     90                Send_Powered();
+   \                     ??main_1:
+   \   00006B 8D ......    CALLF     Send_Powered
+     91                break;
+   \   00006F 20 BC        JRA       L:??main_0
+     92              case WAIT_FOR_UPDATE_STATE:      /* wait for the device update */   
+     93                Wait_For_Update();
+   \                     ??main_2:
+   \   000071 8D ......    CALLF     Wait_For_Update
+     94                break;
+   \   000075 20 B6        JRA       L:??main_0
+     95              case 2:
+     96                Process_Received_Update();     /* de-escape and check checksum */
+   \                     ??main_3:
+   \   000077 8D ......    CALLF     Process_Received_Update
+     97                break;
+   \   00007B 20 B0        JRA       L:??main_0
+     98              case 3:
+     99                GetNetworkStatusFromGS1011();  /* check if gs1011 connected to router */ 
+   \                     ??main_4:
+   \   00007D 8D ......    CALLF     GetNetworkStatusFromGS1011
+    100                break;                         /* if connected send update, esle config */
+   \   000081 20 AA        JRA       L:??main_0
+    101              case 4:                              
+    102                Get_Website_IP_address();      /* set GS1011 address to 192.168.1.1 */
+   \                     ??main_5:
+   \   000083 8D ......    CALLF     Get_Website_IP_address
+    103                break;
+   \   000087 20 A4        JRA       L:??main_0
+    104              case 5:
+    105                Set_Mars_as_Website();         /* set the host to mars.bwgrp.com */
+   \                     ??main_6:
+   \   000089 8D ......    CALLF     Set_Mars_as_Website
+    106                break;
+   \   00008D 20 9E        JRA       L:??main_0
+    107              case 6:
+    108                Set_Keep_Alive();             /* prevent a disconnect after status returned */
+   \                     ??main_7:
+   \   00008F 8D ......    CALLF     Set_Keep_Alive
+    109                break;
+   \   000093 20 98        JRA       L:??main_0
+    110              case 7:
+    111                HTTPOPEN_Get_CID();           /* open the port, get CID (Connection ID 0-9) */
+   \                     ??main_8:
+   \   000095 8D ......    CALLF     HTTPOPEN_Get_CID
+    112                break;
+   \   000099 20 92        JRA       L:??main_0
+    113              case 8:
+    114                Convert_update_and_Send();
+   \                     ??main_9:
+   \   00009B 8D ......    CALLF     Convert_update_and_Send
+    115                break;
+   \   00009F 20 8C        JRA       L:??main_0
+    116              case 9:
+    117                Get_Website_Response_and_Respond();
+   \                     ??main_10:
+   \   0000A1 8D ......    CALLF     Get_Website_Response_and_Respond
+    118                break;
+   \   0000A5 20 86        JRA       L:??main_0
+    119          /*                                    reset the adaptor and provision*/ 
+    120              case 10:
+    121                Reset_Network_Access();
+   \                     ??main_11:
+   \   0000A7 8D ......    CALLF     Reset_Network_Access
+    122                break;
+   \   0000AB 20 80        JRA       L:??main_0
+    123              case 11:
+    124                Set_FactoryReset();
+   \                     ??main_12:
+   \   0000AD 8D ......    CALLF     Set_FactoryReset
+    125                break;
+   \   0000B1 CC ....      JP        L:??main_0
+    126              case 12:
+    127                ResetAdaptor();
+   \                     ??main_13:
+   \   0000B4 8D ......    CALLF     ResetAdaptor
+    128                break;
+   \   0000B8 CC ....      JP        L:??main_0
+    129              case 13:
+    130                DisassociateWeb();
+   \                     ??main_14:
+   \   0000BB 8D ......    CALLF     DisassociateWeb
+    131                break;
+   \   0000BF CC ....      JP        L:??main_0
+    132              case 14:
+    133                SetupSendInitialIPAddress();
+   \                     ??main_15:
+   \   0000C2 8D ......    CALLF     SetupSendInitialIPAddress
+    134                break;
+   \   0000C6 CC ....      JP        L:??main_0
+    135              case 15:
+    136                SendWM_2();
+   \                     ??main_16:
+   \   0000C9 8D ......    CALLF     SendWM_2
+    137                break;
+   \   0000CD CC ....      JP        L:??main_0
+    138              case 16:
+    139                SendWA_Init();
+   \                     ??main_17:
+   \   0000D0 8D ......    CALLF     SendWA_Init
+    140                break;
+   \   0000D4 CC ....      JP        L:??main_0
+    141              case 17:
+    142                setDHCPSRVR();
+   \                     ??main_18:
+   \   0000D7 8D ......    CALLF     setDHCPSRVR
+    143                break;
+   \   0000DB CC ....      JP        L:??main_0
+    144              case 18:
+    145                SetProvisioning();
+   \                     ??main_19:
+   \   0000DE 8D ......    CALLF     SetProvisioning
+    146                break;
+   \   0000E2 CC ....      JP        L:??main_0
+    147              }
+    148            }
+    149           /*infinite loop*/
+    150          }
+    151          /* Get the EEData on startup-------------------------------------------------*/
+    152          /*                                                                           */
+    153          /*---------------------------------------------------------------------------*/
 
-   \                                 In section .near_func.text, align 1
-     57          void InitEEData(void){
-     58          }
+   \                                 In section .far_func.text, align 1
+    154          void InitEEData(void){
+    155          }
    \                     InitEEData:
-   \   000000 81           RET
+   \   000000 87           RETF
 
-   \                                 In section .near_func.text, align 1
-     59          void assert_failed(uint8_t* file, uint32_t line)
-     60          {
-     61            /* User can add his own implementation to report the file name and line number,
-     62               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-     63          }
+   \                                 In section .far_func.text, align 1
+    156          void assert_failed(uint8_t* file, uint32_t line)
+    157          {
+    158            /* User can add his own implementation to report the file name and line number,
+    159               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    160          }
    \                     assert_failed:
-   \   000000 81           RET
-     64          /*******************************************************************************
-     65          * Function Name  : RCC_Configuration
-     66          * Description    : Configures the different system clocks.
-     67          *                 16MHZ INTERNAL OSCILLATOR HSI ENABLED BY DEFAULT
-     68          * Input          : None
-     69          * Output         : None
-     70          * Return         : None
-     71          *******************************************************************************/
+   \   000000 87           RETF
+    161          /*******************************************************************************
+    162          * Function Name  : RCC_Configuration
+    163          * Description    : Configures the different system clocks.
+    164          *                 16MHZ INTERNAL OSCILLATOR HSI ENABLED BY DEFAULT
+    165          * Input          : None
+    166          * Output         : None
+    167          * Return         : None
+    168          *******************************************************************************/
 
-   \                                 In section .near_func.text, align 1
-     72          void RCC_Configuration(void){
-     73            CLK->SWCR = 0x08;     /*SWIF SET TO AUTO*/
+   \                                 In section .far_func.text, align 1
+    169          void RCC_Configuration(void){
+    170            CLK->SWCR = 0x08;     /*SWIF SET TO AUTO*/
    \                     RCC_Configuration:
-   \   000000 CD ....      CALL      L:?Subroutine1
-     74            CLK->CKDIVR = 0;      /*SET TO FULL SPEED 16MHZ*/
-     75            CLK->PCKENR1 = 0x81;  /*TIM1, I2C CLOCK ENABLED*/
-     76            CLK->PCKENR2 = 0x08;  /*ADC CLOCK ENABLED*/
-     77            CLK->CSSR = 0x00;     /*security off*/
-     78          }
-   \                     ??CrossCallReturnLabel_0:
-   \   000003 81           RET
-
-   \                                 In section .near_func.text, align 1
-   \                     ?Subroutine1:
    \   000000 35 08 50C5   MOV       L:0x50c5, #0x8
-   \   000004 725F 50C6    CLR       L:0x50c6
-   \   000008 35 81 50C7   MOV       L:0x50c7, #0x81
+    171            CLK->CKDIVR = 0;      /*SET TO FULL SPEED 16MHZ*/
+   \   000004 35 00 50C6   MOV       L:0x50c6, #0x0
+    172            CLK->PCKENR1 = 0x8D;  /*TIM1, I2C CLOCK ENABLED, UART1,3*/
+   \   000008 35 8D 50C7   MOV       L:0x50c7, #0x8d
+    173            CLK->PCKENR2 = 0x08;  /*ADC CLOCK ENABLED*/
    \   00000C 35 08 50CA   MOV       L:0x50ca, #0x8
-   \   000010 725F 50C8    CLR       L:0x50c8
-   \   000014 81           RET
-     79          /*******************************************************************************
-     80          * Function Name  : GPIO_Configuration
-     81          * Description    : Configures the different GPIO ports.
-     82          * Input          : None
-     83          * Output         : None
-     84          * Return         : None
-     85          *******************************************************************************/
+    174            CLK->CSSR = 0x00;     /*security off*/
+   \   000010 35 00 50C8   MOV       L:0x50c8, #0x0
+    175          }
+   \   000014 87           RETF
+    176          /*******************************************************************************
+    177          * Function Name  : GPIO_Configuration
+    178          * Description    : Configures the different GPIO ports.
+    179          * Input          : None
+    180          * Output         : None
+    181          * Return         : None
+    182          *******************************************************************************/
 
-   \                                 In section .near_func.text, align 1
-     86          void GPIO_Configuration(void){
-     87            GPIOA->DDR = 0xFF;  /*all outputs*/
+   \                                 In section .far_func.text, align 1
+    183          void GPIO_Configuration(void){
+    184            GPIOA->DDR = 0xDF;  /*all outputs*/
    \                     GPIO_Configuration:
-   \   000000 35 FF 5002   MOV       L:0x5002, #0xff
-     88            GPIOA->CR1 = 0x70; /*default inputs floating outputs OD*/
+   \   000000 35 DF 5002   MOV       L:0x5002, #0xdf
+    185            GPIOA->CR1 = 0x70; /*default inputs floating outputs OD*/
    \   000004 35 70 5003   MOV       L:0x5003, #0x70
-     89            GPIOA->CR2 = 0; /*default values no ints, 2mhz speed*/
-   \   000008 725F 5004    CLR       L:0x5004
-     90            GPIOB->DDR = 0xF0;  /*4-7 outputs, 0-3 inputs*/
+    186            GPIOA->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000008 35 00 5004   MOV       L:0x5004, #0x0
+    187            GPIOB->DDR = 0xF0;  /*4-7 outputs, 0-3 inputs*/
    \   00000C 35 F0 5007   MOV       L:0x5007, #0xf0
-     91            GPIOB->CR1 = 0; /*default inputs floating outputs OD*/
-   \   000010 725F 5008    CLR       L:0x5008
-     92            GPIOB->CR2 = 0; /*default values no ints, 2mhz speed*/
-   \   000014 725F 5009    CLR       L:0x5009
-     93            GPIOC->DDR = 0xFF;  /*all outputs*/
+    188            GPIOB->CR1 = 0; /*default inputs floating outputs OD*/
+   \   000010 35 00 5008   MOV       L:0x5008, #0x0
+    189            GPIOB->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000014 35 00 5009   MOV       L:0x5009, #0x0
+    190            GPIOC->DDR = 0xFF;  /*all outputs*/
    \   000018 35 FF 500C   MOV       L:0x500c, #0xff
-     94            GPIOC->CR1 = 0xFF; /*outputs push pull*/
+    191            GPIOC->CR1 = 0xFF; /*outputs push pull*/
    \   00001C 35 FF 500D   MOV       L:0x500d, #0xff
-     95            GPIOC->CR2 = 0; /*default values no ints, 2mhz speed*/
-   \   000020 725F 500E    CLR       L:0x500e
-     96            GPIOD->DDR = 0xFD;  /*all outputs except D1 */
-   \   000024 35 FD 5011   MOV       L:0x5011, #0xfd
-     97            GPIOD->CR1 = 0xE1; /*outputs push pull except 2,3,4 OD*/
-   \   000028 35 E1 5012   MOV       L:0x5012, #0xe1
-     98            GPIOD->CR2 = 0; /*default values no ints, 2mhz speed*/
-   \   00002C 725F 5013    CLR       L:0x5013
-     99            GPIOE->DDR = 0xFF;  /*all outputs */
+    192            GPIOC->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000020 35 00 500E   MOV       L:0x500e, #0x0
+    193            GPIOD->DDR = 0xBD;  /*all outputs except D1,D6 */
+   \   000024 35 BD 5011   MOV       L:0x5011, #0xbd
+    194            GPIOD->CR1 = 0xB1; /*outputs push pull except 2,3,46 OD*/
+   \   000028 35 B1 5012   MOV       L:0x5012, #0xb1
+    195            GPIOD->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   00002C 35 00 5013   MOV       L:0x5013, #0x0
+    196            GPIOE->DDR = 0xFF;  /*all outputs */
    \   000030 35 FF 5016   MOV       L:0x5016, #0xff
-    100            GPIOE->CR1 = 0x09; /*default inputs floating outputs OD*/
+    197            GPIOE->CR1 = 0x09; /*default inputs floating outputs OD*/
    \   000034 35 09 5017   MOV       L:0x5017, #0x9
-    101            GPIOE->CR2 = 0; /*default values no ints, 2mhz speed*/
-   \   000038 725F 5018    CLR       L:0x5018
-    102            GPIOG->DDR = 0xFE;  /*all outputs except PG0 */
+    198            GPIOE->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000038 35 00 5018   MOV       L:0x5018, #0x0
+    199            GPIOG->DDR = 0xFE;  /*all outputs except PG0 */
    \   00003C 35 FE 5020   MOV       L:0x5020, #0xfe
-    103            GPIOG->CR1 = 0xFE; /*outputs push pull input is floating */
+    200            GPIOG->CR1 = 0xFE; /*outputs push pull input is floating */
    \   000040 35 FE 5021   MOV       L:0x5021, #0xfe
-    104            GPIOG->CR2 = 0; /*default values no ints, 2mhz speed*/
-   \   000044 725F 5022    CLR       L:0x5022
-    105          }
-   \   000048 81           RET
-    106          
-    107          /* TIMER1 configuration -----------------------------------------------------*/
-    108          /*USED FOR GP TIMING RUN AT 200HZ                                            */
-    109          /*---------------------------------------------------------------------------*/
+    201            GPIOG->CR2 = 0; /*default values no ints, 2mhz speed*/
+   \   000044 35 00 5022   MOV       L:0x5022, #0x0
+    202          }
+   \   000048 87           RETF
+    203          
+    204          /* TIMER1 configuration -----------------------------------------------------*/
+    205          /*USED FOR GP TIMING RUN AT 200HZ                                            */
+    206          /*---------------------------------------------------------------------------*/
 
-   \                                 In section .near_func.text, align 1
-    110          void TIMER1_Configuration (void){
-    111            TIM1->PSCRH = 0x00; /*prescale div by 4  (16m/4 = 4mhz)*/
+   \                                 In section .far_func.text, align 1
+    207          void TIMER1_Configuration (void){
+    208            TIM1->PSCRH = 0x00; /*prescale div by 4  (16m/4 = 4mhz)*/
    \                     TIMER1_Configuration:
-   \   000000 725F 5260    CLR       L:0x5260
-    112            TIM1->PSCRL = 0x03; /*prescale div by 4  (16m/4 = 4mhz)*/
+   \   000000 35 00 5260   MOV       L:0x5260, #0x0
+    209            TIM1->PSCRL = 0x03; /*prescale div by 4  (16m/4 = 4mhz)*/
    \   000004 35 03 5261   MOV       L:0x5261, #0x3
-    113            TIM1->ARRH = 0x4E; /*auto reload = 20000 (4m/20k = 200)*/
+    210            TIM1->ARRH = 0x4E; /*auto reload = 20000 (4m/20k = 200)*/
    \   000008 35 4E 5262   MOV       L:0x5262, #0x4e
-    114            TIM1->ARRL = 0x20;
+    211            TIM1->ARRL = 0x20;
    \   00000C 35 20 5263   MOV       L:0x5263, #0x20
-    115            TIM1->CR1 = 0x91; /*enable counter with interrupts on overflow*/
+    212            TIM1->CR1 = 0x91; /*enable counter with interrupts on overflow*/
    \   000010 35 91 5250   MOV       L:0x5250, #0x91
-    116            TIM1->IER = 0x01; /*enable interrupts*/
+    213            TIM1->IER = 0x01; /*enable interrupts*/
    \   000014 35 01 5254   MOV       L:0x5254, #0x1
-    117          }
-   \   000018 81           RET
-
-   \                                 In section .near_func.text, align 1
-    118          void InitDeviceUART(void){
-    119            UART1_Init(9600,  UART1_WORDLENGTH_8D, UART1_STOPBITS_1, UART1_PARITY_NO, UART1_SYNCMODE_CLOCK_DISABLE,  UART1_MODE_TXRX_ENABLE);
-   \                     InitDeviceUART:
-   \   000000 CD ....      CALL      L:?Subroutine0
-   \                     ??CrossCallReturnLabel_4:
-   \   000003 CC ....      JP        L:UART1_Init
-    120          }
-
-   \                                 In section .near_func.text, align 1, keep-with-next
-   \                     ?Subroutine0:
-   \   000000 35 0C ....   MOV       S:?b7, #0xc
-   \   000004 35 80 ....   MOV       S:?b6, #0x80
-   \   000008              REQUIRE ??Subroutine2_0
-   \   000008              ;               // Fall through to label ??Subroutine2_0
-
-   \                                 In section .near_func.text, align 1
-   \                     ??Subroutine2_0:
-   \   000000 3F ..        CLR       S:?b5
-   \   000002 3F ..        CLR       S:?b4
-   \   000004 4F           CLR       A
-   \   000005 AE 2580      LDW       X, #0x2580
-   \   000008 BF ..        LDW       S:?w1, X
-   \   00000A 5F           CLRW      X
-   \   00000B BF ..        LDW       S:?w0, X
-   \   00000D 81           RET
-
-   \                                 In section .near_func.text, align 1
-    121          void InitGS1011UART(void){
-    122            UART3_Init(9600, UART3_WORDLENGTH_8D, 
-    123                           UART3_STOPBITS_1,  UART3_PARITY_NO, 
-    124                           UART3_MODE_TXRX_ENABLE);
-   \                     InitGS1011UART:
-   \   000000 35 0C ....   MOV       S:?b6, #0xc
-   \   000004 CD ....      CALL      L:??Subroutine2_0
-   \                     ??CrossCallReturnLabel_2:
-   \   000007 CC ....      JP        L:UART3_Init
-    125          }
-    126          
+    214          }
+   \   000018 87           RETF
+    215          
 
    Section sizes:
 
    Bytes  Function/Label
    -----  --------------
-      14  ??Subroutine2_0
-       8  ?Subroutine0
-      21  ?Subroutine1
        1  BLCNT_INDX
        1  BLCNT_STATE
        1  BLCNT_VAL
       73  GPIO_Configuration
-       6  InitDeviceUART
        1  InitEEData
-      10  InitGS1011UART
-       1  Mode1
-       4  RCC_Configuration
+      21  RCC_Configuration
        1  SysError
+       1  TEST
       25  TIMER1_Configuration
        4  VER
        1  assert_failed
-      27  main
+     229  main
 
  
- 190 bytes in section .near_func.text
-   5 bytes in section .tiny.bss
-   4 bytes in section .tiny.data
+ 350 bytes in section .far_func.text
+   5 bytes in section .near.bss
+   4 bytes in section .near.data
  
- 190 bytes of CODE memory
+ 350 bytes of CODE memory
    9 bytes of DATA memory
 
 Errors: none
