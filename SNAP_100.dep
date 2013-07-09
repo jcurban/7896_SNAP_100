@@ -50,7 +50,7 @@
       <file>$PROJ_DIR$\Debug\Obj\GS1011_Serial_Handlers.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\StringUtilities.o</file>
       <file>$PROJ_DIR$\stm8s.h</file>
-      <file>$PROJ_DIR$\lnkstm8s007C8.icf</file>
+      <file>$PROJ_DIR$\lnkstm8s007c8.icf</file>
       <file>$PROJ_DIR$\Debug\Obj\GS1011_Serial_Handlers.o</file>
       <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\utils.pbi</file>
@@ -409,7 +409,7 @@
       <file>$PROJ_DIR$\stm8s_exti.h</file>
       <file>$PROJ_DIR$\stm8s_wwdg.h</file>
       <file>$PROJ_DIR$\stm8s.h</file>
-      <file>$PROJ_DIR$\lnkstm8s007C8.icf</file>
+      <file>$PROJ_DIR$\lnkstm8s007c8.icf</file>
       <file>$TOOLKIT_DIR$\lib\dlstm8mmn.a</file>
       <file>$PROJ_DIR$\intrinsics.h</file>
       <file>$PROJ_DIR$\stm8s_gpio.h</file>
@@ -726,50 +726,6 @@
         </tool>
       </inputs>
     </file>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\Device_Serial_Handlers.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\main.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\GS1011_Serial_Handlers.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\ParameterBlockHandlers.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\utils.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\StringUtilities.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\SNAPdata.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\SNAPSData.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\stm8s_clk.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>$PROJ_DIR$\stm8s_it.c</name>
-      <tool>ICCSTM8</tool>
-    </forcedrebuild>
-    <forcedrebuild>
-      <name>[MULTI_TOOL]</name>
-      <tool>ILINK</tool>
-    </forcedrebuild>
     <forcedrebuild>
       <name>[REBUILD_ALL]</name>
     </forcedrebuild>
