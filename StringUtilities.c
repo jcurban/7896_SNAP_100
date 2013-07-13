@@ -2,88 +2,56 @@
 #include "SNAP_Defines.h"
 
 extern int Found_String_At_Byte;
-extern u8 GS1011_String_Found;
 extern char Device_Xmit_Pointer;
 extern u8 Device_Xmit_Char_Count;
-extern u8 GS1011_Xmit_Char_Count;
-extern int GS1011_Xmit_Pointer;
-extern char GS1011_Xmit_Setup_Char_Pointer;
 extern char Device_Xmit_Setup_Char_Pointer;
-extern int GS1011_Rvcr_Count;
-extern char GS1011_Xmit_Buffer[];
-extern char Device_Xmit_Buffer[];
-extern char GS1011_Receiver_Buffer[];
-extern char Device_Receiver_Buffer[];
-extern u16 GS1011_Rcvr_InPtr;
-extern u16 GS1011_Rcvr_OutPtr;
 extern char Device_Rcvr_EOM_Timer;
 extern char Device_Rcvr_Timeout;
 extern char Device_Rcvr_Complete_flag;
-
 extern u8 Device_RX_InPtr;
 extern u8 Device_RX_OutPtr;
 extern char Device_Serial_number[];
 extern char Device_Processing_Buffer[];
+extern char Device_Xmit_Buffer[];
+extern char Device_Receiver_Buffer[];
+
+extern u8 GS1011_String_Found;
+extern u8 GS1011_Xmit_Char_Count;
+extern int GS1011_Xmit_Pointer;
+extern char GS1011_Xmit_Setup_Char_Pointer;
+extern int GS1011_Rvcr_Count;
+extern u16 GS1011_Rcvr_InPtr;
+extern u16 GS1011_Rcvr_OutPtr;
+extern char GS1011_Xmit_Buffer[];
+extern char GS1011_Receiver_Buffer[];
 
 /*****************************************************************************/
 /*****            STRING UTILITY ROUTINES                                 ****/
 /*****************************************************************************/
 int CountChars(char s[]);
-void CopyBufferGS1011(char srce[]);
-char CountGS1011Chars(void);
+void CopySerialNumber(void);
+void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm);
 char CopyBuffer (char dest[], char srce[]);
-void CopyBufferDevice( char srce[]);
-void CopyBufferGS1011 (char srce[]);
 void CopyBufferCounted (char dest[], char srce[], char cntr);
 void FillBuffer (char bufr[],char filchr, char cntr);
-
-void InitializeDeviceBuffer (void);
-void InitializeGS1011Buffer (void);
 void Add_Char_to_Buffer (char bufr[], int ptr,char chr);
-void Add_Char_to_GS1011_Buffer (char chr);
 void Add_Integer_to_Buffer (char bufr[],int ptr, int vint);
 int Add_String_to_Buffer (char bufr[],int ptr, char srce[]);
+
+void CopyBufferDevice( char srce[]);
+void InitializeDeviceBuffer (void);
+
+void CopyBufferGS1011(char srce[]);
+char CountGS1011Chars(void);
+void CopyBufferGS1011 (char srce[]);
+void InitializeGS1011Buffer (void);
+void Add_Char_to_GS1011_Buffer (char chr);
 void Add_String_to_GS1011_Buffer ( char srce[]);
 void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt);
-void CopySerialNumber(void);
 void FindGS1011Chars(char chrstrng[]);
-void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm);
 /*****************************************************************************/
 /*****              GENERAL BUFFER HANDLING ROUTINES                      ****/
 /*****************************************************************************/
-
-/*****************************************************************************/
-/***** InitializeDeviceBuffer (buffer pointer)                            ****/
-/*****                  source buffer must terminate with a 0x00.         ****/
-/*****          Returns an integer for number of characters in the buffer ****/
-/*****************************************************************************/
-void InitializeDeviceBuffer (void){
-  for (Device_RX_InPtr = 0; Device_RX_InPtr < 255; Device_RX_InPtr++) 
-    Device_Receiver_Buffer[Device_RX_InPtr] = 0x00;
-  
-    Device_RX_InPtr = 0;
-    Device_RX_OutPtr = 0;
-    Device_Rcvr_EOM_Timer = 0;
-    Device_Rcvr_Timeout = 0;
-    Device_Rcvr_Complete_flag = 0;
-}
-/*****************************************************************************/
-/***** InitializeDeviceBuffer (buffer pointer)                            ****/
-/*****                  source buffer must terminate with a 0x00.         ****/
-/*****          Returns an integer for number of characters in the buffer ****/
-/*****************************************************************************/
-void InitializeGS1011Buffer (void){
-int ptr;
-for (ptr = 0; ptr < BFRSIZEX2; ptr++) 
-   GS1011_Receiver_Buffer[ptr] = 0x00;
-for (ptr = 0; ptr < BFRSIZE; ptr++)
-    GS1011_Xmit_Buffer[ptr] = 0x00;
-
-GS1011_Rcvr_InPtr = 0;
-GS1011_Rcvr_OutPtr = 0;
-GS1011_Xmit_Char_Count=0;
-GS1011_Xmit_Setup_Char_Pointer=0;
-}
 /******************************************************************************/
 /***** Add_Char_to_Buffer (char s)                                         ****/
 /*****                 Buffer pointer always contain the next space        ****/
@@ -94,18 +62,6 @@ void Add_Char_to_Buffer (char bufr[], int ptr, char chr){
   bufr[ptr] = chr;
   ptr++;
 }
-
-/******************************************************************************/
-/***** Add_Char_to_GS1011_Buffer (char s)                                  ****/
-/*****                 Buffer pointer always contain the next space        ****/
-/*****                    available for data storage                       ****/
-/*****     CALLING ROUTINE IS RESPONSIBLE TO BE SURE THERE'S ROOM AVAILABLE****/
-/*****************************************************************************/
-void Add_Char_to_GS1011_Buffer (char chr){
-  GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = chr;
-  GS1011_Xmit_Char_Count++;
-}
-
 /*****************************************************************************/
 /***** Add_Integer_to_Buffer (int s)                               ****/
 /*****                 Device buffers always contain the next space       ****/
@@ -120,7 +76,6 @@ void Add_Integer_to_Buffer (char bufr[], int ptr, int vint){
   bufr[ptr+1] = high;
   ptr +=2;
 }
-
 /*****************************************************************************/
 /***** Add_String_to_Buffer (buffer pointer, source pointer)       ****/
 /*****                 buffer & source buffer must terminate with a 0x00. ****/
@@ -137,38 +92,6 @@ int Add_String_to_Buffer (char bufr[],int ptr, char srce[]){
         }
      }
 return ptr;
-}
-
-/*****************************************************************************/
-/***** Add_String_to_GS1011_Buffer (buffer pointer, source pointer)       ****/
-/*****                 buffer & source buffer must terminate with a 0x00. ****/
-/*****    overwrites the receiving buffers terminating 0x00               ****/
-/*****                  copies source terminating 0x00.                   ****/
-/*****************************************************************************/
-void Add_String_to_GS1011_Buffer ( char srce[]){
- u16 i;
-     for (i = 0; i<BFRSIZE; i++){
-     GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[i];      /* store string into buffer until */
-        if (srce[i] == 0x00)break;
-     GS1011_Xmit_Char_Count++;   
-     }
-}
-
-/*****************************************************************************/
-/***** Add_String_to_GS1011_Buffer (buffer pointer, source pointer)       ****/
-/*****                 buffer & source buffer must terminate with a 0x00. ****/
-/*****    overwrites the receiving buffers terminating 0x00               ****/
-/*****                  copies source terminating 0x00.                   ****/
-/*****************************************************************************/
-void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt){
- u16 i;
- if ((GS1011_Xmit_Char_Count + cnt) < BFRSIZE){
-     for (i = 0; i<=cnt; i++)      
-     {
-              GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[i];      /* store string into buffer until */
-              GS1011_Xmit_Char_Count++;                    /*   the strings terminating 0x00 */          
-     }
-  }
 }
 /*****************************************************************************/
 /***** FillBuffer (buffer pointer)                                         ****/
@@ -196,40 +119,13 @@ char CopyBuffer (char dest[], char srce[]){
   return i;
  }
 /*****************************************************************************/
-/***** copy buffer (pointer to destination, pointer to source buffer)     ****/
-/*****                  source buffer must terminate with a 0x00.         ****/
-/*****************************************************************************/
-void CopyBufferDevice(char srce[]){
- u8 i;
- for (i=0; i < BFRSIZE; i++){
-   Device_Xmit_Buffer[i] = srce[i];
-   if (srce[i] == ETX){
-    Device_Xmit_Setup_Char_Pointer =i;
-    break;
-   }
-  }
- }
-
-/*****************************************************************************/
-/***** copy buffer (pointer to destination, pointer to source buffer)     ****/
-/*****                  source buffer must terminate with a 0x00.         ****/
-/*****************************************************************************/
-void CopyBufferGS1011 (char srce[]){
- for (GS1011_Xmit_Char_Count=0; GS1011_Xmit_Char_Count < BFRSIZE; GS1011_Xmit_Char_Count++){
-    GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[GS1011_Xmit_Char_Count];
-    if (srce[GS1011_Xmit_Char_Count] == 0){
-        break;
-    }
-  }
-}
-/*****************************************************************************/
 /***** copy buffer from offset to terminator(pointer to destination, pointer to source buffer,****/
 /*****                                  number of bytes to copy)          ****/
 /*****************************************************************************/
 void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm){
 int destoffset,chkchr; 
 destoffset = 0;
-for (destoffset =0; destoffset < 512; destoffset++){
+for (destoffset =0; destoffset < BFRSIZEX2; destoffset++){
   chkchr = srcebufr[ofst];
 if (chkchr != trm){
     destbufr[destoffset] = srcebufr[ofst];
@@ -273,6 +169,124 @@ int cntr;
   return cntr;
 }
 /*****************************************************************************/
+/*****************************************************************************/
+/*  DEVICE BUFFER HANDLERS                         */
+/*****************************************************************************/
+/*****************************************************************************/
+
+/*****************************************************************************/
+/***** InitializeDeviceBuffer (buffer pointer)                            ****/
+/*****                  source buffer must terminate with a 0x00.         ****/
+/*****          Returns an integer for number of characters in the buffer ****/
+/*****************************************************************************/
+void InitializeDeviceBuffer (void){
+  for (Device_RX_InPtr = 0; Device_RX_InPtr < BFRSIZE_HALF; Device_RX_InPtr++) 
+    Device_Receiver_Buffer[Device_RX_InPtr] = 0x00;
+  
+    Device_RX_InPtr = 0;
+    Device_RX_OutPtr = 0;
+    Device_Rcvr_EOM_Timer = 0;
+    Device_Rcvr_Timeout = 0;
+    Device_Rcvr_Complete_flag = 0;
+}
+/*****************************************************************************/
+/***** copy buffer (pointer to destination, pointer to source buffer)     ****/
+/*****                  source buffer must terminate with a 0x00.         ****/
+/*****************************************************************************/
+void CopyBufferDevice(char srce[]){
+ u8 i;
+ for (i=0; i < BFRSIZE; i++){
+   Device_Xmit_Buffer[i] = srce[i];
+   if (srce[i] == ETX){
+    Device_Xmit_Setup_Char_Pointer =i;
+    Device_Xmit_Char_Count = i;
+    break;
+   }
+  }
+ }
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*  GS1011 BUFFER HANDLERS                         */
+/*****************************************************************************/
+/*****************************************************************************/
+
+/*****************************************************************************/
+/***** InitializeDeviceBuffer (buffer pointer)                            ****/
+/*****                  source buffer must terminate with a 0x00.         ****/
+/*****          Returns an integer for number of characters in the buffer ****/
+/*****************************************************************************/
+void InitializeGS1011Buffer (void){
+int ptr;
+for (ptr = 0; ptr < BFRSIZEX2; ptr++) 
+   GS1011_Receiver_Buffer[ptr] = 0x00;
+for (ptr = 0; ptr < BFRSIZE; ptr++)
+    GS1011_Xmit_Buffer[ptr] = 0x00;
+
+GS1011_Rcvr_InPtr = 0;
+GS1011_Rcvr_OutPtr = 0;
+GS1011_Xmit_Char_Count=0;
+GS1011_Xmit_Setup_Char_Pointer=0;
+}
+
+/******************************************************************************/
+/***** Add_Char_to_GS1011_Buffer (char s)                                  ****/
+/*****                 Buffer pointer always contain the next space        ****/
+/*****                    available for data storage                       ****/
+/*****     CALLING ROUTINE IS RESPONSIBLE TO BE SURE THERE'S ROOM AVAILABLE****/
+/*****************************************************************************/
+void Add_Char_to_GS1011_Buffer (char chr){
+  GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = chr;
+  GS1011_Xmit_Char_Count++;
+}
+/*****************************************************************************/
+/***** Add_String_to_GS1011_Buffer (buffer pointer, source pointer)       ****/
+/*****                 buffer & source buffer must terminate with a 0x00. ****/
+/*****    overwrites the receiving buffers terminating 0x00               ****/
+/*****                  copies source terminating 0x00.                   ****/
+/***** USES GS1011_Xmit_Char_count as pointer to the destination buffer   ****/
+/*****  terminates the destination buffer with the 0x00 from the source buffer*/
+/*****************************************************************************/
+void Add_String_to_GS1011_Buffer ( char srce[]){
+ u16 i;
+     for (i = 0; i<BFRSIZE; i++){
+     GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[i];      /* store string into buffer until */
+        if (srce[i] == 0x00)break;
+     GS1011_Xmit_Char_Count++;   
+     }
+}
+/*****************************************************************************/
+/***** Add_String_to_GS1011_Buffer (buffer pointer, source pointer)       ****/
+/*****                 buffer & source buffer must terminate with a 0x00. ****/
+/*****    overwrites the receiving buffers terminating 0x00               ****/
+/*****                  copies source terminating 0x00.                   ****/
+/***** USES GS1011_Xmit_Char_count as pointer to the destination buffer   ****/
+/*****************************************************************************/
+void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt){
+ u16 i;
+ if ((GS1011_Xmit_Char_Count + cnt) < BFRSIZE){
+     for (i = 0; i<=cnt; i++)      
+     {
+              GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[i];      /* store string into buffer until */
+              GS1011_Xmit_Char_Count++;                             
+     }
+  }
+}
+/*****************************************************************************/
+/***** copy buffer (pointer to destination, pointer to source buffer)     ****/
+/*****                  source buffer must terminate with a 0x00.         ****/
+/***** this routine is ALWAYS used to start the assembly of a gs1011 xmit msg*/
+/*****                                                                    ****/
+/*****************************************************************************/
+void CopyBufferGS1011 (char srce[]){
+ for (GS1011_Xmit_Char_Count=0; GS1011_Xmit_Char_Count < BFRSIZE; GS1011_Xmit_Char_Count++){
+    GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[GS1011_Xmit_Char_Count];
+    if (srce[GS1011_Xmit_Char_Count] == 0x00){ /* all GS1011 stock msg are terminated with 0x00*/
+        break;
+    }
+  }
+}
+/*****************************************************************************/
 /***** CountChars (buffer pointer)                                         ****/
 /*****                  source buffer must terminate with a 0x00.         ****/
 /*****          Returns an integer for number of characters in the buffer ****/
@@ -284,7 +298,6 @@ char i;
   } 
      return i;
 }
-
 /*****************************************************************************/
 /***** Find string ( buffer pointer, string)                                         ****/
 /*****                  source buffer must terminate with a 0x00.         ****/
@@ -328,36 +341,5 @@ for (lookinptr=0; lookinptr < GS1011_Rvcr_Count; lookinptr++){
           }
       }
     }
-  /***                                            loop while bytes match */
-   
    }
 }
-
-/*****************************************************************************/
-/***** CountChars (buffer pointer)                                         ****/
-/*****                  source buffer must terminate with a 0x00.         ****/
-/*****          Returns an integer for number of characters in the buffer ****/
-/*****************************************************************************/
-/*void CountDeviceChars(void){
-char chr;
-  for (Device_Xmit_Char_Count=0; Device_Xmit_Char_Count < BFRSIZE; Device_Xmit_Char_Count++){
-    chr = Device_Xmit_Pointer;
-    if  (chr == 0x03){
-      Device_Xmit_Char_Count++;
-      break;
-      }
-      Device_Xmit_Pointer++;
-  }
-}*/
-/*****************************************************************************/
-/*****              DEVICE BUFFER  HANDLING ROUTINES                      ****/
-/*****  While the GS1011 buffers are purely ASCII, the Device_Buffer can  ****/
-/*****    ANY type of data, not only in the packet data, but as counts,   ****/
-/*****    etc. in the header of the message.                              ****/
-/*****                                                                    ****/
-/*****    where bufr is buffer containing parameters                      ****/
-/*****          ptr is pointer at begining of parameter                   ****/
-/*****          cntr is the parameter counter                             ****/
-/*****************************************************************************/
-
-

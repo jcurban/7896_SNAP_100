@@ -92,56 +92,53 @@ int main( void ){
     case WAIT_FOR_UPDATE_STATE:      /* wait for the device update */   
       Wait_For_Update();
       break;
-    case 2:
+    case PREOCESS_DEVICE_UPDATE_STATE:
       Process_Received_Update();     /* de-escape and check checksum */
       break;
-    case 3:
+    case GET_GS1011_NETWORK_STATE:
       GetNetworkStatusFromGS1011();  /* check if gs1011 connected to router */ 
       break;                         /* if connected send update, esle config */
-    case 4:                              
+    case GET_WEBSITE_IP_ADDRESS_STATE:                              
       Get_Website_IP_address();      /* set GS1011 address to 192.168.1.1 */
       break;
-    case 5:
+    case SET_MARS_AS_WEBSITE_STATE:
       Set_Mars_as_Website();         /* set the host to mars.bwgrp.com */
       break;
-    case 6:
+    case SET_KEEP_ALIVE_STATE:
       Set_Keep_Alive();             /* prevent a disconnect after status returned */
       break;
-    case 7:
+    case HTTPOPEN_GET_CID_STATE:
       HTTPOPEN_Get_CID();           /* open the port, get CID (Connection ID 0-9) */
       break;
-    case 8:
+    case CONVERT_DEVICE_DATA_AND_SEND_STATE:
       Convert_update_and_Send();
       break;
-    case 9:
-      Get_Website_Response_and_Respond();
-      break;
 /*                                    reset the adaptor and provision*/ 
-    case 10:
+    case RESET_NETWORK_ACCESS_STATE:
       Reset_Network_Access();
       break;
-    case 11:
+    case SET_FACTORY_RESET_STATE:
       Set_FactoryReset();
       break;
-    case 12:
+    case RESET_GS1011_ADAPTOR_STATE:
       ResetAdaptor();
       break;
-    case 13:
+    case DISACSSOCIATE_WEB_ACCESS_STATE:
       DisassociateWeb();
       break;
-    case 14:
+    case SET_INITIAL_IPADDRESS_STATE:
       SetupSendInitialIPAddress();
       break;
-    case 15:
+    case SET_WEB_MODE_TO_LIMITED_STATE:
       SendWM_2();
       break;
-    case 16:
+    case INIT_WEB_ACCESS_STATE:
       SendWA_Init();
       break;
-    case 17:
+    case SET_DHCPSRVR_STATE:
       setDHCPSRVR();
       break;
-    case 18:
+    case SET_PROVISIONING_STATE:
       SetProvisioning();
       break;
     }

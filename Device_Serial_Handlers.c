@@ -20,33 +20,26 @@ extern void CopyBuffer (char *dest, char *srce);
 extern void CopyBufferDevice(char srce[]);
 extern void CopyBufferCounted (char *dest, char *srce, int cntr);
 extern void FillBuffer (char bufr[],char filchr, int cntr);
+
 extern void UART3_SendData8(u8);
 extern void InitializeDeviceBuffer (void);
 extern int Add_Char_to_Buffer (char *bufr, int ptr, char chr);
 extern int Add_Integer_to_Buffer (char *bufr,int ptr, int vint);
 extern int Add_String_to_Buffer (char *bufr, int ptr, char *srce);
-void Add_Char_to_GS1011_Buffer (char chr);
-extern void Initialize_GS011_Xmit_buffer(void);
 extern void CopyBufferGS1011 (char dest[], char srce[]);
-
+extern void CopySerialNumber(void);
 extern void Make_Website_Update_from_Processing_Buffer(void);
-void Add_String_to_GS1011_Buffer ( char *srce);
-void CopySerialNumber(void);
-void Send_ACK_Message(void);
+extern void Add_String_to_GS1011_Buffer ( char *srce);
+extern void Send_ACK_Message(void);
 /* EXTERNAL DATA */
 extern char Device_Rcvr_EOM_Timer;
 extern char Device_Rcvr_Timeout;
-extern char Device_Serial_number[];
 extern char SNAP_State;
 extern char checksum_Okay;
 extern char CID_Value;
 extern char Device_State;
 extern char checksum_this;
 extern char Processing_Byte_Count;
-extern char Device_Processing_Buffer[];
-extern char Website_Parameter_ASCII_Buffer[];
-extern char Device_Xmit_Buffer[];
-extern int cntr,gtchr;
 extern u8 Device_RX_InPtr;
 extern u8 Device_RX_OutPtr;
 extern int Device_Rcvr_Char_Count;
@@ -55,59 +48,49 @@ extern char Device_Update_Ready_for_Website_flag;
 extern u8 Device_Rcvr_char;
 extern int Device_Processing_Pointer;
 extern int Device_Rcvr_Pointer;
-extern char  *Device_Rcvr_Dest_Pointer;
-extern char Device_Receiver_Buffer[];
-extern char GS1011_Xmit_Buffer[];
-extern char ACKMessage[];
-extern char ResendMessage[];
+extern char Device_Rcvr_Dest_Pointer;
 extern char Packet_Data_Buffer;
 extern u8 Device_Xmit_Complete_Flag;
 extern u8 Device_Xmit_Char;
 extern char Device_Xmit_Pointer;
 extern u8 Device_Xmit_Char_Count;
 extern u8 GS1011_Xmit_Char_Count;
-extern char GS1011_Xmit_Buffer[];
-/* EXTERNAL DATA STOCK MESSAGES */
-extern char   DEVICE_SOH; /*START OF TEXT 0X02*/
-extern int DEVICE_MSGLENGTH; /*LENGTH OF MESSAGE*/
-extern char DEVICE_COMMAND; /* COMMAND TYPE*/
-extern char DEVICE_PACKETDATA; 
-extern char DEVICE_CHECKSUM;
-extern char DEVICE_EOT; /*end of text*/
-extern char SNAPREADYHDR;
-extern char SNAPREADY;
-extern char SNAPREADYEND;
+extern char webptr;
+extern char Device_Update_Data_count;
+/* EXTERNAL DATA buffers and stock messages */
 extern char Powered[];
 extern char ConfiguringAdaptor[];
 extern char AdaptorReady[];
+extern char ACKMessage[];
+extern char ResendMessage[];
 extern char SendtoWebsiteHeader[];
 extern char SendtoWebsiteHeader1[];
 
-extern char RequestMessage[];
-extern char Request1Message[];
-
-extern char NC_RequestMessage[];
-extern char NC_Request1Message[];
-
-extern char ASCII_RequestMessage[];
-extern char ASCII_Request1Message[];
-
+extern char Website_Update_Data_Buffer[];
+extern char GS1011_Xmit_Buffer[];
+extern char Device_Processing_Buffer[];
+extern char Website_Parameter_ASCII_Buffer[];
+extern char Device_Xmit_Buffer[];
+extern char Device_Receiver_Buffer[];
+extern char Device_Serial_number[];
 /* LOCAL DEFINITIONS */
 void InitDeviceUART(void);
 void Get_Device_Char(void);
 void Send_Next_Char_to_Device(void);
 /*void Make_Send_SNAP_Ready_Message(void);*/
-void Initialize_Device_receiver_buffer(void);
+void InitializeDeviceBuffer(void);
 void Handle_Device_State(void);
 void Assemble_and_Checksum_device_message(void);
-char Checksum_Device_Buffer(char bufr[]);
+void Assemble_Process_Send_Device_Website_Update(void);
+void Checksum_Device_Buffer(char bufr[]);
 char Check_Checksum_Device_Buffer(void);
+void InitializeDevice_Processing_Buffer(void);
 
 char Parse_Device_Rcvrd_Buffer(void);
 void Start_Device_Xmit (void);
 void Save_PValues(void);
 void Send_powered_Message(void);
-
+void InitializeDevice_Processing_Buffer(void);
 void Process_Receiver_Device_Message(void);
 void Process_Xmit_Device_Message(char bufr[], char bufr2[]);
 
@@ -120,13 +103,11 @@ void Convert_Update_Parameters(void);
 void Send_Powered_Wait_For_Update(void);
 void Check_Device_Input (void);
 void Clear_Device_Rcvr_Settings(void);
-void Send_Request_Message(void);
-void Send_Request1_Message(void);
-
-
 void Send_AdaptorReady_Message(void);
 void Send_ConfiguringAdaptor_Message(void);
 void Send_Resend_Message(void);
+void Add_Char_to_GS1011_Buffer (char chr);
+void copyStockSerialNumber(void);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****       device State machine                                        *****/
@@ -138,10 +119,9 @@ void Send_Resend_Message(void);
 /*      Lets the Device know we're ready for the update                      */
 /*****************************************************************************/
 void Send_Powered(void){
-  FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
   Send_powered_Message();
   Device_Update_Ready_for_Website_flag =0;
-  SNAP_State = 1;
+  SNAP_State = WAIT_FOR_UPDATE_STATE;
 }
 /*****************************************************************************/
 /* State 1 - Wait_For_Update                                                 */
@@ -155,10 +135,13 @@ void Wait_For_Update(void){
   }
   else {
     if (Device_Rcvr_Timeout == 1)
-      Initialize_Device_receiver_buffer();
+      InitializeDeviceBuffer();
    }     
 }
 
+/*****************************************************************************/
+/* Check_Device_Input                                                  */
+/*****************************************************************************/
 void Check_Device_Input (void){
       if (Device_Receiver_Buffer[COMMAND_BYTE] == 'U')
         if (SNAP_State == WAIT_FOR_UPDATE_STATE){ /* only process update if waiting for update*/
@@ -169,7 +152,7 @@ void Check_Device_Input (void){
         InitializeDeviceBuffer();
 }
 /*****************************************************************************/
-/* State 2 - Process_Update                                                  */
+/* State 2 - Process_Update   WAIT_FOR_UPDATE_STATE                          */
 /*      convert the update data to ASCII for the website                     */
 /*****************************************************************************/
 void Process_Received_Update(void){
@@ -177,34 +160,31 @@ void Process_Received_Update(void){
   checksum_Okay = Check_Checksum_Device_Buffer();
   if (checksum_Okay == 0x55){
     CopySerialNumber();
+    copyStockSerialNumber();   /* THIS IS ONLY SO WE DON'T INTERFERE WITH THE SHOW !!!!*/
     Make_Website_Update_from_Processing_Buffer();
     InitializeDeviceBuffer();
     SNAP_State = GET_GS1011_NETWORK_STATE;
   }
   else{                                 /*if checksum wrong ask for it again*/
-   InitializeDeviceBuffer();
    Send_Resend_Message();
-    SNAP_State = 1;
+    SNAP_State = WAIT_FOR_UPDATE_STATE;
   }
 }
 /*****************************************************************************/
 /*****************************************************************************/
-/****         Convert_Update_Parameters                                   ****/
-/*****************************************************************************/
-/*****************************************************************************/
-void Convert_Update_Parameters(void){
- CID_Value = 0x30;
- Initialize_GS011_Xmit_buffer();
- CopyBufferGS1011(GS1011_Xmit_Buffer, SendtoWebsiteHeader);
- Add_Char_to_GS1011_Buffer (CID_Value);
- Add_String_to_GS1011_Buffer (SendtoWebsiteHeader1);
- }
+extern char TestingSerialNumber[];
+void copyStockSerialNumber(void){
+  char i;
+  for (i = 0; i <= 19; i++){
+    Device_Processing_Buffer[i] = TestingSerialNumber[i];
+  }
+}
 /*****************************************************************************/
 /*****        Send_powered_Message                                ****/
 /*****        1st byte in Device processed buffer is the character count  ****/
 /*****************************************************************************/
 void Send_powered_Message(void){
-  Initialize_Device_receiver_buffer();
+  InitializeDeviceBuffer();
   CopyBufferDevice(Powered);
   Device_Xmit_Char_Count = Device_Xmit_Char_Count;
   Start_Device_Xmit ();
@@ -214,7 +194,7 @@ void Send_powered_Message(void){
 /*****        1st byte in Device processed buffer is the character count  ****/
 /*****************************************************************************/
 void Send_AdaptorReady_Message(void){
-  Initialize_Device_receiver_buffer();
+  InitializeDeviceBuffer();
   CopyBufferDevice(AdaptorReady);
   Device_Xmit_Char_Count = Device_Xmit_Char_Count;
   Start_Device_Xmit ();
@@ -224,7 +204,7 @@ void Send_AdaptorReady_Message(void){
 /*****        1st byte in Device processed buffer is the character count  ****/
 /*****************************************************************************/
 void Send_ConfiguringAdaptor_Message(void){
-  Initialize_Device_receiver_buffer();
+  InitializeDeviceBuffer();
   CopyBufferDevice(ConfiguringAdaptor);
   Device_Xmit_Char_Count = Device_Xmit_Char_Count;
   Start_Device_Xmit ();
@@ -234,7 +214,7 @@ void Send_ConfiguringAdaptor_Message(void){
 /*****        1st byte in Device processed buffer is the character count  ****/
 /*****************************************************************************/
 void Send_ACK_Message(void){
-  Initialize_Device_receiver_buffer();
+  InitializeDeviceBuffer();
   CopyBufferDevice(ACKMessage);
   Device_Xmit_Char_Count = Device_Xmit_Char_Count;
   Start_Device_Xmit ();
@@ -244,32 +224,8 @@ void Send_ACK_Message(void){
 /*****        1st byte in Device processed buffer is the character count  ****/
 /*****************************************************************************/
 void Send_Resend_Message(void){
-  Initialize_Device_receiver_buffer();
+  InitializeDeviceBuffer();
   CopyBufferDevice(ResendMessage);
-  Device_Xmit_Char_Count = Device_Xmit_Char_Count;
-  Start_Device_Xmit ();
-}
-/*****************************************************************************/
-/*****        Send_RequestMessage                                ****/
-/*****        1st byte in Device processed buffer is the character count  ****/
-/*****************************************************************************/
-void Send_Request_Message(void){
-  Initialize_Device_receiver_buffer();
-  /*CopyBufferDevice(RequestMessage);*/
-  /*CopyBufferDevice(NC_RequestMessage);*/
-  CopyBufferDevice(ASCII_RequestMessage);
-  Device_Xmit_Char_Count = Device_Xmit_Char_Count;
-  Start_Device_Xmit ();
-}
-/*****************************************************************************/
-/*****        Send_RequestMessage                                ****/
-/*****        1st byte in Device processed buffer is the character count  ****/
-/*****************************************************************************/
-void Send_Request1_Message(void){
-  Initialize_Device_receiver_buffer();
-  /*CopyBufferDevice(Request1Message);*/
-  /*CopyBufferDevice(NC_Request1Message);*/
-  CopyBufferDevice(ASCII_Request1Message);
   Device_Xmit_Char_Count = Device_Xmit_Char_Count;
   Start_Device_Xmit ();
 }
@@ -289,13 +245,38 @@ void Assemble_and_Checksum_device_message(void){
   /*Process_Device_Message(&Device_Xmit_Buffer, &Device_Processing_Buffer);
   Start_Device_Xmit ();          save the start of the buffer*/
 }
+
+/*****************************************************************************/
+/*****             Assemble_Process_Send_Device_website                   ****/
+/*****************************************************************************/
+void Assemble_Process_Send_Device_Website_Update(void){
+char i;
+  InitializeDeviceBuffer();
+  InitializeDevice_Processing_Buffer();
+  webptr = 0x00;
+  Device_Processing_Buffer[webptr] = STX;
+  webptr++;
+  Device_Processing_Buffer[webptr] = Device_Update_Data_count + 1;
+  webptr++;
+  for (i=0;i<= Device_Update_Data_count; i++) {
+    Device_Processing_Buffer[webptr] = Website_Update_Data_Buffer[i];
+    webptr++;
+    Checksum_Device_Buffer(Device_Processing_Buffer);
+    Process_Xmit_Device_Message(Device_Processing_Buffer, Device_Xmit_Buffer);
+  }
+}
+void InitializeDevice_Processing_Buffer(void){
+char i;
+  for (i=0; i< BFRSIZE; i++)
+     Device_Processing_Buffer[i]=0x00;
+}
 /*****************************************************************************/
 /*****             Checksum_Device_Buffer                                 ****/
 /*****        1st byte in Device processed buffer is the character count  ****/
 /*****                                                                    ****/
 /*****  bytes from count to one before the checksum byte are checksumed    ****/
 /*****************************************************************************/
-char Checksum_Device_Buffer(char bufr[]){
+void Checksum_Device_Buffer(char bufr[]){
   int cntr,gtchr;
   int checksum;
   checksum =0;
@@ -306,11 +287,13 @@ char Checksum_Device_Buffer(char bufr[]){
       checksum += bufr[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
     }
     checksum = (0xFF55 - checksum);  /*Cksum to send*/
+    bufr[gtchr] = checksum;
+    gtchr++;
+    bufr[gtchr] = ETX;
   }
   else {
      /* error code here*/
   }
-return checksum;
 }       
 /*****************************************************************************/
 /*** returns the checksum to the calling routine */
@@ -318,7 +301,6 @@ return checksum;
 char Check_Checksum_Device_Buffer(){
   char checksum;
   char gtchr;
-  
   int cntr;
   checksum = 0;
   cntr = Device_Processing_Buffer[0];
@@ -343,6 +325,7 @@ char Check_Checksum_Device_Buffer(){
 void Process_Xmit_Device_Message(char bufr[], char bufr2[]){
 int bfrptr;
  u16 xmtptr;
+ int cntr;
  u8 i;
  for (bfrptr = 0; bfrptr <3; bfrptr++){      /* PUT SOH, PACKET COUNT INTO*/
   bufr2[bfrptr] = bufr[bfrptr];               /*XMIT BUFFER*/  
@@ -363,16 +346,6 @@ for (bfrptr = bfrptr; bfrptr <cntr; bfrptr++){
   xmtptr++;
  }
 bufr2[xmtptr] =  ETX;
-}
-/*****************************************************************************/
-/*****************************************************************************/
-/*****  INITIALIZE RECEIVER BUFFER                                       *****/
-/*****************************************************************************/
-/*****************************************************************************/
-void Initialize_Device_receiver_buffer(void){
-  FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
-  Device_RX_InPtr=0;
-  Device_RX_OutPtr=0;
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -414,7 +387,7 @@ void Process_Receiver_Device_Message(void){
  u16 prcsbufrptr;
  u8 i;
 prcsbufrptr =0;
-for (rcvrbfrptr = 1; rcvrbfrptr <BFRSIZE; rcvrbfrptr++){
+for (rcvrbfrptr = 1; rcvrbfrptr <BFRSIZE_HALF; rcvrbfrptr++){
   i = Device_Receiver_Buffer[rcvrbfrptr];
   if (i == 0x03) {
     Device_Processing_Buffer[prcsbufrptr] =  i;
@@ -448,7 +421,6 @@ void Start_Device_Xmit (void){
   Device_Xmit_Pointer = 0;
   Device_Xmit_Char = Device_Xmit_Buffer[Device_Xmit_Pointer];
   Device_Xmit_Pointer++;
-  Device_Xmit_Char_Count--;
   Device_Xmit_Complete_Flag =1;
   UART3->DR = Device_Xmit_Char;
   UART3->CR2 |= (uint8_t)UART3_CR2_TCIEN | UART3_CR2_TIEN;

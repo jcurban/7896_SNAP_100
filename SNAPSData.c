@@ -7,19 +7,14 @@ __root const char ERRORmsg[] @ ".far.rodata" = {"ERROR"};
 __root const char WSTATECONNECTEDmsg[] @ ".far.rodata" = {"WSTATE=CONNECTED"};
 __root const char IPmsg[] @ ".far.rodata" = {"IP:"};
 
-/*  DEVICE status message */
+/*  SNAP'S RESPONSE TO DEVICE status message */
 __root const char Powered[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x01,0xFF,0x03,0x00}; /* 02,02,00,53,01,ff,03*/
 __root const char AdaptorReady[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x04,0xFC,0x03,0x00};/* 02,02,00,53,04,fc,03*/
 __root const char ConfiguringAdaptor[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x05,0xFB,0x03,0x00};/* 02,02,00,53,05,fb,03*/
 __root const char ACKMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x55,0x06,0xf8,0x03,0x00};/* 02,02,00,55,06,f8,03*/
 __root const char ResendMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x07,0xf9,0x03,0x00}; /* 02,02,00,53,07,f9,03*/
 
-__root const char RequestMessage[] @ ".far.rodata" =  {0x02,0x07,0x00,0x52,0x50,0x32,0x2F,0x90,0x01,0xBA,0x03,0x00};  /*02,07,00,52,50,32,5C,90,01,CS,03 */
-__root const char Request1Message[] @ ".far.rodata" = {0x02,0x07,0x00,0x52,0x50,0x32,0x2F,0xfa,0x01,0x50,0x03,0x00};  /*02,07,00,52,50,32,5C,fa,01,CS,03 */
-
-__root const char ASCII_RequestMessage[] @ ".far.rodata" =  {0x02,0x09,0x00,'R','p','5','/','7','0','0',',',0x83,0x03};  /*02,08,00,52,50,35,2f,37,30,30,2c,b6,03 */
-__root const char ASCII_Request1Message[] @ ".far.rodata" = {0x02,0x09,0x00,'R','p','5','/','8','0','0',',',0x82,0x03};  /*02,09,00,52,50,35,2f,37,30,30,2c,aF,03 */
-
+/*  dummy response messages */
 /*  Reset and provisioning GS1011 messages */
 __root const char YouThereMessage[] @ ".far.rodata" = {"AT\r\n"};
 __root const char ShutOffEchoMessage[] @ ".far.rodata" = {"ATE0\r"};
@@ -32,15 +27,23 @@ __root const char DisassociateMessage[] @ ".far.rodata" = {"AT+WD\r"};
 __root const char SetInitialIPAddressMessage[] @ ".far.rodata" = {"AT+NSET=192.168.1.1,255.255.255.0,192.168.1.1\r"};
 __root const char SetWM2Message[] @ ".far.rodata" = {"AT+WM=2\r"};
 __root const char SetSerialNumberasAccessPointHeader[] @ ".far.rodata" = {"AT+WA="};
-                                                /* put device serial number between these messages*/
-__root const char SetSerialNumberasAccessPointTail[] @ ".far.rodata" = {",,11\r"};
-__root const char SetDHCPSRVRMessage[] @ ".far.rodata" = {"AT+DHCPSRVR=1\r"};
 __root const char SetWEBPROVMessage[] @ ".far.rodata" = {"AT+WEBPROV=,,,2,,1\r"};
-__root const char NWCONN_Response[] @ ".far.rodata" = {"NEWCONN"};
-__root const char Good_Response[] @ ".far.rodata" = {"good"};
 __root const char SWReset_Response[] @ ".far.rodata" = {"RESET"};
 
-/*  setup update messages  */
+/* put device serial number between these messages*/
+__root const char SetSerialNumberasAccessPointTail[] @ ".far.rodata" = {",,11\r"};
+__root const char SetDHCPSRVRMessage[] @ ".far.rodata" = {"AT+DHCPSRVR=1\r"};
+/* end put device serial number between these messages*/
+
+/*  post provisioning response */
+__root const char NWCONN_Response[] @ ".far.rodata" = {"NEWCONN"};
+
+/*  website response */
+__root const char Good_Response[] @ ".far.rodata" = {"good"};
+__root const char goodmsg[] @ ".far.rodata" = {"good"};
+__root const char updatemsg[] @ ".far.rodata" = {"update"};
+
+/*  setup gs101 for update messages  */
 __root const char DNSLOOKUP_Message[] @ ".far.rodata" = {"AT+DNSLOOKUP=mars.bwgrp.com\r"};
 __root const char ConnectionType_CONF11_message[] @ ".far.rodata" = {"AT+HTTPCONF=11,mars.bwgrp.com\r"};
 __root const char KeepAlive_CONF3_Message[] @ ".far.rodata" ={"AT+HTTPCONF=3, keep-alive\r"};
@@ -59,3 +62,4 @@ __root const char GetProfileMessage[] @ ".far.rodata" = {"AT&V\r"};
 __root const char  pheader[] @ ".far.rodata" = {"/P"};
 __root const char SendtoWebsiteHeader[] @ ".far.rodata" ={"AT+HTTPSEND="};   /*add CID, and status*/
 __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog"};   /*add CID, and status*/
+__root const char TestingSerialNumber[] @ ".far.rodata" = {"A0UA0000051122334456"};   /*add CID, and status*/

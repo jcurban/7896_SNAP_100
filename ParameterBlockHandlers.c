@@ -51,8 +51,10 @@ void Make_Website_Update_from_Processing_Buffer(void){
 char i;
 PNumber = 1;
 Packet_Data_Pointer = 0;
+//    copyStockSerialNumber();
+
 for (ProcessPtr =3; ProcessPtr <=Processing_Byte_Count;ProcessPtr++){
-if (Device_Processing_Buffer[ProcessPtr] == 'A'){
+if (Device_Processing_Buffer[ProcessPtr] == 'A'){ /* copy an ASCII field*/
     makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
      copyPHeaderToWebsite();
      ProcessPtr++;
@@ -62,7 +64,7 @@ if (Device_Processing_Buffer[ProcessPtr] == 'A'){
       Packet_Data_Pointer++;
     }
   }
-  else if (Device_Processing_Buffer[ProcessPtr] == 'B'){
+  else if (Device_Processing_Buffer[ProcessPtr] == 'B'){ /* convert-copy an binary field*/
     makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
     clear_tempblock();
     copyPHeaderToWebsite();
@@ -94,28 +96,29 @@ if (Device_Processing_Buffer[ProcessPtr] == 'A'){
       break;
     }
   }  
-  FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
+  FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE_HALF);
 
   } 
-
+/* clear the tempblock*/
 void clear_tempblock(void){
  char i;
  for (i=0; i <= 4; i++)
    tempblock[i]=0x00;
 }
+/* Clear_PHeaderBuffer*/
 void Clear_PHeaderBuffer(void){
 char i;
   for (i=0; i<=6;i++)
     PHeaderBuffer[i] = 0;
 }
-
+/* copyPHeaderToWebsite*/
 void copyPHeaderToWebsite(void){
 char pntr=0;
 while (PHeaderBuffer[pntr] != 0x00){
   Packet_Data_Buffer[Packet_Data_Pointer] = PHeaderBuffer[pntr];
   Packet_Data_Pointer++;
   pntr++;
-}
+  }
 }
 /*****************************************************************************
  *****             makePNumberHeader                                      ****
