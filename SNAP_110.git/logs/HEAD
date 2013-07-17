@@ -1,0 +1,27 @@
+0000000000000000000000000000000000000000 f52f862c9d8aa6f5c9786437664c01ce8f1810ed Joe Urban <jurban@grtmars.com> 1372760299 -0400	clone: from https://github.com/jcurban/7896_SNAP_100.git
+f52f862c9d8aa6f5c9786437664c01ce8f1810ed 5f835feb7f4ee1f5ee98330a570607564c542269 Joe Urban <jurban@grtmars.com> 1372760471 -0400	commit: current post review
+5f835feb7f4ee1f5ee98330a570607564c542269 be180167671c3d845107e661721d727213b41c4f Joe Urban <jurban@grtmars.com> 1372761234 -0400	commit: updated with last nights work
+be180167671c3d845107e661721d727213b41c4f f4e3e11ea83d3485d69a27145c8d059a2d847c38 Joe Urban <jurban@grtmars.com> 1372765349 -0400	commit: Find GS1011 chars fix
+f4e3e11ea83d3485d69a27145c8d059a2d847c38 55811be6fc2126c2d11ef68bd791ff75faf853fe Joe Urban <jurban@grtmars.com> 1372792391 -0400	commit: FINISHING UP LAST MAJOR CODING EFFORT TONIGHT, WILL DO LIVE TESTS WITH CIGAR TOMORROW.
+55811be6fc2126c2d11ef68bd791ff75faf853fe 9bedb01c7eaabbf7e7fe3b8a2ac4d352efe139fc Joe Urban <jurban@grtmars.com> 1372848975 -0400	commit: overnight work, added cigar data
+9bedb01c7eaabbf7e7fe3b8a2ac4d352efe139fc a9ce75d355f299350e3e2aaeed8499311c3a96b2 Joe Urban <jurban@grtmars.com> 1372855811 -0400	commit: finished the routine to make the binary data ascii
+a9ce75d355f299350e3e2aaeed8499311c3a96b2 9bedb01c7eaabbf7e7fe3b8a2ac4d352efe139fc Joe Urban <jurban@grtmars.com> 1372855815 -0400	reset: moving to a9ce75d355f299350e3e2aaeed8499311c3a96b2^
+9bedb01c7eaabbf7e7fe3b8a2ac4d352efe139fc f45103249ffce44611644717f79c90e224bcc5bd Joe Urban <jurban@grtmars.com> 1372855846 -0400	commit: converting binary to
+f45103249ffce44611644717f79c90e224bcc5bd 9bedb01c7eaabbf7e7fe3b8a2ac4d352efe139fc Joe Urban <jurban@grtmars.com> 1372855849 -0400	reset: moving to f45103249ffce44611644717f79c90e224bcc5bd^
+9bedb01c7eaabbf7e7fe3b8a2ac4d352efe139fc 843c0e692e6d5602c8a20e4d24a26ef64df6d246 Joe Urban <jurban@grtmars.com> 1372856038 -0400	commit: Convert Binary to ASCII
+843c0e692e6d5602c8a20e4d24a26ef64df6d246 d64e5f454c6c41844928414b796fb0958cd2630e Joe Urban <jurban@grtmars.com> 1372868948 -0400	commit: conversion task tested, last major routine
+d64e5f454c6c41844928414b796fb0958cd2630e 2b32943e8cfa90570e2733f0d32dfa24fa8f6818 Joe Urban <jurban@grtmars.com> 1372868960 -0400	revert: Revert "conversion task tested, last major routine"
+2b32943e8cfa90570e2733f0d32dfa24fa8f6818 d64e5f454c6c41844928414b796fb0958cd2630e Joe Urban <jurban@grtmars.com> 1372868975 -0400	reset: moving to 2b32943e8cfa90570e2733f0d32dfa24fa8f6818^
+d64e5f454c6c41844928414b796fb0958cd2630e b44d7433d44e83952e75fe21367da139f661b6c1 Joe Urban <jurban@grtmars.com> 1372869107 -0400	commit: major tasks done,
+b44d7433d44e83952e75fe21367da139f661b6c1 d64e5f454c6c41844928414b796fb0958cd2630e Joe Urban <jurban@grtmars.com> 1372930678 -0400	reset: moving to b44d7433d44e83952e75fe21367da139f661b6c1^
+d64e5f454c6c41844928414b796fb0958cd2630e ccc6482b1e0e681b3c4569809215091f78bf48ae Joe Urban <jurban@grtmars.com> 1372931086 -0400	commit: this should be the last one friday
+ccc6482b1e0e681b3c4569809215091f78bf48ae d64e5f454c6c41844928414b796fb0958cd2630e Joe Urban <jurban@grtmars.com> 1372931427 -0400	reset: moving to ccc6482b1e0e681b3c4569809215091f78bf48ae^
+d64e5f454c6c41844928414b796fb0958cd2630e 10fc8927e71088c1007686f39302d1fad253d27b Joe Urban <jurban@grtmars.com> 1372931454 -0400	commit: i need this version now
+10fc8927e71088c1007686f39302d1fad253d27b b44d7433d44e83952e75fe21367da139f661b6c1 Joe Urban <jurban@grtmars.com> 1372931461 -0400	checkout: moving from snap_101 to b44d7433d44e83952e75fe21367da139f661b6c1^0
+b44d7433d44e83952e75fe21367da139f661b6c1 b44d7433d44e83952e75fe21367da139f661b6c1 Joe Urban <jurban@grtmars.com> 1373280377 -0400	checkout: moving from b44d7433d44e83952e75fe21367da139f661b6c1 to snap_101
+b44d7433d44e83952e75fe21367da139f661b6c1 4ab18cbef218833e18907eed118540490348e603 Joe Urban <jurban@grtmars.com> 1373280414 -0400	commit: work over the weekend
+4ab18cbef218833e18907eed118540490348e603 ee73ee145be3486f25d09c9396a44ad7da40a7e3 Joe Urban <jurban@grtmars.com> 1373286317 -0400	commit: fixed serial on both sides, checked checksumming
+ee73ee145be3486f25d09c9396a44ad7da40a7e3 71bca15494bad0bb0f548c81d32e224f7fb09b4b Joe Urban <jurban@grtmars.com> 1373287096 -0400	commit: fixed leading zeros in conversions
+71bca15494bad0bb0f548c81d32e224f7fb09b4b 893b9414509ed2ce4d4567e2fa66a4d3a04585ec Joe Urban <jurban@grtmars.com> 1373305408 -0400	commit: added a test response for david
+893b9414509ed2ce4d4567e2fa66a4d3a04585ec b807adce02b25debab37b5f355ad8e70427802ed Joe Urban <jurban@grtmars.com> 1373368498 -0400	commit: made the release version, match debug
+b807adce02b25debab37b5f355ad8e70427802ed 7cfbaf525733b891c5630861620a5edb5823e106 Joe Urban <jurban@grtmars.com> 1373373164 -0400	commit: CIGAR OASIS RELEASE

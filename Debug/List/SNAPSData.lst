@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             09/Jul/2013  07:09:50 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             17/Jul/2013  08:20:54 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData #
@@ -51,198 +51,191 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
    \                     IPmsg:
    \   000000 49 50 3A 00  DC8 "IP:"
       9          
-     10          /*  DEVICE status message */
+     10          /*  SNAP'S RESPONSE TO DEVICE status message */
 
    \                                 In section .far.rodata, align 1, root
-     11          __root const char Powered[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x01,0xFF,0x03,0x00}; /* 02,02,00,53,01,ff,03*/
+     11          __root const char Powered[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x01,0xFE,0x03,0x00}; /* 02,02,00,53,01,ff,03*/
    \                     Powered:
-   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 83, 1, 255, 3, 0
-   \          53 01 FF 03 
+   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 83, 1, 254, 3, 0
+   \          53 01 FE 03 
 
    \                                 In section .far.rodata, align 1, root
-     12          __root const char AdaptorReady[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x04,0xFC,0x03,0x00};/* 02,02,00,53,04,fc,03*/
+     12          __root const char AdaptorReady[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x04,0xFB,0x03,0x00};/* 02,02,00,53,04,fc,03*/
    \                     AdaptorReady:
-   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 83, 4, 252, 3, 0
-   \          53 04 FC 03 
+   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 83, 4, 251, 3, 0
+   \          53 04 FB 03 
 
    \                                 In section .far.rodata, align 1, root
-     13          __root const char ConfiguringAdaptor[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x05,0xFB,0x03,0x00};/* 02,02,00,53,05,fb,03*/
+     13          __root const char ConfiguringAdaptor[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x05,0xFA,0x03,0x00};/* 02,02,00,53,05,fb,03*/
    \                     ConfiguringAdaptor:
-   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 83, 5, 251, 3, 0
-   \          53 05 FB 03 
+   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 83, 5, 250, 3, 0
+   \          53 05 FA 03 
 
    \                                 In section .far.rodata, align 1, root
-     14          __root const char ACKMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x55,0x06,0xf8,0x03,0x00};/* 02,02,00,55,06,f8,03*/
+     14          __root const char ACKMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x55,0x06,0xf7,0x03,0x00};/* 02,02,00,55,06,f8,03*/
    \                     ACKMessage:
-   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 85, 6, 248, 3, 0
-   \          55 06 F8 03 
+   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 85, 6, 247, 3, 0
+   \          55 06 F7 03 
 
    \                                 In section .far.rodata, align 1, root
-     15          __root const char ResendMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x07,0xf9,0x03,0x00}; /* 02,02,00,53,07,f9,03*/
+     15          __root const char ResendMessage[] @ ".far.rodata" = {0x02,0x10,0xFc,0x00,0x53,0x07,0xf8,0x03,0x00}; /* 02,02,00,53,07,f9,03*/
    \                     ResendMessage:
-   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 83, 7, 249, 3, 0
-   \          53 07 F9 03 
+   \   000000 02 10 FC 00  DC8 2, 16, 252, 0, 83, 7, 248, 3, 0
+   \          53 07 F8 03 
      16          
+     17          /*  dummy response messages */
+     18          /*  Reset and provisioning GS1011 messages */
 
    \                                 In section .far.rodata, align 1, root
-     17          __root const char RequestMessage[] @ ".far.rodata" =  {0x02,0x07,0x00,0x52,0x50,0x32,0x2F,0x90,0x01,0xBA,0x03,0x00};  /*02,07,00,52,50,32,5C,90,01,CS,03 */
-   \                     RequestMessage:
-   \   000000 02 07 00 52  DC8 2, 7, 0, 82, 80, 50, 47, 144, 1, 186, 3, 0
-   \          50 32 2F 90 
-
-   \                                 In section .far.rodata, align 1, root
-     18          __root const char Request1Message[] @ ".far.rodata" = {0x02,0x07,0x00,0x52,0x50,0x32,0x2F,0xfa,0x01,0x50,0x03,0x00};  /*02,07,00,52,50,32,5C,fa,01,CS,03 */
-   \                     Request1Message:
-   \   000000 02 07 00 52  DC8 2, 7, 0, 82, 80, 50, 47, 250, 1, 80, 3, 0
-   \          50 32 2F FA 
-     19          
-
-   \                                 In section .far.rodata, align 1, root
-     20          __root const char ASCII_RequestMessage[] @ ".far.rodata" =  {0x02,0x09,0x00,'R','p','5','/','7','0','0',',',0x83,0x03};  /*02,08,00,52,50,35,2f,37,30,30,2c,b6,03 */
-   \                     ASCII_RequestMessage:
-   \   000000 02 09 00 52  DC8 2, 9, 0, 82, 112, 53, 47, 55, 48, 48, 44, 131, 3
-   \          70 35 2F 37 
-
-   \                                 In section .far.rodata, align 1, root
-     21          __root const char ASCII_Request1Message[] @ ".far.rodata" = {0x02,0x09,0x00,'R','p','5','/','8','0','0',',',0x82,0x03};  /*02,09,00,52,50,35,2f,37,30,30,2c,aF,03 */
-   \                     ASCII_Request1Message:
-   \   000000 02 09 00 52  DC8 2, 9, 0, 82, 112, 53, 47, 56, 48, 48, 44, 130, 3
-   \          70 35 2F 38 
-     22          
-     23          /*  Reset and provisioning GS1011 messages */
-
-   \                                 In section .far.rodata, align 1, root
-     24          __root const char YouThereMessage[] @ ".far.rodata" = {"AT\r\n"};
+     19          __root const char YouThereMessage[] @ ".far.rodata" = {"AT\r\n"};
    \                     YouThereMessage:
    \   000000 41 54 0D 0A  DC8 "AT\015\012"
    \          00          
 
    \                                 In section .far.rodata, align 1, root
-     25          __root const char ShutOffEchoMessage[] @ ".far.rodata" = {"ATE0\r"};
+     20          __root const char ShutOffEchoMessage[] @ ".far.rodata" = {"ATE0\r"};
    \                     ShutOffEchoMessage:
    \   000000 41 54 45 30  DC8 "ATE0\015"
    \          0D 00       
 
    \                                 In section .far.rodata, align 1, root
-     26          __root const char ForceFactoryResetMessage[] @ ".far.rodata" = {"AT&F\r"};
+     21          __root const char ForceFactoryResetMessage[] @ ".far.rodata" = {"AT&F\r"};
    \                     ForceFactoryResetMessage:
    \   000000 41 54 26 46  DC8 "AT&F\015"
    \          0D 00       
 
    \                                 In section .far.rodata, align 1, root
-     27          __root const char ClearW0Message[] @ ".far.rodata" ={"AT&W0\r"};
+     22          __root const char ClearW0Message[] @ ".far.rodata" ={"AT&W0\r"};
    \                     ClearW0Message:
    \   000000 41 54 26 57  DC8 "AT&W0\015"
    \          30 0D 00    
 
    \                                 In section .far.rodata, align 1, root
-     28          __root const char ClearW1Message[] @ ".far.rodata" ={"AT&W1\r"};
+     23          __root const char ClearW1Message[] @ ".far.rodata" ={"AT&W1\r"};
    \                     ClearW1Message:
    \   000000 41 54 26 57  DC8 "AT&W1\015"
    \          31 0D 00    
 
    \                                 In section .far.rodata, align 1, root
-     29          __root const char ClearY0Message[] @ ".far.rodata" ={"AT&Y0\r"};
+     24          __root const char ClearY0Message[] @ ".far.rodata" ={"AT&Y0\r"};
    \                     ClearY0Message:
    \   000000 41 54 26 59  DC8 "AT&Y0\015"
    \          30 0D 00    
 
    \                                 In section .far.rodata, align 1, root
-     30          __root const char ResetAdaptorMessage[] @ ".far.rodata" ={"AT+RESET\r\n"};
+     25          __root const char ResetAdaptorMessage[] @ ".far.rodata" ={"AT+RESET\r\n"};
    \                     ResetAdaptorMessage:
    \   000000 41 54 2B 52  DC8 "AT+RESET\015\012"
    \          45 53 45 54 
 
    \                                 In section .far.rodata, align 1, root
-     31          __root const char DisassociateMessage[] @ ".far.rodata" = {"AT+WD\r"};
+     26          __root const char DisassociateMessage[] @ ".far.rodata" = {"AT+WD\r"};
    \                     DisassociateMessage:
    \   000000 41 54 2B 57  DC8 "AT+WD\015"
    \          44 0D 00    
 
    \                                 In section .far.rodata, align 1, root
-     32          __root const char SetInitialIPAddressMessage[] @ ".far.rodata" = {"AT+NSET=192.168.1.1,255.255.255.0,192.168.1.1\r"};
+     27          __root const char SetInitialIPAddressMessage[] @ ".far.rodata" = {"AT+NSET=192.168.1.1,255.255.255.0,192.168.1.1\r"};
    \                     SetInitialIPAddressMessage:
    \   000000 41 54 2B 4E  DC8 "AT+NSET=192.168.1.1,255.255.255.0,192.168.1.1\015"
    \          53 45 54 3D 
 
    \                                 In section .far.rodata, align 1, root
-     33          __root const char SetWM2Message[] @ ".far.rodata" = {"AT+WM=2\r"};
+     28          __root const char SetWM2Message[] @ ".far.rodata" = {"AT+WM=2\r"};
    \                     SetWM2Message:
    \   000000 41 54 2B 57  DC8 "AT+WM=2\015"
    \          4D 3D 32 0D 
 
    \                                 In section .far.rodata, align 1, root
-     34          __root const char SetSerialNumberasAccessPointHeader[] @ ".far.rodata" = {"AT+WA="};
+     29          __root const char SetSerialNumberasAccessPointHeader[] @ ".far.rodata" = {"AT+WA="};
    \                     SetSerialNumberasAccessPointHeader:
    \   000000 41 54 2B 57  DC8 "AT+WA="
    \          41 3D 00    
-     35                                                          /* put device serial number between these messages*/
 
    \                                 In section .far.rodata, align 1, root
-     36          __root const char SetSerialNumberasAccessPointTail[] @ ".far.rodata" = {",,11\r"};
+     30          __root const char SetWEBPROVMessage[] @ ".far.rodata" = {"AT+WEBPROV=,,,2,,1\r"};
+   \                     SetWEBPROVMessage:
+   \   000000 41 54 2B 57  DC8 "AT+WEBPROV=,,,2,,1\015"
+   \          45 42 50 52 
+
+   \                                 In section .far.rodata, align 1, root
+     31          __root const char SWReset_Response[] @ ".far.rodata" = {"RESET"};
+   \                     SWReset_Response:
+   \   000000 52 45 53 45  DC8 "RESET"
+   \          54 00       
+     32          
+     33          /* put device serial number between these messages*/
+
+   \                                 In section .far.rodata, align 1, root
+     34          __root const char SetSerialNumberasAccessPointTail[] @ ".far.rodata" = {",,11\r"};
    \                     SetSerialNumberasAccessPointTail:
    \   000000 2C 2C 31 31  DC8 ",,11\015"
    \          0D 00       
 
    \                                 In section .far.rodata, align 1, root
-     37          __root const char SetDHCPSRVRMessage[] @ ".far.rodata" = {"AT+DHCPSRVR=1\r"};
+     35          __root const char SetDHCPSRVRMessage[] @ ".far.rodata" = {"AT+DHCPSRVR=1\r"};
    \                     SetDHCPSRVRMessage:
    \   000000 41 54 2B 44  DC8 "AT+DHCPSRVR=1\015"
    \          48 43 50 53 
-
-   \                                 In section .far.rodata, align 1, root
-     38          __root const char SetWEBPROVMessage[] @ ".far.rodata" = {"AT+WEBPROV=,,,2,,1\r"};
-   \                     SetWEBPROVMessage:
-   \   000000 41 54 2B 57  DC8 "AT+WEBPROV=,,,2,,1\015"
-   \          45 42 50 52 
+     36          /* end put device serial number between these messages*/
+     37          
+     38          /*  post provisioning response */
 
    \                                 In section .far.rodata, align 1, root
      39          __root const char NWCONN_Response[] @ ".far.rodata" = {"NEWCONN"};
    \                     NWCONN_Response:
    \   000000 4E 45 57 43  DC8 "NEWCONN"
    \          4F 4E 4E 00 
+     40          
+     41          /*  website response */
 
    \                                 In section .far.rodata, align 1, root
-     40          __root const char Good_Response[] @ ".far.rodata" = {"good"};
+     42          __root const char Good_Response[] @ ".far.rodata" = {"good"};
    \                     Good_Response:
    \   000000 67 6F 6F 64  DC8 "good"
    \          00          
 
    \                                 In section .far.rodata, align 1, root
-     41          __root const char SWReset_Response[] @ ".far.rodata" = {"RESET"};
-   \                     SWReset_Response:
-   \   000000 52 45 53 45  DC8 "RESET"
-   \          54 00       
-     42          
-     43          /*  setup update messages  */
+     43          __root const char goodmsg[] @ ".far.rodata" = {"good"};
+   \                     goodmsg:
+   \   000000 67 6F 6F 64  DC8 "good"
+   \          00          
 
    \                                 In section .far.rodata, align 1, root
-     44          __root const char DNSLOOKUP_Message[] @ ".far.rodata" = {"AT+DNSLOOKUP=mars.bwgrp.com\r"};
+     44          __root const char updatemsg[] @ ".far.rodata" = {"update"};
+   \                     updatemsg:
+   \   000000 75 70 64 61  DC8 "update"
+   \          74 65 00    
+     45          
+     46          /*  setup gs101 for update messages  */
+
+   \                                 In section .far.rodata, align 1, root
+     47          __root const char DNSLOOKUP_Message[] @ ".far.rodata" = {"AT+DNSLOOKUP=mars.bwgrp.com\r"};
    \                     DNSLOOKUP_Message:
    \   000000 41 54 2B 44  DC8 "AT+DNSLOOKUP=mars.bwgrp.com\015"
    \          4E 53 4C 4F 
 
    \                                 In section .far.rodata, align 1, root
-     45          __root const char ConnectionType_CONF11_message[] @ ".far.rodata" = {"AT+HTTPCONF=11,mars.bwgrp.com\r"};
+     48          __root const char ConnectionType_CONF11_message[] @ ".far.rodata" = {"AT+HTTPCONF=11,mars.bwgrp.com\r"};
    \                     ConnectionType_CONF11_message:
    \   000000 41 54 2B 48  DC8 "AT+HTTPCONF=11,mars.bwgrp.com\015"
    \          54 54 50 43 
 
    \                                 In section .far.rodata, align 1, root
-     46          __root const char KeepAlive_CONF3_Message[] @ ".far.rodata" ={"AT+HTTPCONF=3, keep-alive\r"};
+     49          __root const char KeepAlive_CONF3_Message[] @ ".far.rodata" ={"AT+HTTPCONF=3, keep-alive\r"};
    \                     KeepAlive_CONF3_Message:
    \   000000 41 54 2B 48  DC8 "AT+HTTPCONF=3, keep-alive\015"
    \          54 54 50 43 
 
    \                                 In section .far.rodata, align 1, root
-     47          __root const char HTTPOPEN_FULL_MESSAGE[] @ ".far.rodata" ={"AT+HTTPOPEN=54.225.101.110\r"};   /*add ip Address*/
+     50          __root const char HTTPOPEN_FULL_MESSAGE[] @ ".far.rodata" ={"AT+HTTPOPEN=54.225.101.110\r"};   /*add ip Address*/
    \                     HTTPOPEN_FULL_MESSAGE:
    \   000000 41 54 2B 48  DC8 "AT+HTTPOPEN=54.225.101.110\015"
    \          54 54 50 4F 
-     48          
+     51          
 
    \                                 In section .far.rodata, align 1, root
-     49          __root const char Dummy_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000001234512555/p2/12345/p3/D/p4/S/p5/S/p6/D/p7/00078901/p8/345678/p9/000789/p10/21221/p11/32222/p12/31111/p13/0/p14/0/p15/0\r"};
+     52          __root const char Dummy_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000001234512555/p2/12345/p3/D/p4/S/p5/S/p6/D/p7/00078901/p8/345678/p9/000789/p10/21221/p11/32222/p12/31111/p13/0/p14/0/p15/0\r"};
    \                     Dummy_update:
    \   000000 41 54 2B 48  DC8 41H, 54H, 2BH, 48H, 54H, 54H, 50H, 53H
    \          54 54 50 53 
@@ -290,7 +283,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
    \          2F 30 0D 00 
 
    \                                 In section .far.rodata, align 1, root
-     50          __root const char Cigar_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000051122334455/p2/999/p3/2703/p4/0/p5/688/p6/0/p7/1/p8/680/p9/900/p10/0/p11/700/p12/0/p13/0\r"};
+     53          __root const char Cigar_update[] @ ".far.rodata" ={"AT+HTTPSEND=0,1,100,/account/api/setdevicelog/p1/0000051122334455/p2/999/p3/2703/p4/0/p5/688/p6/0/p7/1/p8/680/p9/900/p10/0/p11/700/p12/0/p13/0\r"};
    \                     Cigar_update:
    \   000000 41 54 2B 48  DC8 41H, 54H, 2BH, 48H, 54H, 54H, 50H, 53H
    \          54 54 50 53 
@@ -328,54 +321,58 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
    \          31 32 2F 30 
    \   000088 2F 70 31 33  DC8 2FH, 70H, 31H, 33H, 2FH, 30H, 0DH, 0
    \          2F 30 0D 00 
-     51          
-     52          /*  get network status message */
+     54          
+     55          /*  get network status message */
 
    \                                 In section .far.rodata, align 1, root
-     53          __root const char GetNSTATMessage[] @ ".far.rodata" = {"AT+NSTAT=?\r"};
+     56          __root const char GetNSTATMessage[] @ ".far.rodata" = {"AT+NSTAT=?\r"};
    \                     GetNSTATMessage:
    \   000000 41 54 2B 4E  DC8 "AT+NSTAT=?\015"
    \          53 54 41 54 
-     54          /* setup GS1011 to connect to WIFI */
+     57          /* setup GS1011 to connect to WIFI */
 
    \                                 In section .far.rodata, align 1, root
-     55          __root const char SetNDHCPMessage[] @ ".far.rodata" = {"AT+NDHCP=1\r"};
+     58          __root const char SetNDHCPMessage[] @ ".far.rodata" = {"AT+NDHCP=1\r"};
    \                     SetNDHCPMessage:
    \   000000 41 54 2B 4E  DC8 "AT+NDHCP=1\015"
    \          44 48 43 50 
 
    \                                 In section .far.rodata, align 1, root
-     56          __root const char GetProfileMessage[] @ ".far.rodata" = {"AT&V\r"};
+     59          __root const char GetProfileMessage[] @ ".far.rodata" = {"AT&V\r"};
    \                     GetProfileMessage:
    \   000000 41 54 26 56  DC8 "AT&V\015"
    \          0D 00       
-     57          
-     58          /*  send update message headers */
+     60          
+     61          /*  send update message headers */
 
    \                                 In section .far.rodata, align 1, root
-     59          __root const char  pheader[] @ ".far.rodata" = {"/P"};
+     62          __root const char  pheader[] @ ".far.rodata" = {"/P"};
    \                     pheader:
    \   000000 2F 50 00     DC8 "/P"
 
    \                                 In section .far.rodata, align 1, root
-     60          __root const char SendtoWebsiteHeader[] @ ".far.rodata" ={"AT+HTTPSEND="};   /*add CID, and status*/
+     63          __root const char SendtoWebsiteHeader[] @ ".far.rodata" ={"AT+HTTPSEND="};   /*add CID, and status*/
    \                     SendtoWebsiteHeader:
    \   000000 41 54 2B 48  DC8 "AT+HTTPSEND="
    \          54 54 50 53 
 
    \                                 In section .far.rodata, align 1, root
-     61          __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog"};   /*add CID, and status*/
+     64          __root const char SendtoWebsiteHeader1[] @ ".far.rodata" = {",1,100,/account/api/setdevicelog"};   /*add CID, and status*/
    \                     SendtoWebsiteHeader1:
    \   000000 2C 31 2C 31  DC8 ",1,100,/account/api/setdevicelog"
    \          30 30 2C 2F 
+
+   \                                 In section .far.rodata, align 1, root
+     65          __root const char TestingSerialNumber[] @ ".far.rodata" = {"A0UA0000051122334456"};   /*add CID, and status*/
+   \                     TestingSerialNumber:
+   \   000000 41 30 55 41  DC8 "A0UA0000051122334456"
+   \          30 30 30 30 
 
    Section sizes:
 
    Bytes  Function/Label
    -----  --------------
        9  ACKMessage
-      13  ASCII_Request1Message
-      13  ASCII_RequestMessage
        9  AdaptorReady
      144  Cigar_update
        7  ClearW0Message
@@ -397,8 +394,6 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
        8  NWCONN_Response
        3  OKAYmsg
        9  Powered
-      12  Request1Message
-      12  RequestMessage
        9  ResendMessage
       11  ResetAdaptorMessage
        6  SWReset_Response
@@ -412,14 +407,17 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\SNAPSData.c
       20  SetWEBPROVMessage
        9  SetWM2Message
        6  ShutOffEchoMessage
+      21  TestingSerialNumber
       17  WSTATECONNECTEDmsg
        5  YouThereMessage
+       5  goodmsg
        3  pheader
+       7  updatemsg
 
  
- 818 bytes in section .far.rodata
+ 801 bytes in section .far.rodata
  
- 818 bytes of CONST memory
+ 801 bytes of CONST memory
 
 Errors: none
 Warnings: none

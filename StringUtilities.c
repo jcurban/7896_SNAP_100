@@ -4,12 +4,12 @@
 extern int Found_String_At_Byte;
 extern char Device_Xmit_Pointer;
 extern u8 Device_Xmit_Char_Count;
+
 extern char Device_Xmit_Setup_Char_Pointer;
 extern char Device_Rcvr_EOM_Timer;
 extern char Device_Rcvr_Timeout;
 extern char Device_Rcvr_Complete_flag;
 extern u8 Device_RX_InPtr;
-extern u8 Device_RX_OutPtr;
 extern char Device_Serial_number[];
 extern char Device_Processing_Buffer[];
 extern char Device_Xmit_Buffer[];
@@ -49,6 +49,79 @@ void Add_Char_to_GS1011_Buffer (char chr);
 void Add_String_to_GS1011_Buffer ( char srce[]);
 void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt);
 void FindGS1011Chars(char chrstrng[]);
+
+/***************  serial number handlers******************/
+extern char B2ASCBuf[];
+extern char tempblock[];
+extern char Binary_Device_Class[];
+extern char Binary_Devce_Serial[];
+void Int2ASCII(char leading);
+void Process_Serial_Number(void);
+void ConvertSerialNumber(void);
+void CopySerialNumber(void);
+void ClearSerialNumber(void);
+
+/*****************************************************************************/
+/*****************************************************************************/
+void Process_Serial_Number(void){
+  if (Device_Processing_Buffer[3] =='A')
+    CopySerialNumber();
+  else if (Device_Processing_Buffer[3] =='B')
+    ConvertSerialNumber();
+}  
+/*****************************************************************************/
+/*****************************************************************************/
+void ConvertSerialNumber(void){
+#define DEVICETYPEBYTE 4
+#define DEVICESERIALBYTE 7
+u8 i,j;
+u8 cntr; 
+ClearSerialNumber();
+cntr = DEVICETYPEBYTE +3;
+j = 0;
+for (i=DEVICETYPEBYTE; i <= cntr; i++){
+  Binary_Device_Class[j] = Device_Processing_Buffer[i];
+  j++;
+}
+cntr= DEVICESERIALBYTE + 4;
+j = 0;
+for (i=DEVICESERIALBYTE; i <= cntr; i++) {
+  Binary_Devce_Serial[j] = Device_Processing_Buffer[i];
+  j++;
+  }
+for (i=0; i<= 2; i ++)
+      tempblock[i] = Binary_Device_Class[i];
+      Int2ASCII(0);
+j = 0;
+for (i= 4; i <= 9; i ++){
+   Device_Serial_number[j] = B2ASCBuf[i];
+   j++;
+}
+for (i=0; i<= 3; i ++)
+      tempblock[i] = Binary_Devce_Serial[i];
+      Int2ASCII(0);
+j = 0;
+for (i= 6; i <= 15; i ++){
+  Device_Serial_number[i] = B2ASCBuf[j];
+  j++;
+}
+}
+/*****************************************************************************/
+/*****************************************************************************/
+void CopySerialNumber(void){
+u8 i;
+u8 cntr=15; 
+ClearSerialNumber();
+for (i=0; i <= cntr; i++){
+    Device_Serial_number[i] = Device_Processing_Buffer[i+4];
+  }
+ }
+/*****************************************************************************/
+void ClearSerialNumber(void){
+u8 i;
+for (i=0;i<=16;i++)
+  Device_Serial_number[i] = 0;
+}
 /*****************************************************************************/
 /*****              GENERAL BUFFER HANDLING ROUTINES                      ****/
 /*****************************************************************************/
@@ -146,16 +219,6 @@ for (i=0; i < cntr; i++){
     dest[i] = srce[i];
   }
  }
-void CopySerialNumber(void){
-u8 i;
-u8 cntr=15; 
-for (i=0;i<=16;i++){
-  Device_Serial_number[i] = 0;
-}
-for (i=0; i <= cntr; i++){
-    Device_Serial_number[i] = Device_Processing_Buffer[i+4];
-  }
- }
 /*****************************************************************************/
 /***** CountChars (buffer pointer)                                         ****/
 /*****                  source buffer must terminate with a 0x00.         ****/
@@ -184,7 +247,6 @@ void InitializeDeviceBuffer (void){
     Device_Receiver_Buffer[Device_RX_InPtr] = 0x00;
   
     Device_RX_InPtr = 0;
-    Device_RX_OutPtr = 0;
     Device_Rcvr_EOM_Timer = 0;
     Device_Rcvr_Timeout = 0;
     Device_Rcvr_Complete_flag = 0;

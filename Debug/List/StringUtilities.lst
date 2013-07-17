@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             09/Jul/2013  07:09:50 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             17/Jul/2013  08:20:55 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUti #
@@ -29,211 +29,393 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
       2          #include "SNAP_Defines.h"
       3          
       4          extern int Found_String_At_Byte;
-      5          extern u8 GS1011_String_Found;
-      6          extern char Device_Xmit_Pointer;
-      7          extern u8 Device_Xmit_Char_Count;
-      8          extern u8 GS1011_Xmit_Char_Count;
-      9          extern int GS1011_Xmit_Pointer;
-     10          extern char GS1011_Xmit_Setup_Char_Pointer;
-     11          extern char Device_Xmit_Setup_Char_Pointer;
-     12          extern int GS1011_Rvcr_Count;
-     13          extern char GS1011_Xmit_Buffer[];
-     14          extern char Device_Xmit_Buffer[];
-     15          extern char GS1011_Receiver_Buffer[];
+      5          extern char Device_Xmit_Pointer;
+      6          extern u8 Device_Xmit_Char_Count;
+      7          
+      8          extern char Device_Xmit_Setup_Char_Pointer;
+      9          extern char Device_Rcvr_EOM_Timer;
+     10          extern char Device_Rcvr_Timeout;
+     11          extern char Device_Rcvr_Complete_flag;
+     12          extern u8 Device_RX_InPtr;
+     13          extern char Device_Serial_number[];
+     14          extern char Device_Processing_Buffer[];
+     15          extern char Device_Xmit_Buffer[];
      16          extern char Device_Receiver_Buffer[];
-     17          extern u16 GS1011_Rcvr_InPtr;
-     18          extern u16 GS1011_Rcvr_OutPtr;
-     19          extern char Device_Rcvr_EOM_Timer;
-     20          extern char Device_Rcvr_Timeout;
-     21          extern char Device_Rcvr_Complete_flag;
-     22          
-     23          extern u8 Device_RX_InPtr;
-     24          extern u8 Device_RX_OutPtr;
-     25          extern char Device_Serial_number[];
-     26          extern char Device_Processing_Buffer[];
+     17          
+     18          extern u8 GS1011_String_Found;
+     19          extern u8 GS1011_Xmit_Char_Count;
+     20          extern int GS1011_Xmit_Pointer;
+     21          extern char GS1011_Xmit_Setup_Char_Pointer;
+     22          extern int GS1011_Rvcr_Count;
+     23          extern u16 GS1011_Rcvr_InPtr;
+     24          extern u16 GS1011_Rcvr_OutPtr;
+     25          extern char GS1011_Xmit_Buffer[];
+     26          extern char GS1011_Receiver_Buffer[];
      27          
      28          /*****************************************************************************/
      29          /*****            STRING UTILITY ROUTINES                                 ****/
      30          /*****************************************************************************/
      31          int CountChars(char s[]);
-     32          void CopyBufferGS1011(char srce[]);
-     33          char CountGS1011Chars(void);
+     32          void CopySerialNumber(void);
+     33          void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm);
      34          char CopyBuffer (char dest[], char srce[]);
-     35          void CopyBufferDevice( char srce[]);
-     36          void CopyBufferGS1011 (char srce[]);
-     37          void CopyBufferCounted (char dest[], char srce[], char cntr);
-     38          void FillBuffer (char bufr[],char filchr, char cntr);
-     39          
-     40          void InitializeDeviceBuffer (void);
-     41          void InitializeGS1011Buffer (void);
-     42          void Add_Char_to_Buffer (char bufr[], int ptr,char chr);
-     43          void Add_Char_to_GS1011_Buffer (char chr);
-     44          void Add_Integer_to_Buffer (char bufr[],int ptr, int vint);
-     45          int Add_String_to_Buffer (char bufr[],int ptr, char srce[]);
-     46          void Add_String_to_GS1011_Buffer ( char srce[]);
-     47          void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt);
-     48          void CopySerialNumber(void);
-     49          void FindGS1011Chars(char chrstrng[]);
-     50          void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm);
-     51          /*****************************************************************************/
-     52          /*****              GENERAL BUFFER HANDLING ROUTINES                      ****/
-     53          /*****************************************************************************/
-     54          
-     55          /*****************************************************************************/
-     56          /***** InitializeDeviceBuffer (buffer pointer)                            ****/
-     57          /*****                  source buffer must terminate with a 0x00.         ****/
-     58          /*****          Returns an integer for number of characters in the buffer ****/
-     59          /*****************************************************************************/
+     35          void CopyBufferCounted (char dest[], char srce[], char cntr);
+     36          void FillBuffer (char bufr[],char filchr, char cntr);
+     37          void Add_Char_to_Buffer (char bufr[], int ptr,char chr);
+     38          void Add_Integer_to_Buffer (char bufr[],int ptr, int vint);
+     39          int Add_String_to_Buffer (char bufr[],int ptr, char srce[]);
+     40          
+     41          void CopyBufferDevice( char srce[]);
+     42          void InitializeDeviceBuffer (void);
+     43          
+     44          void CopyBufferGS1011(char srce[]);
+     45          char CountGS1011Chars(void);
+     46          void CopyBufferGS1011 (char srce[]);
+     47          void InitializeGS1011Buffer (void);
+     48          void Add_Char_to_GS1011_Buffer (char chr);
+     49          void Add_String_to_GS1011_Buffer ( char srce[]);
+     50          void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt);
+     51          void FindGS1011Chars(char chrstrng[]);
+     52          
+     53          /***************  serial number handlers******************/
+     54          extern char B2ASCBuf[];
+     55          extern char tempblock[];
+     56          extern char Binary_Device_Class[];
+     57          extern char Binary_Devce_Serial[];
+     58          void Int2ASCII(char leading);
+     59          void Process_Serial_Number(void);
+     60          void ConvertSerialNumber(void);
+     61          void CopySerialNumber(void);
+     62          void ClearSerialNumber(void);
+     63          
+     64          /*****************************************************************************/
+     65          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-     60          void InitializeDeviceBuffer (void){
-     61            for (Device_RX_InPtr = 0; Device_RX_InPtr < 255; Device_RX_InPtr++) 
-   \                     InitializeDeviceBuffer:
-   \   000000 35 00 ....   MOV       L:Device_RX_InPtr, #0x0
-   \                     ??InitializeDeviceBuffer_0:
-   \   000004 C6 ....      LD        A, L:Device_RX_InPtr
-   \   000007 A1 FF        CP        A, #0xff
-   \   000009 27 13        JREQ      L:??InitializeDeviceBuffer_1
-     62              Device_Receiver_Buffer[Device_RX_InPtr] = 0x00;
-   \   00000B C6 ....      LD        A, L:Device_RX_InPtr
-   \   00000E 5F           CLRW      X
-   \   00000F 97           LD        XL, A
-   \   000010 4F           CLR       A
-   \   000011 D7 ....      LD        (L:Device_Receiver_Buffer,X), A
-   \   000014 C6 ....      LD        A, L:Device_RX_InPtr
-   \   000017 AB 01        ADD       A, #0x1
-   \   000019 C7 ....      LD        L:Device_RX_InPtr, A
-   \   00001C 20 E6        JRA       L:??InitializeDeviceBuffer_0
-     63            
-     64              Device_RX_InPtr = 0;
-   \                     ??InitializeDeviceBuffer_1:
-   \   00001E 35 00 ....   MOV       L:Device_RX_InPtr, #0x0
-     65              Device_RX_OutPtr = 0;
-   \   000022 35 00 ....   MOV       L:Device_RX_OutPtr, #0x0
-     66              Device_Rcvr_EOM_Timer = 0;
-   \   000026 35 00 ....   MOV       L:Device_Rcvr_EOM_Timer, #0x0
-     67              Device_Rcvr_Timeout = 0;
-   \   00002A 35 00 ....   MOV       L:Device_Rcvr_Timeout, #0x0
-     68              Device_Rcvr_Complete_flag = 0;
-   \   00002E 35 00 ....   MOV       L:Device_Rcvr_Complete_flag, #0x0
-     69          }
-   \   000032 87           RETF
-     70          /*****************************************************************************/
-     71          /***** InitializeDeviceBuffer (buffer pointer)                            ****/
-     72          /*****                  source buffer must terminate with a 0x00.         ****/
-     73          /*****          Returns an integer for number of characters in the buffer ****/
-     74          /*****************************************************************************/
+     66          void Process_Serial_Number(void){
+     67            if (Device_Processing_Buffer[3] =='A')
+   \                     Process_Serial_Number:
+   \   000000 C6 ....      LD        A, L:Device_Processing_Buffer + 3
+   \   000003 A1 41        CP        A, #0x41
+   \   000005 26 06        JRNE      L:??Process_Serial_Number_0
+     68              CopySerialNumber();
+   \   000007 8D ......    CALLF     CopySerialNumber
+   \   00000B 20 0B        JRA       L:??Process_Serial_Number_1
+     69            else if (Device_Processing_Buffer[3] =='B')
+   \                     ??Process_Serial_Number_0:
+   \   00000D C6 ....      LD        A, L:Device_Processing_Buffer + 3
+   \   000010 A1 42        CP        A, #0x42
+   \   000012 26 04        JRNE      L:??Process_Serial_Number_1
+     70              ConvertSerialNumber();
+   \   000014 8D ......    CALLF     ConvertSerialNumber
+     71          }  
+   \                     ??Process_Serial_Number_1:
+   \   000018 87           RETF
+     72          /*****************************************************************************/
+     73          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-     75          void InitializeGS1011Buffer (void){
-     76          int ptr;
-     77          for (ptr = 0; ptr < BFRSIZEX2; ptr++) 
-   \                     InitializeGS1011Buffer:
-   \   000000 5F           CLRW      X
-   \   000001 9093         LDW       Y, X
-   \                     ??InitializeGS1011Buffer_0:
-   \   000003 90A3 0200    CPW       Y, #0x200
-   \   000007 2E 0B        JRSGE     L:??InitializeGS1011Buffer_1
-     78             GS1011_Receiver_Buffer[ptr] = 0x00;
-   \   000009 4F           CLR       A
-   \   00000A 93           LDW       X, Y
-   \   00000B D7 ....      LD        (L:GS1011_Receiver_Buffer,X), A
-   \   00000E 93           LDW       X, Y
-   \   00000F 5C           INCW      X
-   \   000010 9093         LDW       Y, X
-   \   000012 20 EF        JRA       L:??InitializeGS1011Buffer_0
-     79          for (ptr = 0; ptr < BFRSIZE; ptr++)
-   \                     ??InitializeGS1011Buffer_1:
-   \   000014 5F           CLRW      X
-   \   000015 9093         LDW       Y, X
-   \                     ??InitializeGS1011Buffer_2:
-   \   000017 90A3 00FF    CPW       Y, #0xff
-   \   00001B 2E 0B        JRSGE     L:??InitializeGS1011Buffer_3
-     80              GS1011_Xmit_Buffer[ptr] = 0x00;
-   \   00001D 4F           CLR       A
-   \   00001E 93           LDW       X, Y
-   \   00001F D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
-   \   000022 93           LDW       X, Y
-   \   000023 5C           INCW      X
-   \   000024 9093         LDW       Y, X
-   \   000026 20 EF        JRA       L:??InitializeGS1011Buffer_2
-     81          
-     82          GS1011_Rcvr_InPtr = 0;
-   \                     ??InitializeGS1011Buffer_3:
-   \   000028 5F           CLRW      X
-   \   000029 CF ....      LDW       L:GS1011_Rcvr_InPtr, X
-     83          GS1011_Rcvr_OutPtr = 0;
-   \   00002C 5F           CLRW      X
-   \   00002D CF ....      LDW       L:GS1011_Rcvr_OutPtr, X
-     84          GS1011_Xmit_Char_Count=0;
-   \   000030 35 00 ....   MOV       L:GS1011_Xmit_Char_Count, #0x0
-     85          GS1011_Xmit_Setup_Char_Pointer=0;
-   \   000034 35 00 ....   MOV       L:GS1011_Xmit_Setup_Char_Pointer, #0x0
-     86          }
-   \   000038 87           RETF
-     87          /******************************************************************************/
-     88          /***** Add_Char_to_Buffer (char s)                                         ****/
-     89          /*****                 Buffer pointer always contain the next space        ****/
-     90          /*****                    available for data storage                       ****/
-     91          /*****     CALLING ROUTINE IS RESPONSIBLE TO BE SURE THERE'S ROOM AVAILABLE****/
-     92          /*****************************************************************************/
+     74          void ConvertSerialNumber(void){
+   \                     ConvertSerialNumber:
+   \   000000 8D ......    CALLF     L:?push_w4
+   \   000004 3B ....      PUSH      S:?b10
+     75          #define DEVICETYPEBYTE 4
+     76          #define DEVICESERIALBYTE 7
+     77          u8 i,j;
+     78          u8 cntr; 
+     79          ClearSerialNumber();
+   \   000007 8D ......    CALLF     ClearSerialNumber
+     80          cntr = DEVICETYPEBYTE +3;
+   \   00000B A6 07        LD        A, #0x7
+   \   00000D B7 ..        LD        S:?b8, A
+     81          j = 0;
+   \   00000F 4F           CLR       A
+   \   000010 B7 ..        LD        S:?b9, A
+     82          for (i=DEVICETYPEBYTE; i <= cntr; i++){
+   \   000012 A6 04        LD        A, #0x4
+   \   000014 B7 ..        LD        S:?b10, A
+   \                     ??ConvertSerialNumber_0:
+   \   000016 B6 ..        LD        A, S:?b8
+   \   000018 B1 ..        CP        A, S:?b10
+   \   00001A 25 1E        JRC       L:??ConvertSerialNumber_1
+     83            Binary_Device_Class[j] = Device_Processing_Buffer[i];
+   \   00001C 5F           CLRW      X
+   \   00001D 41           EXG       A, XL
+   \   00001E B6 ..        LD        A, S:?b10
+   \   000020 41           EXG       A, XL
+   \   000021 D6 ....      LD        A, (L:Device_Processing_Buffer,X)
+   \   000024 5F           CLRW      X
+   \   000025 41           EXG       A, XL
+   \   000026 B6 ..        LD        A, S:?b9
+   \   000028 41           EXG       A, XL
+   \   000029 D7 ....      LD        (L:Binary_Device_Class,X), A
+     84            j++;
+   \   00002C B6 ..        LD        A, S:?b9
+   \   00002E AB 01        ADD       A, #0x1
+   \   000030 B7 ..        LD        S:?b9, A
+     85          }
+   \   000032 B6 ..        LD        A, S:?b10
+   \   000034 AB 01        ADD       A, #0x1
+   \   000036 B7 ..        LD        S:?b10, A
+   \   000038 20 DC        JRA       L:??ConvertSerialNumber_0
+     86          cntr= DEVICESERIALBYTE + 4;
+   \                     ??ConvertSerialNumber_1:
+   \   00003A A6 0B        LD        A, #0xb
+   \   00003C B7 ..        LD        S:?b8, A
+     87          j = 0;
+   \   00003E 4F           CLR       A
+   \   00003F B7 ..        LD        S:?b9, A
+     88          for (i=DEVICESERIALBYTE; i <= cntr; i++) {
+   \   000041 A6 07        LD        A, #0x7
+   \   000043 B7 ..        LD        S:?b10, A
+   \                     ??ConvertSerialNumber_2:
+   \   000045 B6 ..        LD        A, S:?b8
+   \   000047 B1 ..        CP        A, S:?b10
+   \   000049 25 1E        JRC       L:??ConvertSerialNumber_3
+     89            Binary_Devce_Serial[j] = Device_Processing_Buffer[i];
+   \   00004B 5F           CLRW      X
+   \   00004C 41           EXG       A, XL
+   \   00004D B6 ..        LD        A, S:?b10
+   \   00004F 41           EXG       A, XL
+   \   000050 D6 ....      LD        A, (L:Device_Processing_Buffer,X)
+   \   000053 5F           CLRW      X
+   \   000054 41           EXG       A, XL
+   \   000055 B6 ..        LD        A, S:?b9
+   \   000057 41           EXG       A, XL
+   \   000058 D7 ....      LD        (L:Binary_Devce_Serial,X), A
+     90            j++;
+   \   00005B B6 ..        LD        A, S:?b9
+   \   00005D AB 01        ADD       A, #0x1
+   \   00005F B7 ..        LD        S:?b9, A
+     91            }
+   \   000061 B6 ..        LD        A, S:?b10
+   \   000063 AB 01        ADD       A, #0x1
+   \   000065 B7 ..        LD        S:?b10, A
+   \   000067 20 DC        JRA       L:??ConvertSerialNumber_2
+     92          for (i=0; i<= 2; i ++)
+   \                     ??ConvertSerialNumber_3:
+   \   000069 4F           CLR       A
+   \   00006A B7 ..        LD        S:?b10, A
+   \                     ??ConvertSerialNumber_4:
+   \   00006C B6 ..        LD        A, S:?b10
+   \   00006E A1 03        CP        A, #0x3
+   \   000070 24 18        JRNC      L:??ConvertSerialNumber_5
+     93                tempblock[i] = Binary_Device_Class[i];
+   \   000072 5F           CLRW      X
+   \   000073 41           EXG       A, XL
+   \   000074 B6 ..        LD        A, S:?b10
+   \   000076 41           EXG       A, XL
+   \   000077 D6 ....      LD        A, (L:Binary_Device_Class,X)
+   \   00007A 5F           CLRW      X
+   \   00007B 41           EXG       A, XL
+   \   00007C B6 ..        LD        A, S:?b10
+   \   00007E 41           EXG       A, XL
+   \   00007F D7 ....      LD        (L:tempblock,X), A
+   \   000082 B6 ..        LD        A, S:?b10
+   \   000084 AB 01        ADD       A, #0x1
+   \   000086 B7 ..        LD        S:?b10, A
+   \   000088 20 E2        JRA       L:??ConvertSerialNumber_4
+     94                Int2ASCII(0);
+   \                     ??ConvertSerialNumber_5:
+   \   00008A 4F           CLR       A
+   \   00008B 8D ......    CALLF     Int2ASCII
+     95          j = 0;
+   \   00008F 4F           CLR       A
+   \   000090 B7 ..        LD        S:?b9, A
+     96          for (i= 4; i <= 9; i ++){
+   \   000092 A6 04        LD        A, #0x4
+   \   000094 B7 ..        LD        S:?b10, A
+   \                     ??ConvertSerialNumber_6:
+   \   000096 B6 ..        LD        A, S:?b10
+   \   000098 A1 0A        CP        A, #0xa
+   \   00009A 24 1E        JRNC      L:??ConvertSerialNumber_7
+     97             Device_Serial_number[j] = B2ASCBuf[i];
+   \   00009C 5F           CLRW      X
+   \   00009D 41           EXG       A, XL
+   \   00009E B6 ..        LD        A, S:?b10
+   \   0000A0 41           EXG       A, XL
+   \   0000A1 D6 ....      LD        A, (L:B2ASCBuf,X)
+   \   0000A4 5F           CLRW      X
+   \   0000A5 41           EXG       A, XL
+   \   0000A6 B6 ..        LD        A, S:?b9
+   \   0000A8 41           EXG       A, XL
+   \   0000A9 D7 ....      LD        (L:Device_Serial_number,X), A
+     98             j++;
+   \   0000AC B6 ..        LD        A, S:?b9
+   \   0000AE AB 01        ADD       A, #0x1
+   \   0000B0 B7 ..        LD        S:?b9, A
+     99          }
+   \   0000B2 B6 ..        LD        A, S:?b10
+   \   0000B4 AB 01        ADD       A, #0x1
+   \   0000B6 B7 ..        LD        S:?b10, A
+   \   0000B8 20 DC        JRA       L:??ConvertSerialNumber_6
+    100          for (i=0; i<= 3; i ++)
+   \                     ??ConvertSerialNumber_7:
+   \   0000BA 4F           CLR       A
+   \   0000BB B7 ..        LD        S:?b10, A
+   \                     ??ConvertSerialNumber_8:
+   \   0000BD B6 ..        LD        A, S:?b10
+   \   0000BF A1 04        CP        A, #0x4
+   \   0000C1 24 18        JRNC      L:??ConvertSerialNumber_9
+    101                tempblock[i] = Binary_Devce_Serial[i];
+   \   0000C3 5F           CLRW      X
+   \   0000C4 41           EXG       A, XL
+   \   0000C5 B6 ..        LD        A, S:?b10
+   \   0000C7 41           EXG       A, XL
+   \   0000C8 D6 ....      LD        A, (L:Binary_Devce_Serial,X)
+   \   0000CB 5F           CLRW      X
+   \   0000CC 41           EXG       A, XL
+   \   0000CD B6 ..        LD        A, S:?b10
+   \   0000CF 41           EXG       A, XL
+   \   0000D0 D7 ....      LD        (L:tempblock,X), A
+   \   0000D3 B6 ..        LD        A, S:?b10
+   \   0000D5 AB 01        ADD       A, #0x1
+   \   0000D7 B7 ..        LD        S:?b10, A
+   \   0000D9 20 E2        JRA       L:??ConvertSerialNumber_8
+    102                Int2ASCII(0);
+   \                     ??ConvertSerialNumber_9:
+   \   0000DB 4F           CLR       A
+   \   0000DC 8D ......    CALLF     Int2ASCII
+    103          j = 0;
+   \   0000E0 4F           CLR       A
+   \   0000E1 B7 ..        LD        S:?b9, A
+    104          for (i= 6; i <= 15; i ++){
+   \   0000E3 A6 06        LD        A, #0x6
+   \   0000E5 B7 ..        LD        S:?b10, A
+   \                     ??ConvertSerialNumber_10:
+   \   0000E7 B6 ..        LD        A, S:?b10
+   \   0000E9 A1 10        CP        A, #0x10
+   \   0000EB 24 1E        JRNC      L:??ConvertSerialNumber_11
+    105            Device_Serial_number[i] = B2ASCBuf[j];
+   \   0000ED 5F           CLRW      X
+   \   0000EE 41           EXG       A, XL
+   \   0000EF B6 ..        LD        A, S:?b9
+   \   0000F1 41           EXG       A, XL
+   \   0000F2 D6 ....      LD        A, (L:B2ASCBuf,X)
+   \   0000F5 5F           CLRW      X
+   \   0000F6 41           EXG       A, XL
+   \   0000F7 B6 ..        LD        A, S:?b10
+   \   0000F9 41           EXG       A, XL
+   \   0000FA D7 ....      LD        (L:Device_Serial_number,X), A
+    106            j++;
+   \   0000FD B6 ..        LD        A, S:?b9
+   \   0000FF AB 01        ADD       A, #0x1
+   \   000101 B7 ..        LD        S:?b9, A
+    107          }
+   \   000103 B6 ..        LD        A, S:?b10
+   \   000105 AB 01        ADD       A, #0x1
+   \   000107 B7 ..        LD        S:?b10, A
+   \   000109 20 DC        JRA       L:??ConvertSerialNumber_10
+    108          }
+   \                     ??ConvertSerialNumber_11:
+   \   00010B 32 ....      POP       S:?b10
+   \   00010E AC ......    JPF       L:?epilogue_w4
+    109          /*****************************************************************************/
+    110          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-     93          void Add_Char_to_Buffer (char bufr[], int ptr, char chr){
+    111          void CopySerialNumber(void){
+    112          u8 i;
+    113          u8 cntr=15; 
+   \                     CopySerialNumber:
+   \   000000 35 0F ....   MOV       S:?b1, #0xf
+    114          ClearSerialNumber();
+   \   000004 8D ......    CALLF     ClearSerialNumber
+    115          for (i=0; i <= cntr; i++){
+   \   000008 4F           CLR       A
+   \   000009 B7 ..        LD        S:?b2, A
+   \                     ??CopySerialNumber_0:
+   \   00000B B6 ..        LD        A, S:?b1
+   \   00000D B1 ..        CP        A, S:?b2
+   \   00000F 25 19        JRC       L:??CopySerialNumber_1
+    116              Device_Serial_number[i] = Device_Processing_Buffer[i+4];
+   \   000011 5F           CLRW      X
+   \   000012 41           EXG       A, XL
+   \   000013 B6 ..        LD        A, S:?b2
+   \   000015 41           EXG       A, XL
+   \   000016 1C ....      ADDW      X, #Device_Processing_Buffer + 4
+   \   000019 F6           LD        A, (X)
+   \   00001A 5F           CLRW      X
+   \   00001B 41           EXG       A, XL
+   \   00001C B6 ..        LD        A, S:?b2
+   \   00001E 41           EXG       A, XL
+   \   00001F D7 ....      LD        (L:Device_Serial_number,X), A
+    117            }
+   \   000022 B6 ..        LD        A, S:?b2
+   \   000024 AB 01        ADD       A, #0x1
+   \   000026 B7 ..        LD        S:?b2, A
+   \   000028 20 E1        JRA       L:??CopySerialNumber_0
+    118           }
+   \                     ??CopySerialNumber_1:
+   \   00002A 87           RETF
+    119          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    120          void ClearSerialNumber(void){
+    121          u8 i;
+    122          for (i=0;i<=16;i++)
+   \                     ClearSerialNumber:
+   \   000000 4F           CLR       A
+   \   000001 B7 ..        LD        S:?b0, A
+   \                     ??ClearSerialNumber_0:
+   \   000003 B6 ..        LD        A, S:?b0
+   \   000005 A1 11        CP        A, #0x11
+   \   000007 24 11        JRNC      L:??ClearSerialNumber_1
+    123            Device_Serial_number[i] = 0;
+   \   000009 5F           CLRW      X
+   \   00000A 41           EXG       A, XL
+   \   00000B B6 ..        LD        A, S:?b0
+   \   00000D 41           EXG       A, XL
+   \   00000E 4F           CLR       A
+   \   00000F D7 ....      LD        (L:Device_Serial_number,X), A
+   \   000012 B6 ..        LD        A, S:?b0
+   \   000014 AB 01        ADD       A, #0x1
+   \   000016 B7 ..        LD        S:?b0, A
+   \   000018 20 E9        JRA       L:??ClearSerialNumber_0
+    124          }
+   \                     ??ClearSerialNumber_1:
+   \   00001A 87           RETF
+    125          /*****************************************************************************/
+    126          /*****              GENERAL BUFFER HANDLING ROUTINES                      ****/
+    127          /*****************************************************************************/
+    128          /******************************************************************************/
+    129          /***** Add_Char_to_Buffer (char s)                                         ****/
+    130          /*****                 Buffer pointer always contain the next space        ****/
+    131          /*****                    available for data storage                       ****/
+    132          /*****     CALLING ROUTINE IS RESPONSIBLE TO BE SURE THERE'S ROOM AVAILABLE****/
+    133          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    134          void Add_Char_to_Buffer (char bufr[], int ptr, char chr){
    \                     Add_Char_to_Buffer:
    \   000000 BF ..        LDW       S:?w0, X
    \   000002 93           LDW       X, Y
-     94            bufr[ptr] = chr;
+    135            bufr[ptr] = chr;
    \   000003 9093         LDW       Y, X
    \   000005 72B9 ....    ADDW      Y, S:?w0
    \   000009 90F7         LD        (Y), A
-     95            ptr++;
+    136            ptr++;
    \   00000B 5C           INCW      X
-     96          }
+    137          }
    \   00000C 87           RETF
-     97          
-     98          /******************************************************************************/
-     99          /***** Add_Char_to_GS1011_Buffer (char s)                                  ****/
-    100          /*****                 Buffer pointer always contain the next space        ****/
-    101          /*****                    available for data storage                       ****/
-    102          /*****     CALLING ROUTINE IS RESPONSIBLE TO BE SURE THERE'S ROOM AVAILABLE****/
-    103          /*****************************************************************************/
+    138          /*****************************************************************************/
+    139          /***** Add_Integer_to_Buffer (int s)                               ****/
+    140          /*****                 Device buffers always contain the next space       ****/
+    141          /*****                    available for data storage                      ****/
+    142          /*****                 as an int in first 2 bytes                         ****/
+    143          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    104          void Add_Char_to_GS1011_Buffer (char chr){
-   \                     Add_Char_to_GS1011_Buffer:
-   \   000000 B7 ..        LD        S:?b0, A
-    105            GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = chr;
-   \   000002 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   000005 5F           CLRW      X
-   \   000006 97           LD        XL, A
-   \   000007 B6 ..        LD        A, S:?b0
-   \   000009 D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
-    106            GS1011_Xmit_Char_Count++;
-   \   00000C C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   00000F AB 01        ADD       A, #0x1
-   \   000011 C7 ....      LD        L:GS1011_Xmit_Char_Count, A
-    107          }
-   \   000014 87           RETF
-    108          
-    109          /*****************************************************************************/
-    110          /***** Add_Integer_to_Buffer (int s)                               ****/
-    111          /*****                 Device buffers always contain the next space       ****/
-    112          /*****                    available for data storage                      ****/
-    113          /*****                 as an int in first 2 bytes                         ****/
-    114          /*****************************************************************************/
-
-   \                                 In section .far_func.text, align 1
-    115          void Add_Integer_to_Buffer (char bufr[], int ptr, int vint){
+    144          void Add_Integer_to_Buffer (char bufr[], int ptr, int vint){
    \                     Add_Integer_to_Buffer:
    \   000000 BF ..        LDW       S:?w3, X
    \   000002 8D ......    CALLF     L:?mov_w2_w0
-    116            int high, low;
-    117            high = vint>>8;            /* calculate high byte and save */
+    145            int high, low;
+    146            high = vint>>8;            /* calculate high byte and save */
    \   000006 BE ..        LDW       X, S:?w2
    \   000008 8D ......    CALLF     L:?sra16_x_x_8
    \   00000C BF ..        LDW       S:?w1, X
-    118            low = vint & 0Xff;             /* calculate low byte and save */
+    147            low = vint & 0Xff;             /* calculate low byte and save */
    \   00000E BE ..        LDW       X, S:?w2
    \   000010 02           RLWA      X, A
    \   000011 A4 00        AND       A, #0x0
@@ -241,197 +423,90 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
    \   000014 A4 FF        AND       A, #0xff
    \   000016 02           RLWA      X, A
    \   000017 BF ..        LDW       S:?w0, X
-    119            bufr[ptr] = low;
+    148            bufr[ptr] = low;
    \   000019 93           LDW       X, Y
    \   00001A 72BB ....    ADDW      X, S:?w3
    \   00001E B6 ..        LD        A, S:?b1
    \   000020 F7           LD        (X), A
-    120            bufr[ptr+1] = high;
+    149            bufr[ptr+1] = high;
    \   000021 93           LDW       X, Y
    \   000022 72BB ....    ADDW      X, S:?w3
    \   000026 5C           INCW      X
    \   000027 B6 ..        LD        A, S:?b3
    \   000029 F7           LD        (X), A
-    121            ptr +=2;
+    150            ptr +=2;
    \   00002A 72A9 0002    ADDW      Y, #0x2
-    122          }
+    151          }
    \   00002E 87           RETF
-    123          
-    124          /*****************************************************************************/
-    125          /***** Add_String_to_Buffer (buffer pointer, source pointer)       ****/
-    126          /*****                 buffer & source buffer must terminate with a 0x00. ****/
-    127          /*****    overwrites the receiving buffers terminating 0x00               ****/
-    128          /*****                  copies source terminating 0x00.                   ****/
-    129          /*****************************************************************************/
+    152          /*****************************************************************************/
+    153          /***** Add_String_to_Buffer (buffer pointer, source pointer)       ****/
+    154          /*****                 buffer & source buffer must terminate with a 0x00. ****/
+    155          /*****    overwrites the receiving buffers terminating 0x00               ****/
+    156          /*****                  copies source terminating 0x00.                   ****/
+    157          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    130          int Add_String_to_Buffer (char bufr[],int ptr, char srce[]){
+    158          int Add_String_to_Buffer (char bufr[],int ptr, char srce[]){
    \                     Add_String_to_Buffer:
    \   000000 BF ..        LDW       S:?w2, X
    \   000002 90BF ..      LDW       S:?w1, Y
-    131           u16 i;
-    132              
-    133              for (i = 0; i<BFRSIZE; i++){
+    159           u16 i;
+    160              
+    161              for (i = 0; i<BFRSIZE; i++){
    \   000005 5F           CLRW      X
    \   000006 9093         LDW       Y, X
    \                     ??Add_String_to_Buffer_0:
    \   000008 90A3 00FF    CPW       Y, #0xff
    \   00000C 24 1D        JRNC      L:??Add_String_to_Buffer_1
-    134                 bufr[ptr] = srce[i];      /* store string into buffer until */
+    162                 bufr[ptr] = srce[i];      /* store string into buffer until */
    \   00000E 93           LDW       X, Y
    \   00000F 72BB ....    ADDW      X, S:?w0
    \   000013 F6           LD        A, (X)
    \   000014 BE ..        LDW       X, S:?w1
    \   000016 72BB ....    ADDW      X, S:?w2
    \   00001A F7           LD        (X), A
-    135                 if (srce[i] == 0x00){
+    163                 if (srce[i] == 0x00){
    \   00001B 93           LDW       X, Y
    \   00001C 72BB ....    ADDW      X, S:?w0
    \   000020 7D           TNZ       (X)
    \   000021 26 02        JRNE      L:??Add_String_to_Buffer_2
-    136                      break;
+    164                      break;
    \   000023 20 06        JRA       L:??Add_String_to_Buffer_1
-    137                  }
-    138               }
+    165                  }
+    166               }
    \                     ??Add_String_to_Buffer_2:
    \   000025 93           LDW       X, Y
    \   000026 5C           INCW      X
    \   000027 9093         LDW       Y, X
    \   000029 20 DD        JRA       L:??Add_String_to_Buffer_0
-    139          return ptr;
+    167          return ptr;
    \                     ??Add_String_to_Buffer_1:
    \   00002B BE ..        LDW       X, S:?w1
    \   00002D 87           RETF
-    140          }
-    141          
-    142          /*****************************************************************************/
-    143          /***** Add_String_to_GS1011_Buffer (buffer pointer, source pointer)       ****/
-    144          /*****                 buffer & source buffer must terminate with a 0x00. ****/
-    145          /*****    overwrites the receiving buffers terminating 0x00               ****/
-    146          /*****                  copies source terminating 0x00.                   ****/
-    147          /*****************************************************************************/
-
-   \                                 In section .far_func.text, align 1
-    148          void Add_String_to_GS1011_Buffer ( char srce[]){
-   \                     Add_String_to_GS1011_Buffer:
-   \   000000 BF ..        LDW       S:?w1, X
-    149           u16 i;
-    150               for (i = 0; i<BFRSIZE; i++){
-   \   000002 5F           CLRW      X
-   \   000003 9093         LDW       Y, X
-   \                     ??Add_String_to_GS1011_Buffer_0:
-   \   000005 90A3 00FF    CPW       Y, #0xff
-   \   000009 24 28        JRNC      L:??Add_String_to_GS1011_Buffer_1
-    151               GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[i];      /* store string into buffer until */
-   \   00000B 93           LDW       X, Y
-   \   00000C 72BB ....    ADDW      X, S:?w1
-   \   000010 F6           LD        A, (X)
-   \   000011 B7 ..        LD        S:?b0, A
-   \   000013 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   000016 5F           CLRW      X
-   \   000017 97           LD        XL, A
-   \   000018 B6 ..        LD        A, S:?b0
-   \   00001A D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
-    152                  if (srce[i] == 0x00)break;
-   \   00001D 93           LDW       X, Y
-   \   00001E 72BB ....    ADDW      X, S:?w1
-   \   000022 7D           TNZ       (X)
-   \   000023 26 02        JRNE      L:??Add_String_to_GS1011_Buffer_2
-   \   000025 20 0C        JRA       L:??Add_String_to_GS1011_Buffer_1
-    153               GS1011_Xmit_Char_Count++;   
-   \                     ??Add_String_to_GS1011_Buffer_2:
-   \   000027 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   00002A AB 01        ADD       A, #0x1
-   \   00002C C7 ....      LD        L:GS1011_Xmit_Char_Count, A
-    154               }
-   \   00002F 905C         INCW      Y
-   \   000031 20 D2        JRA       L:??Add_String_to_GS1011_Buffer_0
-    155          }
-   \                     ??Add_String_to_GS1011_Buffer_1:
-   \   000033 87           RETF
-    156          
-    157          /*****************************************************************************/
-    158          /***** Add_String_to_GS1011_Buffer (buffer pointer, source pointer)       ****/
-    159          /*****                 buffer & source buffer must terminate with a 0x00. ****/
-    160          /*****    overwrites the receiving buffers terminating 0x00               ****/
-    161          /*****                  copies source terminating 0x00.                   ****/
-    162          /*****************************************************************************/
-
-   \                                 In section .far_func.text, align 1
-    163          void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt){
-   \                     Add_String_to_GS1011_BufferCounted:
-   \   000000 BF ..        LDW       S:?w3, X
-   \   000002 B7 ..        LD        S:?b1, A
-    164           u16 i;
-    165           if ((GS1011_Xmit_Char_Count + cnt) < BFRSIZE){
-   \   000004 5F           CLRW      X
-   \   000005 41           EXG       A, XL
-   \   000006 B6 ..        LD        A, S:?b1
-   \   000008 41           EXG       A, XL
-   \   000009 BF ..        LDW       S:?w1, X
-   \   00000B C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   00000E 5F           CLRW      X
-   \   00000F 97           LD        XL, A
-   \   000010 72BB ....    ADDW      X, S:?w1
-   \   000014 A3 00FF      CPW       X, #0xff
-   \   000017 2E 2E        JRSGE     L:??Add_String_to_GS1011_BufferCounted_0
-    166               for (i = 0; i<=cnt; i++)      
-   \   000019 5F           CLRW      X
-   \   00001A BF ..        LDW       S:?w2, X
-   \                     ??Add_String_to_GS1011_BufferCounted_1:
-   \   00001C 5F           CLRW      X
-   \   00001D 41           EXG       A, XL
-   \   00001E B6 ..        LD        A, S:?b1
-   \   000020 41           EXG       A, XL
-   \   000021 B3 ..        CPW       X, S:?w2
-   \   000023 25 22        JRC       L:??Add_String_to_GS1011_BufferCounted_0
-    167               {
-    168                        GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[i];      /* store string into buffer until */
-   \   000025 BE ..        LDW       X, S:?w2
-   \   000027 72BB ....    ADDW      X, S:?w3
-   \   00002B F6           LD        A, (X)
-   \   00002C B7 ..        LD        S:?b0, A
-   \   00002E C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   000031 5F           CLRW      X
-   \   000032 97           LD        XL, A
-   \   000033 B6 ..        LD        A, S:?b0
-   \   000035 D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
-    169                        GS1011_Xmit_Char_Count++;                    /*   the strings terminating 0x00 */          
-   \   000038 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   00003B AB 01        ADD       A, #0x1
-   \   00003D C7 ....      LD        L:GS1011_Xmit_Char_Count, A
-    170               }
-   \   000040 BE ..        LDW       X, S:?w2
-   \   000042 5C           INCW      X
-   \   000043 BF ..        LDW       S:?w2, X
-   \   000045 20 D5        JRA       L:??Add_String_to_GS1011_BufferCounted_1
-    171            }
-    172          }
-   \                     ??Add_String_to_GS1011_BufferCounted_0:
-   \   000047 87           RETF
+    168          }
+    169          /*****************************************************************************/
+    170          /***** FillBuffer (buffer pointer)                                         ****/
+    171          /*****                  source buffer must terminate with a 0x00.         ****/
+    172          /*****          Returns an integer for number of characters in the buffer ****/
     173          /*****************************************************************************/
-    174          /***** FillBuffer (buffer pointer)                                         ****/
-    175          /*****                  source buffer must terminate with a 0x00.         ****/
-    176          /*****          Returns an integer for number of characters in the buffer ****/
-    177          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    178          void FillBuffer (char bufr[],char filchr, char cntr){
+    174          void FillBuffer (char bufr[],char filchr, char cntr){
    \                     FillBuffer:
    \   000000 B7 ..        LD        S:?b1, A
-    179           u8 i;
-    180           if (cntr < sizeof(bufr)) {
+    175           u8 i;
+    176           if (cntr < sizeof(bufr)) {
    \   000002 B6 ..        LD        A, S:?b0
    \   000004 A1 02        CP        A, #0x2
    \   000006 24 21        JRNC      L:??FillBuffer_0
-    181           for (i = 0; i < cntr; i++) {
+    177           for (i = 0; i < cntr; i++) {
    \   000008 4F           CLR       A
    \   000009 B7 ..        LD        S:?b4, A
    \                     ??FillBuffer_1:
    \   00000B B6 ..        LD        A, S:?b4
    \   00000D B1 ..        CP        A, S:?b0
    \   00000F 24 18        JRNC      L:??FillBuffer_0
-    182             bufr[i] = filchr;
+    178             bufr[i] = filchr;
    \   000011 905F         CLRW      Y
    \   000013 61           EXG       A, YL
    \   000014 B6 ..        LD        A, S:?b4
@@ -440,34 +515,34 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
    \   000019 72B9 ....    ADDW      Y, S:?w1
    \   00001D B6 ..        LD        A, S:?b1
    \   00001F 90F7         LD        (Y), A
-    183             }
+    179             }
    \   000021 B6 ..        LD        A, S:?b4
    \   000023 AB 01        ADD       A, #0x1
    \   000025 B7 ..        LD        S:?b4, A
    \   000027 20 E2        JRA       L:??FillBuffer_1
-    184            }
-    185          }
+    180            }
+    181          }
    \                     ??FillBuffer_0:
    \   000029 87           RETF
-    186          /*****************************************************************************/
-    187          /***** copy buffer (pointer to destination, pointer to source buffer)     ****/
-    188          /*****                  source buffer must terminate with a 0x00.         ****/
-    189          /*****************************************************************************/
+    182          /*****************************************************************************/
+    183          /***** copy buffer (pointer to destination, pointer to source buffer)     ****/
+    184          /*****                  source buffer must terminate with a 0x00.         ****/
+    185          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    190          char CopyBuffer (char dest[], char srce[]){
+    186          char CopyBuffer (char dest[], char srce[]){
    \                     CopyBuffer:
    \   000000 BF ..        LDW       S:?w2, X
    \   000002 90BF ..      LDW       S:?w1, Y
-    191           u8 i;
-    192           for (i=0; i < BFRSIZE; i++){
+    187           u8 i;
+    188           for (i=0; i < BFRSIZE; i++){
    \   000005 4F           CLR       A
    \   000006 B7 ..        LD        S:?b0, A
    \                     ??CopyBuffer_0:
    \   000008 B6 ..        LD        A, S:?b0
    \   00000A A1 FF        CP        A, #0xff
    \   00000C 27 2A        JREQ      L:??CopyBuffer_1
-    193             dest[i] = srce[i];
+    189             dest[i] = srce[i];
    \   00000E 5F           CLRW      X
    \   00000F 41           EXG       A, XL
    \   000010 B6 ..        LD        A, S:?b0
@@ -480,7 +555,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
    \   00001C 41           EXG       A, XL
    \   00001D 72BB ....    ADDW      X, S:?w2
    \   000021 F7           LD        (X), A
-    194             if (srce[i] == NULL) break;
+    190             if (srce[i] == NULL) break;
    \   000022 5F           CLRW      X
    \   000023 41           EXG       A, XL
    \   000024 B6 ..        LD        A, S:?b0
@@ -489,199 +564,99 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
    \   00002B 7D           TNZ       (X)
    \   00002C 26 02        JRNE      L:??CopyBuffer_2
    \   00002E 20 08        JRA       L:??CopyBuffer_1
-    195            }
+    191            }
    \                     ??CopyBuffer_2:
    \   000030 B6 ..        LD        A, S:?b0
    \   000032 AB 01        ADD       A, #0x1
    \   000034 B7 ..        LD        S:?b0, A
    \   000036 20 D0        JRA       L:??CopyBuffer_0
-    196            return i;
+    192            return i;
    \                     ??CopyBuffer_1:
    \   000038 B6 ..        LD        A, S:?b0
    \   00003A 87           RETF
-    197           }
-    198          /*****************************************************************************/
-    199          /***** copy buffer (pointer to destination, pointer to source buffer)     ****/
-    200          /*****                  source buffer must terminate with a 0x00.         ****/
-    201          /*****************************************************************************/
+    193           }
+    194          /*****************************************************************************/
+    195          /***** copy buffer from offset to terminator(pointer to destination, pointer to source buffer,****/
+    196          /*****                                  number of bytes to copy)          ****/
+    197          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    202          void CopyBufferDevice(char srce[]){
-   \                     CopyBufferDevice:
-   \   000000 BF ..        LDW       S:?w1, X
-    203           u8 i;
-    204           for (i=0; i < BFRSIZE; i++){
-   \   000002 4F           CLR       A
-   \   000003 B7 ..        LD        S:?b0, A
-   \                     ??CopyBufferDevice_0:
-   \   000005 B6 ..        LD        A, S:?b0
-   \   000007 A1 FF        CP        A, #0xff
-   \   000009 27 2F        JREQ      L:??CopyBufferDevice_1
-    205             Device_Xmit_Buffer[i] = srce[i];
-   \   00000B 5F           CLRW      X
-   \   00000C 41           EXG       A, XL
-   \   00000D B6 ..        LD        A, S:?b0
-   \   00000F 41           EXG       A, XL
-   \   000010 72BB ....    ADDW      X, S:?w1
-   \   000014 F6           LD        A, (X)
-   \   000015 5F           CLRW      X
-   \   000016 41           EXG       A, XL
-   \   000017 B6 ..        LD        A, S:?b0
-   \   000019 41           EXG       A, XL
-   \   00001A D7 ....      LD        (L:Device_Xmit_Buffer,X), A
-    206             if (srce[i] == ETX){
-   \   00001D 5F           CLRW      X
-   \   00001E 41           EXG       A, XL
-   \   00001F B6 ..        LD        A, S:?b0
-   \   000021 41           EXG       A, XL
-   \   000022 72BB ....    ADDW      X, S:?w1
-   \   000026 F6           LD        A, (X)
-   \   000027 A1 03        CP        A, #0x3
-   \   000029 26 07        JRNE      L:??CopyBufferDevice_2
-    207              Device_Xmit_Setup_Char_Pointer =i;
-   \   00002B B6 ..        LD        A, S:?b0
-   \   00002D C7 ....      LD        L:Device_Xmit_Setup_Char_Pointer, A
-    208              break;
-   \   000030 20 08        JRA       L:??CopyBufferDevice_1
-    209             }
-    210            }
-   \                     ??CopyBufferDevice_2:
-   \   000032 B6 ..        LD        A, S:?b0
-   \   000034 AB 01        ADD       A, #0x1
-   \   000036 B7 ..        LD        S:?b0, A
-   \   000038 20 CB        JRA       L:??CopyBufferDevice_0
-    211           }
-   \                     ??CopyBufferDevice_1:
-   \   00003A 87           RETF
-    212          
-    213          /*****************************************************************************/
-    214          /***** copy buffer (pointer to destination, pointer to source buffer)     ****/
-    215          /*****                  source buffer must terminate with a 0x00.         ****/
-    216          /*****************************************************************************/
-
-   \                                 In section .far_func.text, align 1
-    217          void CopyBufferGS1011 (char srce[]){
-   \                     CopyBufferGS1011:
-   \   000000 BF ..        LDW       S:?w1, X
-    218           for (GS1011_Xmit_Char_Count=0; GS1011_Xmit_Char_Count < BFRSIZE; GS1011_Xmit_Char_Count++){
-   \   000002 35 00 ....   MOV       L:GS1011_Xmit_Char_Count, #0x0
-   \                     ??CopyBufferGS1011_0:
-   \   000006 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   000009 A1 FF        CP        A, #0xff
-   \   00000B 27 2E        JREQ      L:??CopyBufferGS1011_1
-    219              GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[GS1011_Xmit_Char_Count];
-   \   00000D C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   000010 5F           CLRW      X
-   \   000011 97           LD        XL, A
-   \   000012 72BB ....    ADDW      X, S:?w1
-   \   000016 F6           LD        A, (X)
-   \   000017 B7 ..        LD        S:?b0, A
-   \   000019 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   00001C 5F           CLRW      X
-   \   00001D 97           LD        XL, A
-   \   00001E B6 ..        LD        A, S:?b0
-   \   000020 D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
-    220              if (srce[GS1011_Xmit_Char_Count] == 0){
-   \   000023 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   000026 5F           CLRW      X
-   \   000027 97           LD        XL, A
-   \   000028 72BB ....    ADDW      X, S:?w1
-   \   00002C 7D           TNZ       (X)
-   \   00002D 26 02        JRNE      L:??CopyBufferGS1011_2
-    221                  break;
-   \   00002F 20 0A        JRA       L:??CopyBufferGS1011_1
-    222              }
-    223            }
-   \                     ??CopyBufferGS1011_2:
-   \   000031 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
-   \   000034 AB 01        ADD       A, #0x1
-   \   000036 C7 ....      LD        L:GS1011_Xmit_Char_Count, A
-   \   000039 20 CB        JRA       L:??CopyBufferGS1011_0
-    224          }
-   \                     ??CopyBufferGS1011_1:
-   \   00003B 87           RETF
-    225          /*****************************************************************************/
-    226          /***** copy buffer from offset to terminator(pointer to destination, pointer to source buffer,****/
-    227          /*****                                  number of bytes to copy)          ****/
-    228          /*****************************************************************************/
-
-   \                                 In section .far_func.text, align 1
-    229          void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm){
+    198          void copy_buffer_from_offset_to_terminator(char srcebufr[],char destbufr[], int ofst, char trm){
    \                     copy_buffer_from_offset_to_terminator:
    \   000000 8D ......    CALLF     L:?push_w4
    \   000004 BF ..        LDW       S:?w1, X
    \   000006 90BF ..      LDW       S:?w2, Y
    \   000009 90BE ..      LDW       Y, S:?w0
    \   00000C B7 ..        LD        S:?b6, A
-    230          int destoffset,chkchr; 
-    231          destoffset = 0;
+    199          int destoffset,chkchr; 
+    200          destoffset = 0;
    \   00000E 5F           CLRW      X
    \   00000F BF ..        LDW       S:?w0, X
-    232          for (destoffset =0; destoffset < 512; destoffset++){
+    201          for (destoffset =0; destoffset < BFRSIZEX2; destoffset++){
    \   000011 5F           CLRW      X
    \   000012 BF ..        LDW       S:?w0, X
    \                     ??copy_buffer_from_offset_to_terminator_0:
    \   000014 BE ..        LDW       X, S:?w0
    \   000016 A3 0200      CPW       X, #0x200
    \   000019 2E 2B        JRSGE     L:??copy_buffer_from_offset_to_terminator_1
-    233            chkchr = srcebufr[ofst];
+    202            chkchr = srcebufr[ofst];
    \   00001B 93           LDW       X, Y
    \   00001C 72BB ....    ADDW      X, S:?w1
    \   000020 F6           LD        A, (X)
    \   000021 5F           CLRW      X
    \   000022 97           LD        XL, A
    \   000023 BF ..        LDW       S:?w4, X
-    234          if (chkchr != trm){
+    203          if (chkchr != trm){
    \   000025 5F           CLRW      X
    \   000026 41           EXG       A, XL
    \   000027 B6 ..        LD        A, S:?b6
    \   000029 41           EXG       A, XL
    \   00002A B3 ..        CPW       X, S:?w4
    \   00002C 27 18        JREQ      L:??copy_buffer_from_offset_to_terminator_2
-    235              destbufr[destoffset] = srcebufr[ofst];
+    204              destbufr[destoffset] = srcebufr[ofst];
    \   00002E 93           LDW       X, Y
    \   00002F 72BB ....    ADDW      X, S:?w1
    \   000033 F6           LD        A, (X)
    \   000034 BE ..        LDW       X, S:?w0
    \   000036 72BB ....    ADDW      X, S:?w2
    \   00003A F7           LD        (X), A
-    236              ofst++;
+    205              ofst++;
    \   00003B 93           LDW       X, Y
    \   00003C 5C           INCW      X
    \   00003D 9093         LDW       Y, X
-    237            }
+    206            }
    \   00003F BE ..        LDW       X, S:?w0
    \   000041 5C           INCW      X
    \   000042 BF ..        LDW       S:?w0, X
    \   000044 20 CE        JRA       L:??copy_buffer_from_offset_to_terminator_0
-    238          else
-    239            break;
-    240          }
-    241           }
+    207          else
+    208            break;
+    209          }
+    210           }
    \                     ??copy_buffer_from_offset_to_terminator_2:
    \                     ??copy_buffer_from_offset_to_terminator_1:
    \   000046 AC ......    JPF       L:?epilogue_w4
-    242          /*****************************************************************************/
-    243          /***** copy buffer count(pointer to destination, pointer to source buffer,****/
-    244          /*****                                  number of bytes to copy)          ****/
-    245          /*****************************************************************************/
+    211          /*****************************************************************************/
+    212          /***** copy buffer count(pointer to destination, pointer to source buffer,****/
+    213          /*****                                  number of bytes to copy)          ****/
+    214          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    246          void CopyBufferCounted (char dest[], char srce[], char cntr){
+    215          void CopyBufferCounted (char dest[], char srce[], char cntr){
    \                     CopyBufferCounted:
    \   000000 BF ..        LDW       S:?w2, X
    \   000002 90BF ..      LDW       S:?w1, Y
    \   000005 B7 ..        LD        S:?b1, A
-    247          u8 i;
-    248           
-    249          for (i=0; i < cntr; i++){
+    216          u8 i;
+    217           
+    218          for (i=0; i < cntr; i++){
    \   000007 4F           CLR       A
    \   000008 B7 ..        LD        S:?b0, A
    \                     ??CopyBufferCounted_0:
    \   00000A B6 ..        LD        A, S:?b0
    \   00000C B1 ..        CP        A, S:?b1
    \   00000E 24 1C        JRNC      L:??CopyBufferCounted_1
-    250              dest[i] = srce[i];
+    219              dest[i] = srce[i];
    \   000010 5F           CLRW      X
    \   000011 41           EXG       A, XL
    \   000012 B6 ..        LD        A, S:?b0
@@ -694,172 +669,455 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
    \   00001E 41           EXG       A, XL
    \   00001F 72BB ....    ADDW      X, S:?w2
    \   000023 F7           LD        (X), A
-    251            }
+    220            }
    \   000024 B6 ..        LD        A, S:?b0
    \   000026 AB 01        ADD       A, #0x1
    \   000028 B7 ..        LD        S:?b0, A
    \   00002A 20 DE        JRA       L:??CopyBufferCounted_0
-    252           }
+    221           }
    \                     ??CopyBufferCounted_1:
    \   00002C 87           RETF
+    222          /*****************************************************************************/
+    223          /***** CountChars (buffer pointer)                                         ****/
+    224          /*****                  source buffer must terminate with a 0x00.         ****/
+    225          /*****          Returns an integer for number of characters in the buffer ****/
+    226          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    253          void CopySerialNumber(void){
-    254          u8 i;
-    255          u8 cntr=15; 
-   \                     CopySerialNumber:
-   \   000000 35 0F ....   MOV       S:?b0, #0xf
-    256          for (i=0;i<=16;i++){
-   \   000004 4F           CLR       A
-   \   000005 B7 ..        LD        S:?b1, A
-   \                     ??CopySerialNumber_0:
-   \   000007 B6 ..        LD        A, S:?b1
-   \   000009 A1 11        CP        A, #0x11
-   \   00000B 24 11        JRNC      L:??CopySerialNumber_1
-    257            Device_Serial_number[i] = 0;
-   \   00000D 5F           CLRW      X
-   \   00000E 41           EXG       A, XL
-   \   00000F B6 ..        LD        A, S:?b1
-   \   000011 41           EXG       A, XL
-   \   000012 4F           CLR       A
-   \   000013 D7 ....      LD        (L:Device_Serial_number,X), A
-    258          }
-   \   000016 B6 ..        LD        A, S:?b1
-   \   000018 AB 01        ADD       A, #0x1
-   \   00001A B7 ..        LD        S:?b1, A
-   \   00001C 20 E9        JRA       L:??CopySerialNumber_0
-    259          for (i=0; i <= cntr; i++){
-   \                     ??CopySerialNumber_1:
-   \   00001E 4F           CLR       A
-   \   00001F B7 ..        LD        S:?b1, A
-   \                     ??CopySerialNumber_2:
-   \   000021 B6 ..        LD        A, S:?b0
-   \   000023 B1 ..        CP        A, S:?b1
-   \   000025 25 19        JRC       L:??CopySerialNumber_3
-    260              Device_Serial_number[i] = Device_Processing_Buffer[i+4];
-   \   000027 5F           CLRW      X
-   \   000028 41           EXG       A, XL
-   \   000029 B6 ..        LD        A, S:?b1
-   \   00002B 41           EXG       A, XL
-   \   00002C 1C ....      ADDW      X, #Device_Processing_Buffer + 4
-   \   00002F F6           LD        A, (X)
-   \   000030 5F           CLRW      X
-   \   000031 41           EXG       A, XL
-   \   000032 B6 ..        LD        A, S:?b1
-   \   000034 41           EXG       A, XL
-   \   000035 D7 ....      LD        (L:Device_Serial_number,X), A
-    261            }
-   \   000038 B6 ..        LD        A, S:?b1
-   \   00003A AB 01        ADD       A, #0x1
-   \   00003C B7 ..        LD        S:?b1, A
-   \   00003E 20 E1        JRA       L:??CopySerialNumber_2
-    262           }
-   \                     ??CopySerialNumber_3:
-   \   000040 87           RETF
-    263          /*****************************************************************************/
-    264          /***** CountChars (buffer pointer)                                         ****/
-    265          /*****                  source buffer must terminate with a 0x00.         ****/
-    266          /*****          Returns an integer for number of characters in the buffer ****/
-    267          /*****************************************************************************/
-
-   \                                 In section .far_func.text, align 1
-    268          int CountChars(char s[]){
+    227          int CountChars(char s[]){
    \                     CountChars:
    \   000000 BF ..        LDW       S:?w0, X
-    269          int cntr;
-    270            for (cntr=0; cntr < BFRSIZE; cntr++){
+    228          int cntr;
+    229            for (cntr=0; cntr < BFRSIZE; cntr++){
    \   000002 905F         CLRW      Y
    \   000004 93           LDW       X, Y
    \                     ??CountChars_0:
    \   000005 A3 00FF      CPW       X, #0xff
    \   000008 2E 0F        JRSGE     L:??CountChars_1
-    271              if  (s[cntr] == 0x00) break;
+    230              if  (s[cntr] == 0x00) break;
    \   00000A 9093         LDW       Y, X
    \   00000C 72B9 ....    ADDW      Y, S:?w0
    \   000010 907D         TNZ       (Y)
    \   000012 26 02        JRNE      L:??CountChars_2
    \   000014 20 03        JRA       L:??CountChars_1
-    272            }
+    231            }
    \                     ??CountChars_2:
    \   000016 5C           INCW      X
    \   000017 20 EC        JRA       L:??CountChars_0
-    273            return cntr;
+    232            return cntr;
    \                     ??CountChars_1:
    \   000019 87           RETF
-    274          }
-    275          /*****************************************************************************/
-    276          /***** CountChars (buffer pointer)                                         ****/
-    277          /*****                  source buffer must terminate with a 0x00.         ****/
-    278          /*****          Returns an integer for number of characters in the buffer ****/
-    279          /*****************************************************************************/
+    233          }
+    234          /*****************************************************************************/
+    235          /*****************************************************************************/
+    236          /*  DEVICE BUFFER HANDLERS                         */
+    237          /*****************************************************************************/
+    238          /*****************************************************************************/
+    239          
+    240          /*****************************************************************************/
+    241          /***** InitializeDeviceBuffer (buffer pointer)                            ****/
+    242          /*****                  source buffer must terminate with a 0x00.         ****/
+    243          /*****          Returns an integer for number of characters in the buffer ****/
+    244          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    280          char CountGS1011Chars(void){
-    281          char i;
-    282            for (i=0; i < BFRSIZE; i++){
+    245          void InitializeDeviceBuffer (void){
+    246            for (Device_RX_InPtr = 0; Device_RX_InPtr < BFRSIZE_HALF; Device_RX_InPtr++) 
+   \                     InitializeDeviceBuffer:
+   \   000000 35 00 ....   MOV       L:Device_RX_InPtr, #0x0
+   \                     ??InitializeDeviceBuffer_0:
+   \   000004 C6 ....      LD        A, L:Device_RX_InPtr
+   \   000007 A1 80        CP        A, #0x80
+   \   000009 24 13        JRNC      L:??InitializeDeviceBuffer_1
+    247              Device_Receiver_Buffer[Device_RX_InPtr] = 0x00;
+   \   00000B C6 ....      LD        A, L:Device_RX_InPtr
+   \   00000E 5F           CLRW      X
+   \   00000F 97           LD        XL, A
+   \   000010 4F           CLR       A
+   \   000011 D7 ....      LD        (L:Device_Receiver_Buffer,X), A
+   \   000014 C6 ....      LD        A, L:Device_RX_InPtr
+   \   000017 AB 01        ADD       A, #0x1
+   \   000019 C7 ....      LD        L:Device_RX_InPtr, A
+   \   00001C 20 E6        JRA       L:??InitializeDeviceBuffer_0
+    248            
+    249              Device_RX_InPtr = 0;
+   \                     ??InitializeDeviceBuffer_1:
+   \   00001E 35 00 ....   MOV       L:Device_RX_InPtr, #0x0
+    250              Device_Rcvr_EOM_Timer = 0;
+   \   000022 35 00 ....   MOV       L:Device_Rcvr_EOM_Timer, #0x0
+    251              Device_Rcvr_Timeout = 0;
+   \   000026 35 00 ....   MOV       L:Device_Rcvr_Timeout, #0x0
+    252              Device_Rcvr_Complete_flag = 0;
+   \   00002A 35 00 ....   MOV       L:Device_Rcvr_Complete_flag, #0x0
+    253          }
+   \   00002E 87           RETF
+    254          /*****************************************************************************/
+    255          /***** copy buffer (pointer to destination, pointer to source buffer)     ****/
+    256          /*****                  source buffer must terminate with a 0x00.         ****/
+    257          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    258          void CopyBufferDevice(char srce[]){
+   \                     CopyBufferDevice:
+   \   000000 BF ..        LDW       S:?w1, X
+    259           u8 i;
+    260           for (i=0; i < BFRSIZE; i++){
+   \   000002 4F           CLR       A
+   \   000003 B7 ..        LD        S:?b0, A
+   \                     ??CopyBufferDevice_0:
+   \   000005 B6 ..        LD        A, S:?b0
+   \   000007 A1 FF        CP        A, #0xff
+   \   000009 27 34        JREQ      L:??CopyBufferDevice_1
+    261             Device_Xmit_Buffer[i] = srce[i];
+   \   00000B 5F           CLRW      X
+   \   00000C 41           EXG       A, XL
+   \   00000D B6 ..        LD        A, S:?b0
+   \   00000F 41           EXG       A, XL
+   \   000010 72BB ....    ADDW      X, S:?w1
+   \   000014 F6           LD        A, (X)
+   \   000015 5F           CLRW      X
+   \   000016 41           EXG       A, XL
+   \   000017 B6 ..        LD        A, S:?b0
+   \   000019 41           EXG       A, XL
+   \   00001A D7 ....      LD        (L:Device_Xmit_Buffer,X), A
+    262             if (srce[i] == ETX){
+   \   00001D 5F           CLRW      X
+   \   00001E 41           EXG       A, XL
+   \   00001F B6 ..        LD        A, S:?b0
+   \   000021 41           EXG       A, XL
+   \   000022 72BB ....    ADDW      X, S:?w1
+   \   000026 F6           LD        A, (X)
+   \   000027 A1 03        CP        A, #0x3
+   \   000029 26 0C        JRNE      L:??CopyBufferDevice_2
+    263              Device_Xmit_Setup_Char_Pointer =i;
+   \   00002B B6 ..        LD        A, S:?b0
+   \   00002D C7 ....      LD        L:Device_Xmit_Setup_Char_Pointer, A
+    264              Device_Xmit_Char_Count = i;
+   \   000030 B6 ..        LD        A, S:?b0
+   \   000032 C7 ....      LD        L:Device_Xmit_Char_Count, A
+    265              break;
+   \   000035 20 08        JRA       L:??CopyBufferDevice_1
+    266             }
+    267            }
+   \                     ??CopyBufferDevice_2:
+   \   000037 B6 ..        LD        A, S:?b0
+   \   000039 AB 01        ADD       A, #0x1
+   \   00003B B7 ..        LD        S:?b0, A
+   \   00003D 20 C6        JRA       L:??CopyBufferDevice_0
+    268           }
+   \                     ??CopyBufferDevice_1:
+   \   00003F 87           RETF
+    269          
+    270          /*****************************************************************************/
+    271          /*****************************************************************************/
+    272          /*  GS1011 BUFFER HANDLERS                         */
+    273          /*****************************************************************************/
+    274          /*****************************************************************************/
+    275          
+    276          /*****************************************************************************/
+    277          /***** InitializeDeviceBuffer (buffer pointer)                            ****/
+    278          /*****                  source buffer must terminate with a 0x00.         ****/
+    279          /*****          Returns an integer for number of characters in the buffer ****/
+    280          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    281          void InitializeGS1011Buffer (void){
+    282          int ptr;
+    283          for (ptr = 0; ptr < BFRSIZEX2; ptr++) 
+   \                     InitializeGS1011Buffer:
+   \   000000 5F           CLRW      X
+   \   000001 9093         LDW       Y, X
+   \                     ??InitializeGS1011Buffer_0:
+   \   000003 90A3 0200    CPW       Y, #0x200
+   \   000007 2E 0B        JRSGE     L:??InitializeGS1011Buffer_1
+    284             GS1011_Receiver_Buffer[ptr] = 0x00;
+   \   000009 4F           CLR       A
+   \   00000A 93           LDW       X, Y
+   \   00000B D7 ....      LD        (L:GS1011_Receiver_Buffer,X), A
+   \   00000E 93           LDW       X, Y
+   \   00000F 5C           INCW      X
+   \   000010 9093         LDW       Y, X
+   \   000012 20 EF        JRA       L:??InitializeGS1011Buffer_0
+    285          for (ptr = 0; ptr < BFRSIZE; ptr++)
+   \                     ??InitializeGS1011Buffer_1:
+   \   000014 5F           CLRW      X
+   \   000015 9093         LDW       Y, X
+   \                     ??InitializeGS1011Buffer_2:
+   \   000017 90A3 00FF    CPW       Y, #0xff
+   \   00001B 2E 0B        JRSGE     L:??InitializeGS1011Buffer_3
+    286              GS1011_Xmit_Buffer[ptr] = 0x00;
+   \   00001D 4F           CLR       A
+   \   00001E 93           LDW       X, Y
+   \   00001F D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
+   \   000022 93           LDW       X, Y
+   \   000023 5C           INCW      X
+   \   000024 9093         LDW       Y, X
+   \   000026 20 EF        JRA       L:??InitializeGS1011Buffer_2
+    287          
+    288          GS1011_Rcvr_InPtr = 0;
+   \                     ??InitializeGS1011Buffer_3:
+   \   000028 5F           CLRW      X
+   \   000029 CF ....      LDW       L:GS1011_Rcvr_InPtr, X
+    289          GS1011_Rcvr_OutPtr = 0;
+   \   00002C 5F           CLRW      X
+   \   00002D CF ....      LDW       L:GS1011_Rcvr_OutPtr, X
+    290          GS1011_Xmit_Char_Count=0;
+   \   000030 35 00 ....   MOV       L:GS1011_Xmit_Char_Count, #0x0
+    291          GS1011_Xmit_Setup_Char_Pointer=0;
+   \   000034 35 00 ....   MOV       L:GS1011_Xmit_Setup_Char_Pointer, #0x0
+    292          }
+   \   000038 87           RETF
+    293          
+    294          /******************************************************************************/
+    295          /***** Add_Char_to_GS1011_Buffer (char s)                                  ****/
+    296          /*****                 Buffer pointer always contain the next space        ****/
+    297          /*****                    available for data storage                       ****/
+    298          /*****     CALLING ROUTINE IS RESPONSIBLE TO BE SURE THERE'S ROOM AVAILABLE****/
+    299          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    300          void Add_Char_to_GS1011_Buffer (char chr){
+   \                     Add_Char_to_GS1011_Buffer:
+   \   000000 B7 ..        LD        S:?b0, A
+    301            GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = chr;
+   \   000002 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   000005 5F           CLRW      X
+   \   000006 97           LD        XL, A
+   \   000007 B6 ..        LD        A, S:?b0
+   \   000009 D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
+    302            GS1011_Xmit_Char_Count++;
+   \   00000C C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   00000F AB 01        ADD       A, #0x1
+   \   000011 C7 ....      LD        L:GS1011_Xmit_Char_Count, A
+    303          }
+   \   000014 87           RETF
+    304          /*****************************************************************************/
+    305          /***** Add_String_to_GS1011_Buffer (buffer pointer, source pointer)       ****/
+    306          /*****                 buffer & source buffer must terminate with a 0x00. ****/
+    307          /*****    overwrites the receiving buffers terminating 0x00               ****/
+    308          /*****                  copies source terminating 0x00.                   ****/
+    309          /***** USES GS1011_Xmit_Char_count as pointer to the destination buffer   ****/
+    310          /*****  terminates the destination buffer with the 0x00 from the source buffer*/
+    311          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    312          void Add_String_to_GS1011_Buffer ( char srce[]){
+   \                     Add_String_to_GS1011_Buffer:
+   \   000000 BF ..        LDW       S:?w1, X
+    313           u16 i;
+    314               for (i = 0; i<BFRSIZE; i++){
+   \   000002 5F           CLRW      X
+   \   000003 9093         LDW       Y, X
+   \                     ??Add_String_to_GS1011_Buffer_0:
+   \   000005 90A3 00FF    CPW       Y, #0xff
+   \   000009 24 28        JRNC      L:??Add_String_to_GS1011_Buffer_1
+    315               GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[i];      /* store string into buffer until */
+   \   00000B 93           LDW       X, Y
+   \   00000C 72BB ....    ADDW      X, S:?w1
+   \   000010 F6           LD        A, (X)
+   \   000011 B7 ..        LD        S:?b0, A
+   \   000013 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   000016 5F           CLRW      X
+   \   000017 97           LD        XL, A
+   \   000018 B6 ..        LD        A, S:?b0
+   \   00001A D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
+    316                  if (srce[i] == 0x00)break;
+   \   00001D 93           LDW       X, Y
+   \   00001E 72BB ....    ADDW      X, S:?w1
+   \   000022 7D           TNZ       (X)
+   \   000023 26 02        JRNE      L:??Add_String_to_GS1011_Buffer_2
+   \   000025 20 0C        JRA       L:??Add_String_to_GS1011_Buffer_1
+    317               GS1011_Xmit_Char_Count++;   
+   \                     ??Add_String_to_GS1011_Buffer_2:
+   \   000027 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   00002A AB 01        ADD       A, #0x1
+   \   00002C C7 ....      LD        L:GS1011_Xmit_Char_Count, A
+    318               }
+   \   00002F 905C         INCW      Y
+   \   000031 20 D2        JRA       L:??Add_String_to_GS1011_Buffer_0
+    319          }
+   \                     ??Add_String_to_GS1011_Buffer_1:
+   \   000033 87           RETF
+    320          /*****************************************************************************/
+    321          /***** Add_String_to_GS1011_Buffer (buffer pointer, source pointer)       ****/
+    322          /*****                 buffer & source buffer must terminate with a 0x00. ****/
+    323          /*****    overwrites the receiving buffers terminating 0x00               ****/
+    324          /*****                  copies source terminating 0x00.                   ****/
+    325          /***** USES GS1011_Xmit_Char_count as pointer to the destination buffer   ****/
+    326          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    327          void Add_String_to_GS1011_BufferCounted ( char srce[], char cnt){
+   \                     Add_String_to_GS1011_BufferCounted:
+   \   000000 BF ..        LDW       S:?w3, X
+   \   000002 B7 ..        LD        S:?b1, A
+    328           u16 i;
+    329           if ((GS1011_Xmit_Char_Count + cnt) < BFRSIZE){
+   \   000004 5F           CLRW      X
+   \   000005 41           EXG       A, XL
+   \   000006 B6 ..        LD        A, S:?b1
+   \   000008 41           EXG       A, XL
+   \   000009 BF ..        LDW       S:?w1, X
+   \   00000B C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   00000E 5F           CLRW      X
+   \   00000F 97           LD        XL, A
+   \   000010 72BB ....    ADDW      X, S:?w1
+   \   000014 A3 00FF      CPW       X, #0xff
+   \   000017 2E 2E        JRSGE     L:??Add_String_to_GS1011_BufferCounted_0
+    330               for (i = 0; i<=cnt; i++)      
+   \   000019 5F           CLRW      X
+   \   00001A BF ..        LDW       S:?w2, X
+   \                     ??Add_String_to_GS1011_BufferCounted_1:
+   \   00001C 5F           CLRW      X
+   \   00001D 41           EXG       A, XL
+   \   00001E B6 ..        LD        A, S:?b1
+   \   000020 41           EXG       A, XL
+   \   000021 B3 ..        CPW       X, S:?w2
+   \   000023 25 22        JRC       L:??Add_String_to_GS1011_BufferCounted_0
+    331               {
+    332                        GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[i];      /* store string into buffer until */
+   \   000025 BE ..        LDW       X, S:?w2
+   \   000027 72BB ....    ADDW      X, S:?w3
+   \   00002B F6           LD        A, (X)
+   \   00002C B7 ..        LD        S:?b0, A
+   \   00002E C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   000031 5F           CLRW      X
+   \   000032 97           LD        XL, A
+   \   000033 B6 ..        LD        A, S:?b0
+   \   000035 D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
+    333                        GS1011_Xmit_Char_Count++;                             
+   \   000038 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   00003B AB 01        ADD       A, #0x1
+   \   00003D C7 ....      LD        L:GS1011_Xmit_Char_Count, A
+    334               }
+   \   000040 BE ..        LDW       X, S:?w2
+   \   000042 5C           INCW      X
+   \   000043 BF ..        LDW       S:?w2, X
+   \   000045 20 D5        JRA       L:??Add_String_to_GS1011_BufferCounted_1
+    335            }
+    336          }
+   \                     ??Add_String_to_GS1011_BufferCounted_0:
+   \   000047 87           RETF
+    337          /*****************************************************************************/
+    338          /***** copy buffer (pointer to destination, pointer to source buffer)     ****/
+    339          /*****                  source buffer must terminate with a 0x00.         ****/
+    340          /***** this routine is ALWAYS used to start the assembly of a gs1011 xmit msg*/
+    341          /*****                                                                    ****/
+    342          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    343          void CopyBufferGS1011 (char srce[]){
+   \                     CopyBufferGS1011:
+   \   000000 BF ..        LDW       S:?w1, X
+    344           for (GS1011_Xmit_Char_Count=0; GS1011_Xmit_Char_Count < BFRSIZE; GS1011_Xmit_Char_Count++){
+   \   000002 35 00 ....   MOV       L:GS1011_Xmit_Char_Count, #0x0
+   \                     ??CopyBufferGS1011_0:
+   \   000006 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   000009 A1 FF        CP        A, #0xff
+   \   00000B 27 2E        JREQ      L:??CopyBufferGS1011_1
+    345              GS1011_Xmit_Buffer[GS1011_Xmit_Char_Count] = srce[GS1011_Xmit_Char_Count];
+   \   00000D C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   000010 5F           CLRW      X
+   \   000011 97           LD        XL, A
+   \   000012 72BB ....    ADDW      X, S:?w1
+   \   000016 F6           LD        A, (X)
+   \   000017 B7 ..        LD        S:?b0, A
+   \   000019 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   00001C 5F           CLRW      X
+   \   00001D 97           LD        XL, A
+   \   00001E B6 ..        LD        A, S:?b0
+   \   000020 D7 ....      LD        (L:GS1011_Xmit_Buffer,X), A
+    346              if (srce[GS1011_Xmit_Char_Count] == 0x00){ /* all GS1011 stock msg are terminated with 0x00*/
+   \   000023 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   000026 5F           CLRW      X
+   \   000027 97           LD        XL, A
+   \   000028 72BB ....    ADDW      X, S:?w1
+   \   00002C 7D           TNZ       (X)
+   \   00002D 26 02        JRNE      L:??CopyBufferGS1011_2
+    347                  break;
+   \   00002F 20 0A        JRA       L:??CopyBufferGS1011_1
+    348              }
+    349            }
+   \                     ??CopyBufferGS1011_2:
+   \   000031 C6 ....      LD        A, L:GS1011_Xmit_Char_Count
+   \   000034 AB 01        ADD       A, #0x1
+   \   000036 C7 ....      LD        L:GS1011_Xmit_Char_Count, A
+   \   000039 20 CB        JRA       L:??CopyBufferGS1011_0
+    350          }
+   \                     ??CopyBufferGS1011_1:
+   \   00003B 87           RETF
+    351          /*****************************************************************************/
+    352          /***** CountChars (buffer pointer)                                         ****/
+    353          /*****                  source buffer must terminate with a 0x00.         ****/
+    354          /*****          Returns an integer for number of characters in the buffer ****/
+    355          /*****************************************************************************/
+
+   \                                 In section .far_func.text, align 1
+    356          char CountGS1011Chars(void){
+    357          char i;
+    358            for (i=0; i < BFRSIZE; i++){
    \                     CountGS1011Chars:
    \   000000 3F ..        CLR       S:?b0
    \   000002 B6 ..        LD        A, S:?b0
    \                     ??CountGS1011Chars_0:
    \   000004 A1 FF        CP        A, #0xff
    \   000006 27 0E        JREQ      L:??CountGS1011Chars_1
-    283               if  (GS1011_Xmit_Buffer[i] == 0x00) break;
+    359               if  (GS1011_Xmit_Buffer[i] == 0x00) break;
    \   000008 5F           CLRW      X
    \   000009 97           LD        XL, A
    \   00000A 724D ....    TNZ       (L:GS1011_Xmit_Buffer,X)
    \   00000E 26 02        JRNE      L:??CountGS1011Chars_2
    \   000010 20 04        JRA       L:??CountGS1011Chars_1
-    284            } 
+    360            } 
    \                     ??CountGS1011Chars_2:
    \   000012 AB 01        ADD       A, #0x1
    \   000014 20 EE        JRA       L:??CountGS1011Chars_0
-    285               return i;
+    361               return i;
    \                     ??CountGS1011Chars_1:
    \   000016 87           RETF
-    286          }
-    287          
-    288          /*****************************************************************************/
-    289          /***** Find string ( buffer pointer, string)                                         ****/
-    290          /*****                  source buffer must terminate with a 0x00.         ****/
-    291          /*****          Returns an integer for number of characters in the buffer ****/
-    292          /*****************************************************************************/
+    362          }
+    363          /*****************************************************************************/
+    364          /***** Find string ( buffer pointer, string)                                         ****/
+    365          /*****                  source buffer must terminate with a 0x00.         ****/
+    366          /*****          Returns an integer for number of characters in the buffer ****/
+    367          /*****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    293          void FindGS1011Chars(char findstrng[]){
+    368          void FindGS1011Chars(char findstrng[]){
    \                     FindGS1011Chars:
    \   000000 8D ......    CALLF     L:?push_l2
    \   000004 BF ..        LDW       S:?w3, X
-    294          int lookinptr, lookforptr, restartptr, lookforcnt,i;
-    295          char lookinchr,lookforchr;
-    296              GS1011_String_Found = 0;      /* expect not to find it*/
+    369          int lookinptr, lookforptr, restartptr, lookforcnt,i;
+    370          char lookinchr,lookforchr;
+    371              GS1011_String_Found = 0;      /* expect not to find it*/
    \   000006 35 00 ....   MOV       L:GS1011_String_Found, #0x0
-    297              lookforptr=0x00;                  /*point at first byte of compare string*/
+    372              lookforptr=0x00;                  /*point at first byte of compare string*/
    \   00000A 905F         CLRW      Y
    \   00000C 90BF ..      LDW       S:?w0, Y
-    298              
-    299          for (i = 0; i< BFRSIZE; i++){          /* get the size of the string to find*/
+    373              
+    374          for (i = 0; i< BFRSIZE; i++){          /* get the size of the string to find*/
    \   00000F 905F         CLRW      Y
    \   000011 90BF ..      LDW       S:?w2, Y
    \                     ??FindGS1011Chars_0:
    \   000014 90BE ..      LDW       Y, S:?w2
    \   000017 90A3 00FF    CPW       Y, #0xff
    \   00001B 2E 1B        JRSGE     L:??FindGS1011Chars_1
-    300            if (findstrng[i] == 0x00){
+    375            if (findstrng[i] == 0x00){
    \   00001D 90BE ..      LDW       Y, S:?w2
    \   000020 72B9 ....    ADDW      Y, S:?w3
    \   000024 907D         TNZ       (Y)
    \   000026 26 06        JRNE      L:??FindGS1011Chars_2
-    301              lookforcnt = i;
+    376              lookforcnt = i;
    \   000028 8D ......    CALLF     L:?mov_w4_w2
-    302              break;}
+    377              break;}
    \   00002C 20 0A        JRA       L:??FindGS1011Chars_1
-    303          }
+    378          }
    \                     ??FindGS1011Chars_2:
    \   00002E 90BE ..      LDW       Y, S:?w2
    \   000031 905C         INCW      Y
    \   000033 90BF ..      LDW       S:?w2, Y
    \   000036 20 DC        JRA       L:??FindGS1011Chars_0
-    304          for (lookinptr=0; lookinptr < GS1011_Rvcr_Count; lookinptr++){
+    379          for (lookinptr=0; lookinptr < GS1011_Rvcr_Count; lookinptr++){
    \                     ??FindGS1011Chars_1:
    \   000038 905F         CLRW      Y
    \   00003A 93           LDW       X, Y
@@ -867,34 +1125,34 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
    \   00003B C3 ....      CPW       X, L:GS1011_Rvcr_Count
    \   00003E 2F 03        JRSLT     ??lb_0
    \   000040 CC ....      JP        L:??FindGS1011Chars_4
-    305              if (GS1011_String_Found == 1)                       /* if found exit*/
+    380              if (GS1011_String_Found == 1)                       /* if found exit*/
    \                     ??lb_0:
    \   000043 C6 ....      LD        A, L:GS1011_String_Found
    \   000046 A1 01        CP        A, #0x1
    \   000048 26 03        JRNE      L:??FindGS1011Chars_5
-    306                break;
+    381                break;
    \   00004A CC ....      JP        L:??FindGS1011Chars_4
-    307              lookinchr = GS1011_Receiver_Buffer[lookinptr];
+    382              lookinchr = GS1011_Receiver_Buffer[lookinptr];
    \                     ??FindGS1011Chars_5:
    \   00004D D6 ....      LD        A, (L:GS1011_Receiver_Buffer,X)
    \   000050 B7 ..        LD        S:?b11, A
-    308              lookforchr = findstrng[lookforptr];                    /*match first byte of string? */
+    383              lookforchr = findstrng[lookforptr];                    /*match first byte of string? */
    \   000052 90BE ..      LDW       Y, S:?w0
    \   000055 72B9 ....    ADDW      Y, S:?w3
    \   000059 90F6         LD        A, (Y)
    \   00005B B7 ..        LD        S:?b10, A
-    309              if (lookinchr == lookforchr){  
+    384              if (lookinchr == lookforchr){  
    \   00005D B6 ..        LD        A, S:?b10
    \   00005F B1 ..        CP        A, S:?b11
    \   000061 26 6B        JRNE      L:??FindGS1011Chars_6
-    310                restartptr = lookinptr;                   /* save next char pointer to look in buffer */
+    385                restartptr = lookinptr;                   /* save next char pointer to look in buffer */
    \   000063 BF ..        LDW       S:?w1, X
-    311                restartptr++;                             /* in case of double character */
+    386                restartptr++;                             /* in case of double character */
    \   000065 90BE ..      LDW       Y, S:?w1
    \   000068 905C         INCW      Y
    \   00006A 90BF ..      LDW       S:?w1, Y
-    312           /***                                            loop while bytes match */
-    313               for (i=1; i <= lookforcnt-1; i++){
+    387           /***                                            loop while bytes match */
+    388               for (i=1; i <= lookforcnt-1; i++){
    \   00006D 90AE 0001    LDW       Y, #0x1
    \   000071 90BF ..      LDW       S:?w2, Y
    \                     ??FindGS1011Chars_7:
@@ -902,94 +1160,63 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
    \   000077 905A         DECW      Y
    \   000079 90B3 ..      CPW       Y, S:?w2
    \   00007C 2F 50        JRSLT     L:??FindGS1011Chars_6
-    314                  lookinptr++;
+    389                  lookinptr++;
    \   00007E 5C           INCW      X
-    315                  lookforptr++;
+    390                  lookforptr++;
    \   00007F 90BE ..      LDW       Y, S:?w0
    \   000082 905C         INCW      Y
    \   000084 90BF ..      LDW       S:?w0, Y
-    316                  lookinchr = GS1011_Receiver_Buffer[lookinptr];    /*keep checking till end*/
+    391                  lookinchr = GS1011_Receiver_Buffer[lookinptr];    /*keep checking till end*/
    \   000087 D6 ....      LD        A, (L:GS1011_Receiver_Buffer,X)
    \   00008A B7 ..        LD        S:?b11, A
-    317                  lookforchr = findstrng[lookforptr];    
+    392                  lookforchr = findstrng[lookforptr];    
    \   00008C 90BE ..      LDW       Y, S:?w0
    \   00008F 72B9 ....    ADDW      Y, S:?w3
    \   000093 90F6         LD        A, (Y)
    \   000095 B7 ..        LD        S:?b10, A
-    318                  if (lookinchr != lookforchr){
+    393                  if (lookinchr != lookforchr){
    \   000097 B6 ..        LD        A, S:?b10
    \   000099 B1 ..        CP        A, S:?b11
    \   00009B 27 09        JREQ      L:??FindGS1011Chars_8
-    319                    lookforptr=0x00;                         /*no reset the string pointer*/
+    394                    lookforptr=0x00;                         /*no reset the string pointer*/
    \   00009D 905F         CLRW      Y
    \   00009F 90BF ..      LDW       S:?w0, Y
-    320                    lookinptr = restartptr;                  /* and the lookin pointer */
+    395                    lookinptr = restartptr;                  /* and the lookin pointer */
    \   0000A2 BE ..        LDW       X, S:?w1
-    321                    break;
+    396                    break;
    \   0000A4 20 28        JRA       L:??FindGS1011Chars_6
-    322                   }
-    323                  else 
-    324                    if (i == lookforcnt-1){
+    397                   }
+    398                  else 
+    399                    if (i == lookforcnt-1){
    \                     ??FindGS1011Chars_8:
    \   0000A6 90BE ..      LDW       Y, S:?w4
    \   0000A9 905A         DECW      Y
    \   0000AB 90B3 ..      CPW       Y, S:?w2
    \   0000AE 26 14        JRNE      L:??FindGS1011Chars_9
-    325                    Found_String_At_Byte = (lookinptr - (lookforcnt-1));  
+    400                    Found_String_At_Byte = (lookinptr - (lookforcnt-1));  
    \   0000B0 9093         LDW       Y, X
    \   0000B2 72B2 ....    SUBW      Y, S:?w4
    \   0000B6 72A2 FFFF    SUBW      Y, #0xffffffffffffffff
    \   0000BA 90CF ....    LDW       L:Found_String_At_Byte, Y
-    326                    GS1011_String_Found = 1;           /* save start of string in bufr */
+    401                    GS1011_String_Found = 1;           /* save start of string in bufr */
    \   0000BE 35 01 ....   MOV       L:GS1011_String_Found, #0x1
-    327                    break;
+    402                    break;
    \   0000C2 20 0A        JRA       L:??FindGS1011Chars_6
-    328                    }
-    329                }
+    403                    }
+    404                }
    \                     ??FindGS1011Chars_9:
    \   0000C4 90BE ..      LDW       Y, S:?w2
    \   0000C7 905C         INCW      Y
    \   0000C9 90BF ..      LDW       S:?w2, Y
    \   0000CC 20 A6        JRA       L:??FindGS1011Chars_7
-    330              }
-    331            /***                                            loop while bytes match */
-    332             
-    333             }
+    405              }
+    406             }
    \                     ??FindGS1011Chars_6:
    \   0000CE 5C           INCW      X
    \   0000CF CC ....      JP        L:??FindGS1011Chars_3
-    334          }
+    407          }
    \                     ??FindGS1011Chars_4:
    \   0000D2 AC ......    JPF       L:?epilogue_l2
-    335          
-    336          /*****************************************************************************/
-    337          /***** CountChars (buffer pointer)                                         ****/
-    338          /*****                  source buffer must terminate with a 0x00.         ****/
-    339          /*****          Returns an integer for number of characters in the buffer ****/
-    340          /*****************************************************************************/
-    341          /*void CountDeviceChars(void){
-    342          char chr;
-    343            for (Device_Xmit_Char_Count=0; Device_Xmit_Char_Count < BFRSIZE; Device_Xmit_Char_Count++){
-    344              chr = Device_Xmit_Pointer;
-    345              if  (chr == 0x03){
-    346                Device_Xmit_Char_Count++;
-    347                break;
-    348                }
-    349                Device_Xmit_Pointer++;
-    350            }
-    351          }*/
-    352          /*****************************************************************************/
-    353          /*****              DEVICE BUFFER  HANDLING ROUTINES                      ****/
-    354          /*****  While the GS1011 buffers are purely ASCII, the Device_Buffer can  ****/
-    355          /*****    ANY type of data, not only in the packet data, but as counts,   ****/
-    356          /*****    etc. in the header of the message.                              ****/
-    357          /*****                                                                    ****/
-    358          /*****    where bufr is buffer containing parameters                      ****/
-    359          /*****          ptr is pointer at begining of parameter                   ****/
-    360          /*****          cntr is the parameter counter                             ****/
-    361          /*****************************************************************************/
-    362          
-    363          
 
    Section sizes:
 
@@ -1001,23 +1228,26 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\StringUtilities.c
       46  Add_String_to_Buffer
       52  Add_String_to_GS1011_Buffer
       72  Add_String_to_GS1011_BufferCounted
+      27  ClearSerialNumber
+     274  ConvertSerialNumber
       59  CopyBuffer
       45  CopyBufferCounted
-      59  CopyBufferDevice
+      64  CopyBufferDevice
       60  CopyBufferGS1011
-      65  CopySerialNumber
+      43  CopySerialNumber
       26  CountChars
       23  CountGS1011Chars
       42  FillBuffer
      214  FindGS1011Chars
-      51  InitializeDeviceBuffer
+      47  InitializeDeviceBuffer
       57  InitializeGS1011Buffer
+      25  Process_Serial_Number
       74  copy_buffer_from_offset_to_terminator
 
  
- 1 026 bytes in section .far_func.text
+ 1 331 bytes in section .far_func.text
  
- 1 026 bytes of CODE memory
+ 1 331 bytes of CODE memory
 
 Errors: none
 Warnings: none

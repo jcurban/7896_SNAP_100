@@ -13,7 +13,7 @@
 #include "SNAP_Defines.h"
 /* external routines*/
 extern void FillBuffer (char bufr[],char filchr, int cntr);
-extern void Int2ASCII(void);
+extern void Int2ASCII(char i);
 /* local Routine prototypes */
 void Make_Website_Update_from_Processing_Buffer(void);
 void makePNumberHeader(char numb);
@@ -34,6 +34,7 @@ extern char PHeaderBuffer[];
 extern char Packet_Data_Buffer[];
 extern char Device_Processing_Buffer[];
 extern char Device_Receiver_Buffer[];
+extern char Device_Serial_number[];
 /*******************************************************************************
 *****        Make_Website_Update_from_Processing_Buffer                     ****
 *****   taskes the raw device data, and converts to ASCII for website       ****
@@ -51,10 +52,23 @@ void Make_Website_Update_from_Processing_Buffer(void){
 char i;
 PNumber = 1;
 Packet_Data_Pointer = 0;
-//    copyStockSerialNumber();
+/* put in serial number first */
+    makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
+    copyPHeaderToWebsite();
+    for (i = 0;i<=15;i++){
+      Packet_Data_Buffer[Packet_Data_Pointer] = Device_Serial_number[i];
+      Packet_Data_Pointer++; }
 
-for (ProcessPtr =3; ProcessPtr <=Processing_Byte_Count;ProcessPtr++){
-if (Device_Processing_Buffer[ProcessPtr] == 'A'){ /* copy an ASCII field*/
+/* position the process pointer*/
+    if (Device_Processing_Buffer[3] == 'A')
+      i= 21;
+    
+  else if (Device_Processing_Buffer[3] == 'B')
+    i = 12;
+ 
+for (ProcessPtr =i; ProcessPtr <=Processing_Byte_Count;ProcessPtr++){
+
+ if (Device_Processing_Buffer[ProcessPtr] == 'A'){ /* copy an ASCII field*/
     makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
      copyPHeaderToWebsite();
      ProcessPtr++;
@@ -75,19 +89,19 @@ if (Device_Processing_Buffer[ProcessPtr] == 'A'){ /* copy an ASCII field*/
     ProcessPtr++;
     i++;
     }
-    else i = 0;
+    else i=0;
     while (Device_Processing_Buffer[ProcessPtr]!= ',') {
       tempblock[i] = Device_Processing_Buffer[ProcessPtr];
-      i++;
       ProcessPtr++;
-    }
-      Int2ASCII();
-    for (i=0;i<=7;i++){
+      i++;
+     }
+      Int2ASCII(1);
+    for (i=0;i<=9;i++){
       if (B2ASCBuf[i]!=' '){
        Packet_Data_Buffer[Packet_Data_Pointer] = B2ASCBuf[i];
        Packet_Data_Pointer++;
       }
-      else if (i==7) Packet_Data_Buffer[Packet_Data_Pointer] = 0;
+      else if (i==9) Packet_Data_Buffer[Packet_Data_Pointer] = 0;
       }
      }
     else if (Device_Processing_Buffer[ProcessPtr] == 0x00){
@@ -127,16 +141,16 @@ void makePNumberHeader(char numb){
   Clear_PHeaderBuffer();
    clear_tempblock();
   tempblock[0] = numb;
-  Int2ASCII();
+  Int2ASCII(1);
   PHeaderBuffer[0] = '/';
   PHeaderBuffer[1] = 'p';
-    if (B2ASCBuf[6]!= ' '){
-      PHeaderBuffer[2] = B2ASCBuf[6];
-      PHeaderBuffer[3] = B2ASCBuf[7];
+    if (B2ASCBuf[8]!= ' '){
+      PHeaderBuffer[2] = B2ASCBuf[8];
+      PHeaderBuffer[3] = B2ASCBuf[9];
       PHeaderBuffer[4] = '/';
      }
      else{
-      PHeaderBuffer[2] = B2ASCBuf[7];
+      PHeaderBuffer[2] = B2ASCBuf[9];
       PHeaderBuffer[3] = '/';
      }
       PNumber++;

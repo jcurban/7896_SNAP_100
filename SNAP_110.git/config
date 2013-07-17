@@ -1,0 +1,15 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+	hideDotFiles = dotGitOnly
+[remote "origin"]
+	url = https://github.com/jcurban/7896_SNAP_100.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "snap_101"]
+[branch "snap_101"]
+	remote = origin
+	merge = refs/heads/snap_101

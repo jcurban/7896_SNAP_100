@@ -27,6 +27,7 @@
 #define LF 0x0A
 #define CR 0x0d
 #define DLE 0X10
+#define BFRSIZE_HALF 128
 #define BFRSIZE 255
 #define BFRSIZEX2 512
 

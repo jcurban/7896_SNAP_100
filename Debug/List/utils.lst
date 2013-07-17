@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             09/Jul/2013  07:09:51 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             17/Jul/2013  08:20:55 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c   #
@@ -37,25 +37,26 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
       6          u32 LocalSum;
    \                     LocalSum:
    \   000000              DS8 4
-      7          void BIN2ASC(u32 BinNum);
-      8          void Int2ASCII(void);
+      7          void BIN2ASC(u32 InNum,char leading);
+      8          void Int2ASCII(char leading);
       9          void clearB2ASCBuf(void);
-     10          /****************************************************************/
-     11          /*** clear the binary to ascii buffer                         ***/
-     12          /****************************************************************/
+     10          void InitB2ASCBuf(void);
+     11          /****************************************************************/
+     12          /*** clear the binary to ascii buffer                         ***/
+     13          /****************************************************************/
 
    \                                 In section .far_func.text, align 1
-     13          void clearB2ASCBuf(void){
-     14           char i;
-     15           for (i=0;i<=7;i++){
+     14          void clearB2ASCBuf(void){
+     15           char i;
+     16           for (i=0;i<=9;i++){
    \                     clearB2ASCBuf:
    \   000000 4F           CLR       A
    \   000001 B7 ..        LD        S:?b0, A
    \                     ??clearB2ASCBuf_0:
    \   000003 B6 ..        LD        A, S:?b0
-   \   000005 A1 08        CP        A, #0x8
+   \   000005 A1 0A        CP        A, #0xa
    \   000007 24 28        JRNC      L:??clearB2ASCBuf_1
-     16                if (B2ASCBuf[i] != '0') break;
+     17                if (B2ASCBuf[i] != '0') break;
    \   000009 5F           CLRW      X
    \   00000A 41           EXG       A, XL
    \   00000B B6 ..        LD        A, S:?b0
@@ -64,13 +65,13 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   000010 D1 ....      CP        A, (L:B2ASCBuf,X)
    \   000013 27 02        JREQ      L:??clearB2ASCBuf_2
    \   000015 20 1A        JRA       L:??clearB2ASCBuf_1
-     17                if (i == 7) break;
+     18                if (i == 9) break;
    \                     ??clearB2ASCBuf_2:
    \   000017 B6 ..        LD        A, S:?b0
-   \   000019 A1 07        CP        A, #0x7
+   \   000019 A1 09        CP        A, #0x9
    \   00001B 26 02        JRNE      L:??clearB2ASCBuf_3
    \   00001D 20 12        JRA       L:??clearB2ASCBuf_1
-     18                B2ASCBuf[i] = ' ';
+     19                B2ASCBuf[i] = ' ';
    \                     ??clearB2ASCBuf_3:
    \   00001F 5F           CLRW      X
    \   000020 41           EXG       A, XL
@@ -78,360 +79,561 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\utils.c
    \   000023 41           EXG       A, XL
    \   000024 A6 20        LD        A, #0x20
    \   000026 D7 ....      LD        (L:B2ASCBuf,X), A
-     19                }
+     20                }
    \   000029 B6 ..        LD        A, S:?b0
    \   00002B AB 01        ADD       A, #0x1
    \   00002D B7 ..        LD        S:?b0, A
    \   00002F 20 D2        JRA       L:??clearB2ASCBuf_0
-     20          }
+     21          }
    \                     ??clearB2ASCBuf_1:
    \   000031 87           RETF
-     21          /****************************************************************/
-     22          /*** Int2ASCII                                                ***/
-     23          /*** convert binary to ascii                                  ***/
-     24          /*** templock = binary number  up to 4 bytes lsb - msb        ***/
-     25          /*** B2ASCBuf = ascii number with leading zero                ***/
-     26          /****************************************************************/
 
    \                                 In section .far_func.text, align 1
-     27          void Int2ASCII(void){
-     28                  LocalSum = tempblock[0];
+     22          void InitB2ASCBuf(void){
+     23           char i;
+     24           for (i=0;i<=9;i++)
+   \                     InitB2ASCBuf:
+   \   000000 4F           CLR       A
+   \   000001 B7 ..        LD        S:?b0, A
+   \                     ??InitB2ASCBuf_0:
+   \   000003 B6 ..        LD        A, S:?b0
+   \   000005 A1 0A        CP        A, #0xa
+   \   000007 24 12        JRNC      L:??InitB2ASCBuf_1
+     25                B2ASCBuf[i] = '0';
+   \   000009 5F           CLRW      X
+   \   00000A 41           EXG       A, XL
+   \   00000B B6 ..        LD        A, S:?b0
+   \   00000D 41           EXG       A, XL
+   \   00000E A6 30        LD        A, #0x30
+   \   000010 D7 ....      LD        (L:B2ASCBuf,X), A
+   \   000013 B6 ..        LD        A, S:?b0
+   \   000015 AB 01        ADD       A, #0x1
+   \   000017 B7 ..        LD        S:?b0, A
+   \   000019 20 E8        JRA       L:??InitB2ASCBuf_0
+     26          }
+   \                     ??InitB2ASCBuf_1:
+   \   00001B 87           RETF
+     27          /****************************************************************/
+     28          /*** Int2ASCII                                                ***/
+     29          /*** convert binary to ascii                                  ***/
+     30          /*** templock = binary number  up to 4 bytes lsb - msb        ***/
+     31          /*** B2ASCBuf = ascii number with leading zero                ***/
+     32          /****************************************************************/
+
+   \                                 In section .far_func.text, align 1
+     33          void Int2ASCII(char leading){
    \                     Int2ASCII:
-   \   000000 C6 ....      LD        A, L:tempblock
-   \   000003 5F           CLRW      X
-   \   000004 97           LD        XL, A
-   \   000005 BF ..        LDW       S:?w1, X
-   \   000007 5F           CLRW      X
-   \   000008 BF ..        LDW       S:?w0, X
-   \   00000A AE ....      LDW       X, #LocalSum
-   \   00000D 8D ......    CALLF     L:?load32_0x_l0
-     29          	LocalSum = LocalSum + (tempblock[1] * 256);
-   \   000011 C6 ....      LD        A, L:tempblock + 1
-   \   000014 905F         CLRW      Y
-   \   000016 9097         LD        YL, A
-   \   000018 AE 0100      LDW       X, #0x100
-   \   00001B BF ..        LDW       S:?w0, X
-   \   00001D 93           LDW       X, Y
-   \   00001E 8D ......    CALLF     L:?mul16_x_x_w0
-   \   000022 8D ......    CALLF     L:?sext32_l0_x
-   \   000026 AE ....      LDW       X, #LocalSum
-   \   000029 8D ......    CALLF     L:?add32_l0_l0_0x
-   \   00002D AE ....      LDW       X, #LocalSum
-   \   000030 8D ......    CALLF     L:?load32_0x_l0
-     30           	LocalSum = LocalSum + (tempblock[2] * 65536);
-   \   000034 C6 ....      LD        A, L:tempblock + 2
-   \   000037 5F           CLRW      X
-   \   000038 97           LD        XL, A
-   \   000039 BF ..        LDW       S:?w1, X
-   \   00003B 5F           CLRW      X
-   \   00003C BF ..        LDW       S:?w0, X
-   \   00003E 5F           CLRW      X
-   \   00003F BF ..        LDW       S:?w3, X
-   \   000041 5C           INCW      X
-   \   000042 BF ..        LDW       S:?w2, X
-   \   000044 8D ......    CALLF     L:?mul32_l0_l0_l1
-   \   000048 AE ....      LDW       X, #LocalSum
-   \   00004B 8D ......    CALLF     L:?add32_l0_l0_0x
-   \   00004F AE ....      LDW       X, #LocalSum
-   \   000052 8D ......    CALLF     L:?load32_0x_l0
-     31                  BIN2ASC(LocalSum);
-   \   000056 AE ....      LDW       X, #LocalSum
-   \   000059 8D ......    CALLF     L:?load32_l0_0x
-   \   00005D 8D ......    CALLF     BIN2ASC
-     32          }
-   \   000061 87           RETF
-     33          /*----------------------------------------------------------------------*/
-     34          /*up to 4 bytes binary to ascii output					*/
-     35          /*leading zero not supressed. to buffer B2ASCBuf[8] returns number count*/
-     36          /*STK =1								*/
-     37          /*----------------------------------------------------------------------*/
+   \   000000 3B ....      PUSH      S:?b8
+   \   000003 B7 ..        LD        S:?b8, A
+     34                  LocalSum = tempblock[0];
+   \   000005 C6 ....      LD        A, L:tempblock
+   \   000008 5F           CLRW      X
+   \   000009 97           LD        XL, A
+   \   00000A BF ..        LDW       S:?w1, X
+   \   00000C 5F           CLRW      X
+   \   00000D BF ..        LDW       S:?w0, X
+   \   00000F AE ....      LDW       X, #LocalSum
+   \   000012 8D ......    CALLF     L:?load32_0x_l0
+     35          	LocalSum = LocalSum + (tempblock[1] * 256);
+   \   000016 C6 ....      LD        A, L:tempblock + 1
+   \   000019 905F         CLRW      Y
+   \   00001B 9097         LD        YL, A
+   \   00001D AE 0100      LDW       X, #0x100
+   \   000020 BF ..        LDW       S:?w0, X
+   \   000022 93           LDW       X, Y
+   \   000023 8D ......    CALLF     L:?mul16_x_x_w0
+   \   000027 8D ......    CALLF     L:?sext32_l0_x
+   \   00002B AE ....      LDW       X, #LocalSum
+   \   00002E 8D ......    CALLF     L:?add32_l0_l0_0x
+   \   000032 AE ....      LDW       X, #LocalSum
+   \   000035 8D ......    CALLF     L:?load32_0x_l0
+     36           	LocalSum = LocalSum + (tempblock[2] * 65536);
+   \   000039 C6 ....      LD        A, L:tempblock + 2
+   \   00003C 5F           CLRW      X
+   \   00003D 97           LD        XL, A
+   \   00003E BF ..        LDW       S:?w1, X
+   \   000040 5F           CLRW      X
+   \   000041 BF ..        LDW       S:?w0, X
+   \   000043 5F           CLRW      X
+   \   000044 BF ..        LDW       S:?w3, X
+   \   000046 5C           INCW      X
+   \   000047 BF ..        LDW       S:?w2, X
+   \   000049 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   00004D AE ....      LDW       X, #LocalSum
+   \   000050 8D ......    CALLF     L:?add32_l0_l0_0x
+   \   000054 AE ....      LDW       X, #LocalSum
+   \   000057 8D ......    CALLF     L:?load32_0x_l0
+     37           	LocalSum = LocalSum + (tempblock[3] * 16777216);
+   \   00005B C6 ....      LD        A, L:tempblock + 3
+   \   00005E 5F           CLRW      X
+   \   00005F 97           LD        XL, A
+   \   000060 BF ..        LDW       S:?w1, X
+   \   000062 5F           CLRW      X
+   \   000063 BF ..        LDW       S:?w0, X
+   \   000065 5F           CLRW      X
+   \   000066 BF ..        LDW       S:?w3, X
+   \   000068 5C           INCW      X
+   \   000069 5E           SWAPW     X
+   \   00006A BF ..        LDW       S:?w2, X
+   \   00006C 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   000070 AE ....      LDW       X, #LocalSum
+   \   000073 8D ......    CALLF     L:?add32_l0_l0_0x
+   \   000077 AE ....      LDW       X, #LocalSum
+   \   00007A 8D ......    CALLF     L:?load32_0x_l0
+     38                  InitB2ASCBuf();
+   \   00007E 8D ......    CALLF     InitB2ASCBuf
+     39                  BIN2ASC(LocalSum,leading);
+   \   000082 B6 ..        LD        A, S:?b8
+   \   000084 AE ....      LDW       X, #LocalSum
+   \   000087 8D ......    CALLF     L:?load32_l0_0x
+   \   00008B 8D ......    CALLF     BIN2ASC
+     40          }
+   \   00008F 32 ....      POP       S:?b8
+   \   000092 87           RETF
+     41          /*----------------------------------------------------------------------*/
+     42          /*up to 4 bytes binary to ascii output					*/
+     43          /*leading zero not supressed. to buffer B2ASCBuf[8] returns number count*/
+     44          /*STK =1								*/
+     45          /*----------------------------------------------------------------------*/
 
    \                                 In section .far_func.text, align 1
-     38          void BIN2ASC(u32 InNum){
+     46          void BIN2ASC(u32 InNum,char leading){
    \                     BIN2ASC:
    \   000000 8D ......    CALLF     L:?push_l2
    \   000004 8D ......    CALLF     L:?push_w6
-   \   000008 8D ......    CALLF     L:?mov_l2_l0
-     39          char Bufptr;
-     40          char Res;
-     41          	Bufptr = 0;
-   \   00000C 4F           CLR       A
-   \   00000D B7 ..        LD        S:?b12, A
-     42          	Res = InNum / (u32)10000000;
-   \   00000F 8D ......    CALLF     L:?mov_l0_l2
-   \   000013 8D ......    CALLF     L:?udiv32_l0_l0_dl
-   \   000017 00989680     DC32      0x989680
-   \   00001B 45 .. ..     MOV       S:?b13, S:?b3
-     43          	B2ASCBuf[Bufptr] = Res | 0x30;
-   \   00001E 5F           CLRW      X
-   \   00001F 41           EXG       A, XL
-   \   000020 B6 ..        LD        A, S:?b12
-   \   000022 41           EXG       A, XL
-   \   000023 B6 ..        LD        A, S:?b13
-   \   000025 AA 30        OR        A, #0x30
-   \   000027 D7 ....      LD        (L:B2ASCBuf,X), A
-     44          	InNum = InNum - (Res * (u32)10000000);
-   \   00002A 5F           CLRW      X
-   \   00002B 41           EXG       A, XL
-   \   00002C B6 ..        LD        A, S:?b13
-   \   00002E 41           EXG       A, XL
-   \   00002F BF ..        LDW       S:?w1, X
-   \   000031 5F           CLRW      X
-   \   000032 BF ..        LDW       S:?w0, X
-   \   000034 AE 9680      LDW       X, #0x9680
-   \   000037 BF ..        LDW       S:?w3, X
-   \   000039 AE 0098      LDW       X, #0x98
-   \   00003C BF ..        LDW       S:?w2, X
-   \   00003E 8D ......    CALLF     L:?mul32_l0_l0_l1
-   \   000042 8D ......    CALLF     L:?mov_l1_l0
-   \   000046 8D ......    CALLF     L:?mov_l0_l2
-   \   00004A 8D ......    CALLF     L:?sub32_l0_l0_l1
-   \   00004E 8D ......    CALLF     L:?mov_l2_l0
-     45          	Bufptr++;
-   \   000052 B6 ..        LD        A, S:?b12
-   \   000054 AB 01        ADD       A, #0x1
-   \   000056 B7 ..        LD        S:?b12, A
-     46          
-     47          	Res = InNum / (u32)1000000;
-   \   000058 8D ......    CALLF     L:?mov_l0_l2
-   \   00005C 8D ......    CALLF     L:?udiv32_l0_l0_dl
-   \   000060 000F4240     DC32      0xf4240
-   \   000064 45 .. ..     MOV       S:?b13, S:?b3
-     48          	B2ASCBuf[Bufptr] = Res | 0x30;
-   \   000067 5F           CLRW      X
-   \   000068 41           EXG       A, XL
-   \   000069 B6 ..        LD        A, S:?b12
-   \   00006B 41           EXG       A, XL
-   \   00006C B6 ..        LD        A, S:?b13
-   \   00006E AA 30        OR        A, #0x30
-   \   000070 D7 ....      LD        (L:B2ASCBuf,X), A
-     49          	InNum = InNum - (Res * (u32)1000000);
-   \   000073 5F           CLRW      X
-   \   000074 41           EXG       A, XL
-   \   000075 B6 ..        LD        A, S:?b13
-   \   000077 41           EXG       A, XL
-   \   000078 BF ..        LDW       S:?w1, X
-   \   00007A 5F           CLRW      X
-   \   00007B BF ..        LDW       S:?w0, X
-   \   00007D AE 4240      LDW       X, #0x4240
-   \   000080 BF ..        LDW       S:?w3, X
-   \   000082 AE 000F      LDW       X, #0xf
-   \   000085 BF ..        LDW       S:?w2, X
-   \   000087 8D ......    CALLF     L:?mul32_l0_l0_l1
-   \   00008B 8D ......    CALLF     L:?mov_l1_l0
-   \   00008F 8D ......    CALLF     L:?mov_l0_l2
-   \   000093 8D ......    CALLF     L:?sub32_l0_l0_l1
-   \   000097 8D ......    CALLF     L:?mov_l2_l0
-     50          	Bufptr++;
-   \   00009B B6 ..        LD        A, S:?b12
-   \   00009D AB 01        ADD       A, #0x1
-   \   00009F B7 ..        LD        S:?b12, A
-     51          
-     52          	Res = InNum / (u32)100000;
-   \   0000A1 8D ......    CALLF     L:?mov_l0_l2
-   \   0000A5 8D ......    CALLF     L:?udiv32_l0_l0_dl
-   \   0000A9 000186A0     DC32      0x186a0
-   \   0000AD 45 .. ..     MOV       S:?b13, S:?b3
+   \   000008 3B ....      PUSH      S:?b14
+   \   00000B 8D ......    CALLF     L:?mov_l2_l0
+   \   00000F B7 ..        LD        S:?b14, A
+     47          char Bufptr;
+     48          char Res;
+     49          	Bufptr = 0;
+   \   000011 4F           CLR       A
+   \   000012 B7 ..        LD        S:?b12, A
+     50                  Res = 0;
+   \   000014 4F           CLR       A
+   \   000015 B7 ..        LD        S:?b13, A
+     51                  if (InNum >= 1000000000){
+   \   000017 BE ..        LDW       X, S:?w4
+   \   000019 A3 3B9A      CPW       X, #0x3b9a
+   \   00001C 26 05        JRNE      L:??BIN2ASC_0
+   \   00001E BE ..        LDW       X, S:?w5
+   \   000020 A3 CA00      CPW       X, #0xca00
+   \                     ??BIN2ASC_0:
+   \   000023 25 43        JRC       L:??BIN2ASC_1
+     52                  Res = InNum / (u32)1000000000;
+   \   000025 8D ......    CALLF     L:?mov_l0_l2
+   \   000029 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   00002D 3B9ACA00     DC32      0x3b9aca00
+   \   000031 45 .. ..     MOV       S:?b13, S:?b3
      53          	B2ASCBuf[Bufptr] = Res | 0x30;
-   \   0000B0 5F           CLRW      X
-   \   0000B1 41           EXG       A, XL
-   \   0000B2 B6 ..        LD        A, S:?b12
-   \   0000B4 41           EXG       A, XL
-   \   0000B5 B6 ..        LD        A, S:?b13
-   \   0000B7 AA 30        OR        A, #0x30
-   \   0000B9 D7 ....      LD        (L:B2ASCBuf,X), A
-     54          	InNum = InNum - (Res * (u32)100000);
-   \   0000BC 5F           CLRW      X
-   \   0000BD 41           EXG       A, XL
-   \   0000BE B6 ..        LD        A, S:?b13
-   \   0000C0 41           EXG       A, XL
-   \   0000C1 BF ..        LDW       S:?w1, X
-   \   0000C3 5F           CLRW      X
-   \   0000C4 BF ..        LDW       S:?w0, X
-   \   0000C6 AE 86A0      LDW       X, #0x86a0
-   \   0000C9 BF ..        LDW       S:?w3, X
-   \   0000CB 5F           CLRW      X
-   \   0000CC 5C           INCW      X
-   \   0000CD BF ..        LDW       S:?w2, X
-   \   0000CF 8D ......    CALLF     L:?mul32_l0_l0_l1
-   \   0000D3 8D ......    CALLF     L:?mov_l1_l0
-   \   0000D7 8D ......    CALLF     L:?mov_l0_l2
-   \   0000DB 8D ......    CALLF     L:?sub32_l0_l0_l1
-   \   0000DF 8D ......    CALLF     L:?mov_l2_l0
-     55          	Bufptr++;
-   \   0000E3 B6 ..        LD        A, S:?b12
-   \   0000E5 AB 01        ADD       A, #0x1
-   \   0000E7 B7 ..        LD        S:?b12, A
-     56          
-     57          	Res = InNum / (u32)10000;
-   \   0000E9 8D ......    CALLF     L:?mov_l0_l2
-   \   0000ED 8D ......    CALLF     L:?udiv32_l0_l0_dl
-   \   0000F1 00002710     DC32      0x2710
-   \   0000F5 45 .. ..     MOV       S:?b13, S:?b3
-     58          	B2ASCBuf[Bufptr] = Res | 0x30;
-   \   0000F8 5F           CLRW      X
-   \   0000F9 41           EXG       A, XL
-   \   0000FA B6 ..        LD        A, S:?b12
-   \   0000FC 41           EXG       A, XL
-   \   0000FD B6 ..        LD        A, S:?b13
-   \   0000FF AA 30        OR        A, #0x30
-   \   000101 D7 ....      LD        (L:B2ASCBuf,X), A
-     59          	InNum = InNum - (Res * (u32)10000);
-   \   000104 5F           CLRW      X
-   \   000105 41           EXG       A, XL
-   \   000106 B6 ..        LD        A, S:?b13
-   \   000108 41           EXG       A, XL
-   \   000109 BF ..        LDW       S:?w1, X
-   \   00010B 5F           CLRW      X
-   \   00010C BF ..        LDW       S:?w0, X
-   \   00010E AE 2710      LDW       X, #0x2710
-   \   000111 BF ..        LDW       S:?w3, X
-   \   000113 5F           CLRW      X
-   \   000114 BF ..        LDW       S:?w2, X
-   \   000116 8D ......    CALLF     L:?mul32_l0_l0_l1
-   \   00011A 8D ......    CALLF     L:?mov_l1_l0
-   \   00011E 8D ......    CALLF     L:?mov_l0_l2
-   \   000122 8D ......    CALLF     L:?sub32_l0_l0_l1
-   \   000126 8D ......    CALLF     L:?mov_l2_l0
-     60          	Bufptr++;
-   \   00012A B6 ..        LD        A, S:?b12
-   \   00012C AB 01        ADD       A, #0x1
-   \   00012E B7 ..        LD        S:?b12, A
-     61          
-     62          	Res = InNum / (u32)1000;
-   \   000130 8D ......    CALLF     L:?mov_l0_l2
-   \   000134 8D ......    CALLF     L:?udiv32_l0_l0_dl
-   \   000138 000003E8     DC32      0x3e8
-   \   00013C 45 .. ..     MOV       S:?b13, S:?b3
-     63          	B2ASCBuf[Bufptr] = Res | 0x30;
-   \   00013F 5F           CLRW      X
-   \   000140 41           EXG       A, XL
-   \   000141 B6 ..        LD        A, S:?b12
-   \   000143 41           EXG       A, XL
-   \   000144 B6 ..        LD        A, S:?b13
-   \   000146 AA 30        OR        A, #0x30
-   \   000148 D7 ....      LD        (L:B2ASCBuf,X), A
-     64          	InNum = InNum - (Res * (u32)1000);
-   \   00014B 5F           CLRW      X
-   \   00014C 41           EXG       A, XL
-   \   00014D B6 ..        LD        A, S:?b13
-   \   00014F 41           EXG       A, XL
-   \   000150 BF ..        LDW       S:?w1, X
-   \   000152 5F           CLRW      X
-   \   000153 BF ..        LDW       S:?w0, X
-   \   000155 AE 03E8      LDW       X, #0x3e8
-   \   000158 BF ..        LDW       S:?w3, X
-   \   00015A 5F           CLRW      X
-   \   00015B BF ..        LDW       S:?w2, X
-   \   00015D 8D ......    CALLF     L:?mul32_l0_l0_l1
-   \   000161 8D ......    CALLF     L:?mov_l1_l0
-   \   000165 8D ......    CALLF     L:?mov_l0_l2
-   \   000169 8D ......    CALLF     L:?sub32_l0_l0_l1
-   \   00016D 8D ......    CALLF     L:?mov_l2_l0
-     65          	Bufptr++;
-   \   000171 B6 ..        LD        A, S:?b12
-   \   000173 AB 01        ADD       A, #0x1
-   \   000175 B7 ..        LD        S:?b12, A
-     66          
-     67          	Res = InNum / (u32)100;
-   \   000177 8D ......    CALLF     L:?mov_l0_l2
-   \   00017B 8D ......    CALLF     L:?udiv32_l0_l0_dl
-   \   00017F 00000064     DC32      0x64
-   \   000183 45 .. ..     MOV       S:?b13, S:?b3
-     68          	B2ASCBuf[Bufptr] = Res | 0x30;
-   \   000186 5F           CLRW      X
-   \   000187 41           EXG       A, XL
-   \   000188 B6 ..        LD        A, S:?b12
-   \   00018A 41           EXG       A, XL
-   \   00018B B6 ..        LD        A, S:?b13
-   \   00018D AA 30        OR        A, #0x30
-   \   00018F D7 ....      LD        (L:B2ASCBuf,X), A
-     69          	InNum = InNum - (Res * (u32)100);
-   \   000192 5F           CLRW      X
-   \   000193 41           EXG       A, XL
-   \   000194 B6 ..        LD        A, S:?b13
-   \   000196 41           EXG       A, XL
-   \   000197 BF ..        LDW       S:?w1, X
-   \   000199 5F           CLRW      X
-   \   00019A BF ..        LDW       S:?w0, X
-   \   00019C AE 0064      LDW       X, #0x64
-   \   00019F BF ..        LDW       S:?w3, X
-   \   0001A1 5F           CLRW      X
-   \   0001A2 BF ..        LDW       S:?w2, X
-   \   0001A4 8D ......    CALLF     L:?mul32_l0_l0_l1
-   \   0001A8 8D ......    CALLF     L:?mov_l1_l0
-   \   0001AC 8D ......    CALLF     L:?mov_l0_l2
-   \   0001B0 8D ......    CALLF     L:?sub32_l0_l0_l1
-   \   0001B4 8D ......    CALLF     L:?mov_l2_l0
+   \   000034 5F           CLRW      X
+   \   000035 41           EXG       A, XL
+   \   000036 B6 ..        LD        A, S:?b12
+   \   000038 41           EXG       A, XL
+   \   000039 B6 ..        LD        A, S:?b13
+   \   00003B AA 30        OR        A, #0x30
+   \   00003D D7 ....      LD        (L:B2ASCBuf,X), A
+     54          	InNum = InNum - (Res * (u32)1000000000);
+   \   000040 5F           CLRW      X
+   \   000041 41           EXG       A, XL
+   \   000042 B6 ..        LD        A, S:?b13
+   \   000044 41           EXG       A, XL
+   \   000045 BF ..        LDW       S:?w1, X
+   \   000047 5F           CLRW      X
+   \   000048 BF ..        LDW       S:?w0, X
+   \   00004A AE CA00      LDW       X, #0xca00
+   \   00004D BF ..        LDW       S:?w3, X
+   \   00004F AE 3B9A      LDW       X, #0x3b9a
+   \   000052 BF ..        LDW       S:?w2, X
+   \   000054 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   000058 8D ......    CALLF     L:?mov_l1_l0
+   \   00005C 8D ......    CALLF     L:?mov_l0_l2
+   \   000060 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   000064 8D ......    CALLF     L:?mov_l2_l0
+     55                  }
+     56          	Bufptr++;
+   \                     ??BIN2ASC_1:
+   \   000068 B6 ..        LD        A, S:?b12
+   \   00006A AB 01        ADD       A, #0x1
+   \   00006C B7 ..        LD        S:?b12, A
+     57          
+     58                  if (InNum >= 100000000){
+   \   00006E BE ..        LDW       X, S:?w4
+   \   000070 A3 05F5      CPW       X, #0x5f5
+   \   000073 26 05        JRNE      L:??BIN2ASC_2
+   \   000075 BE ..        LDW       X, S:?w5
+   \   000077 A3 E100      CPW       X, #0xe100
+   \                     ??BIN2ASC_2:
+   \   00007A 25 43        JRC       L:??BIN2ASC_3
+     59          	Res = InNum / (u32)100000000;
+   \   00007C 8D ......    CALLF     L:?mov_l0_l2
+   \   000080 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   000084 05F5E100     DC32      0x5f5e100
+   \   000088 45 .. ..     MOV       S:?b13, S:?b3
+     60          	B2ASCBuf[Bufptr] = Res | 0x30;
+   \   00008B 5F           CLRW      X
+   \   00008C 41           EXG       A, XL
+   \   00008D B6 ..        LD        A, S:?b12
+   \   00008F 41           EXG       A, XL
+   \   000090 B6 ..        LD        A, S:?b13
+   \   000092 AA 30        OR        A, #0x30
+   \   000094 D7 ....      LD        (L:B2ASCBuf,X), A
+     61          	InNum = InNum - (Res * (u32)100000000);
+   \   000097 5F           CLRW      X
+   \   000098 41           EXG       A, XL
+   \   000099 B6 ..        LD        A, S:?b13
+   \   00009B 41           EXG       A, XL
+   \   00009C BF ..        LDW       S:?w1, X
+   \   00009E 5F           CLRW      X
+   \   00009F BF ..        LDW       S:?w0, X
+   \   0000A1 AE E100      LDW       X, #0xe100
+   \   0000A4 BF ..        LDW       S:?w3, X
+   \   0000A6 AE 05F5      LDW       X, #0x5f5
+   \   0000A9 BF ..        LDW       S:?w2, X
+   \   0000AB 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   0000AF 8D ......    CALLF     L:?mov_l1_l0
+   \   0000B3 8D ......    CALLF     L:?mov_l0_l2
+   \   0000B7 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   0000BB 8D ......    CALLF     L:?mov_l2_l0
+     62                  }
+     63          	Bufptr++;
+   \                     ??BIN2ASC_3:
+   \   0000BF B6 ..        LD        A, S:?b12
+   \   0000C1 AB 01        ADD       A, #0x1
+   \   0000C3 B7 ..        LD        S:?b12, A
+     64           
+     65                  if (InNum >= 10000000){
+   \   0000C5 BE ..        LDW       X, S:?w4
+   \   0000C7 A3 0098      CPW       X, #0x98
+   \   0000CA 26 05        JRNE      L:??BIN2ASC_4
+   \   0000CC BE ..        LDW       X, S:?w5
+   \   0000CE A3 9680      CPW       X, #0x9680
+   \                     ??BIN2ASC_4:
+   \   0000D1 25 43        JRC       L:??BIN2ASC_5
+     66          	Res = InNum / (u32)10000000;
+   \   0000D3 8D ......    CALLF     L:?mov_l0_l2
+   \   0000D7 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   0000DB 00989680     DC32      0x989680
+   \   0000DF 45 .. ..     MOV       S:?b13, S:?b3
+     67          	B2ASCBuf[Bufptr] = Res | 0x30;
+   \   0000E2 5F           CLRW      X
+   \   0000E3 41           EXG       A, XL
+   \   0000E4 B6 ..        LD        A, S:?b12
+   \   0000E6 41           EXG       A, XL
+   \   0000E7 B6 ..        LD        A, S:?b13
+   \   0000E9 AA 30        OR        A, #0x30
+   \   0000EB D7 ....      LD        (L:B2ASCBuf,X), A
+     68          	InNum = InNum - (Res * (u32)10000000);
+   \   0000EE 5F           CLRW      X
+   \   0000EF 41           EXG       A, XL
+   \   0000F0 B6 ..        LD        A, S:?b13
+   \   0000F2 41           EXG       A, XL
+   \   0000F3 BF ..        LDW       S:?w1, X
+   \   0000F5 5F           CLRW      X
+   \   0000F6 BF ..        LDW       S:?w0, X
+   \   0000F8 AE 9680      LDW       X, #0x9680
+   \   0000FB BF ..        LDW       S:?w3, X
+   \   0000FD AE 0098      LDW       X, #0x98
+   \   000100 BF ..        LDW       S:?w2, X
+   \   000102 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   000106 8D ......    CALLF     L:?mov_l1_l0
+   \   00010A 8D ......    CALLF     L:?mov_l0_l2
+   \   00010E 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   000112 8D ......    CALLF     L:?mov_l2_l0
+     69                  }
      70          	Bufptr++;
-   \   0001B8 B6 ..        LD        A, S:?b12
-   \   0001BA AB 01        ADD       A, #0x1
-   \   0001BC B7 ..        LD        S:?b12, A
+   \                     ??BIN2ASC_5:
+   \   000116 B6 ..        LD        A, S:?b12
+   \   000118 AB 01        ADD       A, #0x1
+   \   00011A B7 ..        LD        S:?b12, A
      71          
-     72          	Res = InNum / (u32)10;
-   \   0001BE 8D ......    CALLF     L:?mov_l0_l2
-   \   0001C2 8D ......    CALLF     L:?udiv32_l0_l0_dl
-   \   0001C6 0000000A     DC32      0xa
-   \   0001CA 45 .. ..     MOV       S:?b13, S:?b3
-     73          	B2ASCBuf[Bufptr] = Res | 0x30;
-   \   0001CD 5F           CLRW      X
-   \   0001CE 41           EXG       A, XL
-   \   0001CF B6 ..        LD        A, S:?b12
-   \   0001D1 41           EXG       A, XL
-   \   0001D2 B6 ..        LD        A, S:?b13
-   \   0001D4 AA 30        OR        A, #0x30
-   \   0001D6 D7 ....      LD        (L:B2ASCBuf,X), A
-     74          	InNum = InNum - (Res * (u32)10);
-   \   0001D9 5F           CLRW      X
-   \   0001DA 41           EXG       A, XL
-   \   0001DB B6 ..        LD        A, S:?b13
-   \   0001DD 41           EXG       A, XL
-   \   0001DE BF ..        LDW       S:?w1, X
-   \   0001E0 5F           CLRW      X
-   \   0001E1 BF ..        LDW       S:?w0, X
-   \   0001E3 AE 000A      LDW       X, #0xa
-   \   0001E6 BF ..        LDW       S:?w3, X
-   \   0001E8 5F           CLRW      X
-   \   0001E9 BF ..        LDW       S:?w2, X
-   \   0001EB 8D ......    CALLF     L:?mul32_l0_l0_l1
-   \   0001EF 8D ......    CALLF     L:?mov_l1_l0
-   \   0001F3 8D ......    CALLF     L:?mov_l0_l2
-   \   0001F7 8D ......    CALLF     L:?sub32_l0_l0_l1
-   \   0001FB 8D ......    CALLF     L:?mov_l2_l0
-     75          	Bufptr++;
-   \   0001FF B6 ..        LD        A, S:?b12
-   \   000201 AB 01        ADD       A, #0x1
-   \   000203 B7 ..        LD        S:?b12, A
-     76          
-     77          	B2ASCBuf[Bufptr] = InNum | 0x30;
-   \   000205 B6 ..        LD        A, S:?b11
-   \   000207 AA 30        OR        A, #0x30
-   \   000209 5F           CLRW      X
-   \   00020A 41           EXG       A, XL
-   \   00020B B6 ..        LD        A, S:?b12
-   \   00020D 41           EXG       A, XL
-   \   00020E D7 ....      LD        (L:B2ASCBuf,X), A
-     78                  clearB2ASCBuf();
-   \   000211 8D ......    CALLF     clearB2ASCBuf
-     79          }
-   \   000215 AC ......    JPF       L:?epilogue_l2_w6
+     72                  if (InNum >= 1000000){
+   \   00011C BE ..        LDW       X, S:?w4
+   \   00011E A3 000F      CPW       X, #0xf
+   \   000121 26 05        JRNE      L:??BIN2ASC_6
+   \   000123 BE ..        LDW       X, S:?w5
+   \   000125 A3 4240      CPW       X, #0x4240
+   \                     ??BIN2ASC_6:
+   \   000128 25 43        JRC       L:??BIN2ASC_7
+     73          	Res = InNum / (u32)1000000;
+   \   00012A 8D ......    CALLF     L:?mov_l0_l2
+   \   00012E 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   000132 000F4240     DC32      0xf4240
+   \   000136 45 .. ..     MOV       S:?b13, S:?b3
+     74          	B2ASCBuf[Bufptr] = Res | 0x30;
+   \   000139 5F           CLRW      X
+   \   00013A 41           EXG       A, XL
+   \   00013B B6 ..        LD        A, S:?b12
+   \   00013D 41           EXG       A, XL
+   \   00013E B6 ..        LD        A, S:?b13
+   \   000140 AA 30        OR        A, #0x30
+   \   000142 D7 ....      LD        (L:B2ASCBuf,X), A
+     75          	InNum = InNum - (Res * (u32)1000000);
+   \   000145 5F           CLRW      X
+   \   000146 41           EXG       A, XL
+   \   000147 B6 ..        LD        A, S:?b13
+   \   000149 41           EXG       A, XL
+   \   00014A BF ..        LDW       S:?w1, X
+   \   00014C 5F           CLRW      X
+   \   00014D BF ..        LDW       S:?w0, X
+   \   00014F AE 4240      LDW       X, #0x4240
+   \   000152 BF ..        LDW       S:?w3, X
+   \   000154 AE 000F      LDW       X, #0xf
+   \   000157 BF ..        LDW       S:?w2, X
+   \   000159 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   00015D 8D ......    CALLF     L:?mov_l1_l0
+   \   000161 8D ......    CALLF     L:?mov_l0_l2
+   \   000165 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   000169 8D ......    CALLF     L:?mov_l2_l0
+     76                  }
+     77          	Bufptr++;
+   \                     ??BIN2ASC_7:
+   \   00016D B6 ..        LD        A, S:?b12
+   \   00016F AB 01        ADD       A, #0x1
+   \   000171 B7 ..        LD        S:?b12, A
+     78          
+     79                  if (InNum >= 100000){
+   \   000173 BE ..        LDW       X, S:?w4
+   \   000175 A3 0001      CPW       X, #0x1
+   \   000178 26 05        JRNE      L:??BIN2ASC_8
+   \   00017A BE ..        LDW       X, S:?w5
+   \   00017C A3 86A0      CPW       X, #0x86a0
+   \                     ??BIN2ASC_8:
+   \   00017F 25 42        JRC       L:??BIN2ASC_9
+     80          	Res = InNum / (u32)100000;
+   \   000181 8D ......    CALLF     L:?mov_l0_l2
+   \   000185 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   000189 000186A0     DC32      0x186a0
+   \   00018D 45 .. ..     MOV       S:?b13, S:?b3
+     81          	B2ASCBuf[Bufptr] = Res | 0x30;
+   \   000190 5F           CLRW      X
+   \   000191 41           EXG       A, XL
+   \   000192 B6 ..        LD        A, S:?b12
+   \   000194 41           EXG       A, XL
+   \   000195 B6 ..        LD        A, S:?b13
+   \   000197 AA 30        OR        A, #0x30
+   \   000199 D7 ....      LD        (L:B2ASCBuf,X), A
+     82          	InNum = InNum - (Res * (u32)100000);
+   \   00019C 5F           CLRW      X
+   \   00019D 41           EXG       A, XL
+   \   00019E B6 ..        LD        A, S:?b13
+   \   0001A0 41           EXG       A, XL
+   \   0001A1 BF ..        LDW       S:?w1, X
+   \   0001A3 5F           CLRW      X
+   \   0001A4 BF ..        LDW       S:?w0, X
+   \   0001A6 AE 86A0      LDW       X, #0x86a0
+   \   0001A9 BF ..        LDW       S:?w3, X
+   \   0001AB 5F           CLRW      X
+   \   0001AC 5C           INCW      X
+   \   0001AD BF ..        LDW       S:?w2, X
+   \   0001AF 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   0001B3 8D ......    CALLF     L:?mov_l1_l0
+   \   0001B7 8D ......    CALLF     L:?mov_l0_l2
+   \   0001BB 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   0001BF 8D ......    CALLF     L:?mov_l2_l0
+     83                  }
+     84          	Bufptr++;
+   \                     ??BIN2ASC_9:
+   \   0001C3 B6 ..        LD        A, S:?b12
+   \   0001C5 AB 01        ADD       A, #0x1
+   \   0001C7 B7 ..        LD        S:?b12, A
+     85          
+     86                  if (InNum >= 10000){
+   \   0001C9 BE ..        LDW       X, S:?w4
+   \   0001CB A3 0000      CPW       X, #0x0
+   \   0001CE 26 05        JRNE      L:??BIN2ASC_10
+   \   0001D0 BE ..        LDW       X, S:?w5
+   \   0001D2 A3 2710      CPW       X, #0x2710
+   \                     ??BIN2ASC_10:
+   \   0001D5 25 41        JRC       L:??BIN2ASC_11
+     87          	Res = InNum / (u32)10000;
+   \   0001D7 8D ......    CALLF     L:?mov_l0_l2
+   \   0001DB 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   0001DF 00002710     DC32      0x2710
+   \   0001E3 45 .. ..     MOV       S:?b13, S:?b3
+     88          	B2ASCBuf[Bufptr] = Res | 0x30;
+   \   0001E6 5F           CLRW      X
+   \   0001E7 41           EXG       A, XL
+   \   0001E8 B6 ..        LD        A, S:?b12
+   \   0001EA 41           EXG       A, XL
+   \   0001EB B6 ..        LD        A, S:?b13
+   \   0001ED AA 30        OR        A, #0x30
+   \   0001EF D7 ....      LD        (L:B2ASCBuf,X), A
+     89          	InNum = InNum - (Res * (u32)10000);
+   \   0001F2 5F           CLRW      X
+   \   0001F3 41           EXG       A, XL
+   \   0001F4 B6 ..        LD        A, S:?b13
+   \   0001F6 41           EXG       A, XL
+   \   0001F7 BF ..        LDW       S:?w1, X
+   \   0001F9 5F           CLRW      X
+   \   0001FA BF ..        LDW       S:?w0, X
+   \   0001FC AE 2710      LDW       X, #0x2710
+   \   0001FF BF ..        LDW       S:?w3, X
+   \   000201 5F           CLRW      X
+   \   000202 BF ..        LDW       S:?w2, X
+   \   000204 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   000208 8D ......    CALLF     L:?mov_l1_l0
+   \   00020C 8D ......    CALLF     L:?mov_l0_l2
+   \   000210 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   000214 8D ......    CALLF     L:?mov_l2_l0
+     90                  }
+     91          	Bufptr++;
+   \                     ??BIN2ASC_11:
+   \   000218 B6 ..        LD        A, S:?b12
+   \   00021A AB 01        ADD       A, #0x1
+   \   00021C B7 ..        LD        S:?b12, A
+     92          
+     93                  if (InNum >= 1000){
+   \   00021E BE ..        LDW       X, S:?w4
+   \   000220 A3 0000      CPW       X, #0x0
+   \   000223 26 05        JRNE      L:??BIN2ASC_12
+   \   000225 BE ..        LDW       X, S:?w5
+   \   000227 A3 03E8      CPW       X, #0x3e8
+   \                     ??BIN2ASC_12:
+   \   00022A 25 41        JRC       L:??BIN2ASC_13
+     94          	Res = InNum / (u32)1000;
+   \   00022C 8D ......    CALLF     L:?mov_l0_l2
+   \   000230 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   000234 000003E8     DC32      0x3e8
+   \   000238 45 .. ..     MOV       S:?b13, S:?b3
+     95          	B2ASCBuf[Bufptr] = Res | 0x30;
+   \   00023B 5F           CLRW      X
+   \   00023C 41           EXG       A, XL
+   \   00023D B6 ..        LD        A, S:?b12
+   \   00023F 41           EXG       A, XL
+   \   000240 B6 ..        LD        A, S:?b13
+   \   000242 AA 30        OR        A, #0x30
+   \   000244 D7 ....      LD        (L:B2ASCBuf,X), A
+     96          	InNum = InNum - (Res * (u32)1000);
+   \   000247 5F           CLRW      X
+   \   000248 41           EXG       A, XL
+   \   000249 B6 ..        LD        A, S:?b13
+   \   00024B 41           EXG       A, XL
+   \   00024C BF ..        LDW       S:?w1, X
+   \   00024E 5F           CLRW      X
+   \   00024F BF ..        LDW       S:?w0, X
+   \   000251 AE 03E8      LDW       X, #0x3e8
+   \   000254 BF ..        LDW       S:?w3, X
+   \   000256 5F           CLRW      X
+   \   000257 BF ..        LDW       S:?w2, X
+   \   000259 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   00025D 8D ......    CALLF     L:?mov_l1_l0
+   \   000261 8D ......    CALLF     L:?mov_l0_l2
+   \   000265 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   000269 8D ......    CALLF     L:?mov_l2_l0
+     97                  }
+     98          	Bufptr++;
+   \                     ??BIN2ASC_13:
+   \   00026D B6 ..        LD        A, S:?b12
+   \   00026F AB 01        ADD       A, #0x1
+   \   000271 B7 ..        LD        S:?b12, A
+     99          
+    100          	Res = InNum / (u32)100;
+   \   000273 8D ......    CALLF     L:?mov_l0_l2
+   \   000277 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   00027B 00000064     DC32      0x64
+   \   00027F 45 .. ..     MOV       S:?b13, S:?b3
+    101          	B2ASCBuf[Bufptr] = Res | 0x30;
+   \   000282 5F           CLRW      X
+   \   000283 41           EXG       A, XL
+   \   000284 B6 ..        LD        A, S:?b12
+   \   000286 41           EXG       A, XL
+   \   000287 B6 ..        LD        A, S:?b13
+   \   000289 AA 30        OR        A, #0x30
+   \   00028B D7 ....      LD        (L:B2ASCBuf,X), A
+    102          	InNum = InNum - (Res * (u32)100);
+   \   00028E 5F           CLRW      X
+   \   00028F 41           EXG       A, XL
+   \   000290 B6 ..        LD        A, S:?b13
+   \   000292 41           EXG       A, XL
+   \   000293 BF ..        LDW       S:?w1, X
+   \   000295 5F           CLRW      X
+   \   000296 BF ..        LDW       S:?w0, X
+   \   000298 AE 0064      LDW       X, #0x64
+   \   00029B BF ..        LDW       S:?w3, X
+   \   00029D 5F           CLRW      X
+   \   00029E BF ..        LDW       S:?w2, X
+   \   0002A0 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   0002A4 8D ......    CALLF     L:?mov_l1_l0
+   \   0002A8 8D ......    CALLF     L:?mov_l0_l2
+   \   0002AC 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   0002B0 8D ......    CALLF     L:?mov_l2_l0
+    103          	Bufptr++;
+   \   0002B4 B6 ..        LD        A, S:?b12
+   \   0002B6 AB 01        ADD       A, #0x1
+   \   0002B8 B7 ..        LD        S:?b12, A
+    104          
+    105          	Res = InNum / (u32)10;
+   \   0002BA 8D ......    CALLF     L:?mov_l0_l2
+   \   0002BE 8D ......    CALLF     L:?udiv32_l0_l0_dl
+   \   0002C2 0000000A     DC32      0xa
+   \   0002C6 45 .. ..     MOV       S:?b13, S:?b3
+    106          	B2ASCBuf[Bufptr] = Res | 0x30;
+   \   0002C9 5F           CLRW      X
+   \   0002CA 41           EXG       A, XL
+   \   0002CB B6 ..        LD        A, S:?b12
+   \   0002CD 41           EXG       A, XL
+   \   0002CE B6 ..        LD        A, S:?b13
+   \   0002D0 AA 30        OR        A, #0x30
+   \   0002D2 D7 ....      LD        (L:B2ASCBuf,X), A
+    107          	InNum = InNum - (Res * (u32)10);
+   \   0002D5 5F           CLRW      X
+   \   0002D6 41           EXG       A, XL
+   \   0002D7 B6 ..        LD        A, S:?b13
+   \   0002D9 41           EXG       A, XL
+   \   0002DA BF ..        LDW       S:?w1, X
+   \   0002DC 5F           CLRW      X
+   \   0002DD BF ..        LDW       S:?w0, X
+   \   0002DF AE 000A      LDW       X, #0xa
+   \   0002E2 BF ..        LDW       S:?w3, X
+   \   0002E4 5F           CLRW      X
+   \   0002E5 BF ..        LDW       S:?w2, X
+   \   0002E7 8D ......    CALLF     L:?mul32_l0_l0_l1
+   \   0002EB 8D ......    CALLF     L:?mov_l1_l0
+   \   0002EF 8D ......    CALLF     L:?mov_l0_l2
+   \   0002F3 8D ......    CALLF     L:?sub32_l0_l0_l1
+   \   0002F7 8D ......    CALLF     L:?mov_l2_l0
+    108          	Bufptr++;
+   \   0002FB B6 ..        LD        A, S:?b12
+   \   0002FD AB 01        ADD       A, #0x1
+   \   0002FF B7 ..        LD        S:?b12, A
+    109          
+    110          	B2ASCBuf[Bufptr] = InNum | 0x30;
+   \   000301 B6 ..        LD        A, S:?b11
+   \   000303 AA 30        OR        A, #0x30
+   \   000305 5F           CLRW      X
+   \   000306 41           EXG       A, XL
+   \   000307 B6 ..        LD        A, S:?b12
+   \   000309 41           EXG       A, XL
+   \   00030A D7 ....      LD        (L:B2ASCBuf,X), A
+    111                  if (leading == 1)
+   \   00030D B6 ..        LD        A, S:?b14
+   \   00030F A1 01        CP        A, #0x1
+   \   000311 26 04        JRNE      L:??BIN2ASC_14
+    112                  clearB2ASCBuf();
+   \   000313 8D ......    CALLF     clearB2ASCBuf
+    113          }
+   \                     ??BIN2ASC_14:
+   \   000317 32 ....      POP       S:?b14
+   \   00031A AC ......    JPF       L:?epilogue_l2_w6
 
    Section sizes:
 
    Bytes  Function/Label
    -----  --------------
-     537  BIN2ASC
+     798  BIN2ASC
        1  Indx
-      98  Int2ASCII
+      28  InitB2ASCBuf
+     147  Int2ASCII
        4  LocalSum
       50  clearB2ASCBuf
 
  
- 685 bytes in section .far_func.text
-   5 bytes in section .near.bss
+ 1 023 bytes in section .far_func.text
+     5 bytes in section .near.bss
  
- 685 bytes of CODE memory
-   5 bytes of DATA memory
+ 1 023 bytes of CODE memory
+     5 bytes of DATA memory
 
 Errors: none
 Warnings: none

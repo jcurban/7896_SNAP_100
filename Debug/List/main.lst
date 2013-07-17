@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             09/Jul/2013  07:09:50 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             17/Jul/2013  08:20:55 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\main.c    #
@@ -153,277 +153,269 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\main.c
    \                     ??main_0:
    \   00002D C6 ....      LD        A, L:SNAP_State
    \   000030 4D           TNZ       A
-   \   000031 27 38        JREQ      L:??main_1
+   \   000031 27 36        JREQ      L:??main_1
    \   000033 4A           DEC       A
-   \   000034 27 3B        JREQ      L:??main_2
+   \   000034 27 39        JREQ      L:??main_2
    \   000036 4A           DEC       A
-   \   000037 27 3E        JREQ      L:??main_3
+   \   000037 27 3C        JREQ      L:??main_3
    \   000039 4A           DEC       A
-   \   00003A 27 41        JREQ      L:??main_4
+   \   00003A 27 3F        JREQ      L:??main_4
    \   00003C 4A           DEC       A
-   \   00003D 27 44        JREQ      L:??main_5
+   \   00003D 27 42        JREQ      L:??main_5
    \   00003F 4A           DEC       A
-   \   000040 27 47        JREQ      L:??main_6
+   \   000040 27 45        JREQ      L:??main_6
    \   000042 4A           DEC       A
-   \   000043 27 4A        JREQ      L:??main_7
+   \   000043 27 48        JREQ      L:??main_7
    \   000045 4A           DEC       A
-   \   000046 27 4D        JREQ      L:??main_8
+   \   000046 27 4B        JREQ      L:??main_8
    \   000048 4A           DEC       A
-   \   000049 27 50        JREQ      L:??main_9
-   \   00004B 4A           DEC       A
-   \   00004C 27 53        JREQ      L:??main_10
-   \   00004E 4A           DEC       A
-   \   00004F 27 56        JREQ      L:??main_11
-   \   000051 4A           DEC       A
-   \   000052 27 59        JREQ      L:??main_12
-   \   000054 4A           DEC       A
-   \   000055 27 5D        JREQ      L:??main_13
-   \   000057 4A           DEC       A
-   \   000058 27 61        JREQ      L:??main_14
-   \   00005A 4A           DEC       A
-   \   00005B 27 65        JREQ      L:??main_15
-   \   00005D 4A           DEC       A
-   \   00005E 27 69        JREQ      L:??main_16
-   \   000060 4A           DEC       A
-   \   000061 27 6D        JREQ      L:??main_17
-   \   000063 4A           DEC       A
-   \   000064 27 71        JREQ      L:??main_18
-   \   000066 4A           DEC       A
-   \   000067 27 75        JREQ      L:??main_19
-   \   000069 20 C2        JRA       L:??main_0
+   \   000049 27 4E        JREQ      L:??main_9
+   \   00004B A0 02        SUB       A, #0x2
+   \   00004D 27 50        JREQ      L:??main_10
+   \   00004F 4A           DEC       A
+   \   000050 27 53        JREQ      L:??main_11
+   \   000052 4A           DEC       A
+   \   000053 27 56        JREQ      L:??main_12
+   \   000055 4A           DEC       A
+   \   000056 27 5A        JREQ      L:??main_13
+   \   000058 4A           DEC       A
+   \   000059 27 5E        JREQ      L:??main_14
+   \   00005B 4A           DEC       A
+   \   00005C 27 62        JREQ      L:??main_15
+   \   00005E 4A           DEC       A
+   \   00005F 27 66        JREQ      L:??main_16
+   \   000061 4A           DEC       A
+   \   000062 27 6A        JREQ      L:??main_17
+   \   000064 4A           DEC       A
+   \   000065 27 6E        JREQ      L:??main_18
+   \   000067 20 C4        JRA       L:??main_0
      89              case SEND_POWERED_STATE:         /* let the device know we're ready*/
      90                Send_Powered();
    \                     ??main_1:
-   \   00006B 8D ......    CALLF     Send_Powered
+   \   000069 8D ......    CALLF     Send_Powered
      91                break;
-   \   00006F 20 BC        JRA       L:??main_0
+   \   00006D 20 BE        JRA       L:??main_0
      92              case WAIT_FOR_UPDATE_STATE:      /* wait for the device update */   
      93                Wait_For_Update();
    \                     ??main_2:
-   \   000071 8D ......    CALLF     Wait_For_Update
+   \   00006F 8D ......    CALLF     Wait_For_Update
      94                break;
-   \   000075 20 B6        JRA       L:??main_0
-     95              case 2:
+   \   000073 20 B8        JRA       L:??main_0
+     95              case PREOCESS_DEVICE_UPDATE_STATE:
      96                Process_Received_Update();     /* de-escape and check checksum */
    \                     ??main_3:
-   \   000077 8D ......    CALLF     Process_Received_Update
+   \   000075 8D ......    CALLF     Process_Received_Update
      97                break;
-   \   00007B 20 B0        JRA       L:??main_0
-     98              case 3:
+   \   000079 20 B2        JRA       L:??main_0
+     98              case GET_GS1011_NETWORK_STATE:
      99                GetNetworkStatusFromGS1011();  /* check if gs1011 connected to router */ 
    \                     ??main_4:
-   \   00007D 8D ......    CALLF     GetNetworkStatusFromGS1011
+   \   00007B 8D ......    CALLF     GetNetworkStatusFromGS1011
     100                break;                         /* if connected send update, esle config */
-   \   000081 20 AA        JRA       L:??main_0
-    101              case 4:                              
+   \   00007F 20 AC        JRA       L:??main_0
+    101              case GET_WEBSITE_IP_ADDRESS_STATE:                              
     102                Get_Website_IP_address();      /* set GS1011 address to 192.168.1.1 */
    \                     ??main_5:
-   \   000083 8D ......    CALLF     Get_Website_IP_address
+   \   000081 8D ......    CALLF     Get_Website_IP_address
     103                break;
-   \   000087 20 A4        JRA       L:??main_0
-    104              case 5:
+   \   000085 20 A6        JRA       L:??main_0
+    104              case SET_MARS_AS_WEBSITE_STATE:
     105                Set_Mars_as_Website();         /* set the host to mars.bwgrp.com */
    \                     ??main_6:
-   \   000089 8D ......    CALLF     Set_Mars_as_Website
+   \   000087 8D ......    CALLF     Set_Mars_as_Website
     106                break;
-   \   00008D 20 9E        JRA       L:??main_0
-    107              case 6:
+   \   00008B 20 A0        JRA       L:??main_0
+    107              case SET_KEEP_ALIVE_STATE:
     108                Set_Keep_Alive();             /* prevent a disconnect after status returned */
    \                     ??main_7:
-   \   00008F 8D ......    CALLF     Set_Keep_Alive
+   \   00008D 8D ......    CALLF     Set_Keep_Alive
     109                break;
-   \   000093 20 98        JRA       L:??main_0
-    110              case 7:
+   \   000091 20 9A        JRA       L:??main_0
+    110              case HTTPOPEN_GET_CID_STATE:
     111                HTTPOPEN_Get_CID();           /* open the port, get CID (Connection ID 0-9) */
    \                     ??main_8:
-   \   000095 8D ......    CALLF     HTTPOPEN_Get_CID
+   \   000093 8D ......    CALLF     HTTPOPEN_Get_CID
     112                break;
-   \   000099 20 92        JRA       L:??main_0
-    113              case 8:
+   \   000097 20 94        JRA       L:??main_0
+    113              case CONVERT_DEVICE_DATA_AND_SEND_STATE:
     114                Convert_update_and_Send();
    \                     ??main_9:
-   \   00009B 8D ......    CALLF     Convert_update_and_Send
+   \   000099 8D ......    CALLF     Convert_update_and_Send
     115                break;
-   \   00009F 20 8C        JRA       L:??main_0
-    116              case 9:
-    117                Get_Website_Response_and_Respond();
+   \   00009D 20 8E        JRA       L:??main_0
+    116          /*                                    reset the adaptor and provision*/ 
+    117              case RESET_NETWORK_ACCESS_STATE:
+    118                Reset_Network_Access();
    \                     ??main_10:
-   \   0000A1 8D ......    CALLF     Get_Website_Response_and_Respond
-    118                break;
-   \   0000A5 20 86        JRA       L:??main_0
-    119          /*                                    reset the adaptor and provision*/ 
-    120              case 10:
-    121                Reset_Network_Access();
+   \   00009F 8D ......    CALLF     Reset_Network_Access
+    119                break;
+   \   0000A3 20 88        JRA       L:??main_0
+    120              case SET_FACTORY_RESET_STATE:
+    121                Set_FactoryReset();
    \                     ??main_11:
-   \   0000A7 8D ......    CALLF     Reset_Network_Access
+   \   0000A5 8D ......    CALLF     Set_FactoryReset
     122                break;
-   \   0000AB 20 80        JRA       L:??main_0
-    123              case 11:
-    124                Set_FactoryReset();
+   \   0000A9 20 82        JRA       L:??main_0
+    123              case RESET_GS1011_ADAPTOR_STATE:
+    124                ResetAdaptor();
    \                     ??main_12:
-   \   0000AD 8D ......    CALLF     Set_FactoryReset
+   \   0000AB 8D ......    CALLF     ResetAdaptor
     125                break;
-   \   0000B1 CC ....      JP        L:??main_0
-    126              case 12:
-    127                ResetAdaptor();
+   \   0000AF CC ....      JP        L:??main_0
+    126              case DISACSSOCIATE_WEB_ACCESS_STATE:
+    127                DisassociateWeb();
    \                     ??main_13:
-   \   0000B4 8D ......    CALLF     ResetAdaptor
+   \   0000B2 8D ......    CALLF     DisassociateWeb
     128                break;
-   \   0000B8 CC ....      JP        L:??main_0
-    129              case 13:
-    130                DisassociateWeb();
+   \   0000B6 CC ....      JP        L:??main_0
+    129              case SET_INITIAL_IPADDRESS_STATE:
+    130                SetupSendInitialIPAddress();
    \                     ??main_14:
-   \   0000BB 8D ......    CALLF     DisassociateWeb
+   \   0000B9 8D ......    CALLF     SetupSendInitialIPAddress
     131                break;
-   \   0000BF CC ....      JP        L:??main_0
-    132              case 14:
-    133                SetupSendInitialIPAddress();
+   \   0000BD CC ....      JP        L:??main_0
+    132              case SET_WEB_MODE_TO_LIMITED_STATE:
+    133                SendWM_2();
    \                     ??main_15:
-   \   0000C2 8D ......    CALLF     SetupSendInitialIPAddress
+   \   0000C0 8D ......    CALLF     SendWM_2
     134                break;
-   \   0000C6 CC ....      JP        L:??main_0
-    135              case 15:
-    136                SendWM_2();
+   \   0000C4 CC ....      JP        L:??main_0
+    135              case INIT_WEB_ACCESS_STATE:
+    136                SendWA_Init();
    \                     ??main_16:
-   \   0000C9 8D ......    CALLF     SendWM_2
+   \   0000C7 8D ......    CALLF     SendWA_Init
     137                break;
-   \   0000CD CC ....      JP        L:??main_0
-    138              case 16:
-    139                SendWA_Init();
+   \   0000CB CC ....      JP        L:??main_0
+    138              case SET_DHCPSRVR_STATE:
+    139                setDHCPSRVR();
    \                     ??main_17:
-   \   0000D0 8D ......    CALLF     SendWA_Init
+   \   0000CE 8D ......    CALLF     setDHCPSRVR
     140                break;
-   \   0000D4 CC ....      JP        L:??main_0
-    141              case 17:
-    142                setDHCPSRVR();
+   \   0000D2 CC ....      JP        L:??main_0
+    141              case SET_PROVISIONING_STATE:
+    142                SetProvisioning();
    \                     ??main_18:
-   \   0000D7 8D ......    CALLF     setDHCPSRVR
+   \   0000D5 8D ......    CALLF     SetProvisioning
     143                break;
-   \   0000DB CC ....      JP        L:??main_0
-    144              case 18:
-    145                SetProvisioning();
-   \                     ??main_19:
-   \   0000DE 8D ......    CALLF     SetProvisioning
-    146                break;
-   \   0000E2 CC ....      JP        L:??main_0
-    147              }
-    148            }
-    149           /*infinite loop*/
-    150          }
-    151          /* Get the EEData on startup-------------------------------------------------*/
-    152          /*                                                                           */
-    153          /*---------------------------------------------------------------------------*/
+   \   0000D9 CC ....      JP        L:??main_0
+    144              }
+    145            }
+    146           /*infinite loop*/
+    147          }
+    148          /* Get the EEData on startup-------------------------------------------------*/
+    149          /*                                                                           */
+    150          /*---------------------------------------------------------------------------*/
 
    \                                 In section .far_func.text, align 1
-    154          void InitEEData(void){
-    155          }
+    151          void InitEEData(void){
+    152          }
    \                     InitEEData:
    \   000000 87           RETF
 
    \                                 In section .far_func.text, align 1
-    156          void assert_failed(uint8_t* file, uint32_t line)
-    157          {
-    158            /* User can add his own implementation to report the file name and line number,
-    159               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-    160          }
+    153          void assert_failed(uint8_t* file, uint32_t line)
+    154          {
+    155            /* User can add his own implementation to report the file name and line number,
+    156               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    157          }
    \                     assert_failed:
    \   000000 87           RETF
-    161          /*******************************************************************************
-    162          * Function Name  : RCC_Configuration
-    163          * Description    : Configures the different system clocks.
-    164          *                 16MHZ INTERNAL OSCILLATOR HSI ENABLED BY DEFAULT
-    165          * Input          : None
-    166          * Output         : None
-    167          * Return         : None
-    168          *******************************************************************************/
+    158          /*******************************************************************************
+    159          * Function Name  : RCC_Configuration
+    160          * Description    : Configures the different system clocks.
+    161          *                 16MHZ INTERNAL OSCILLATOR HSI ENABLED BY DEFAULT
+    162          * Input          : None
+    163          * Output         : None
+    164          * Return         : None
+    165          *******************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    169          void RCC_Configuration(void){
-    170            CLK->SWCR = 0x08;     /*SWIF SET TO AUTO*/
+    166          void RCC_Configuration(void){
+    167            CLK->SWCR = 0x08;     /*SWIF SET TO AUTO*/
    \                     RCC_Configuration:
    \   000000 35 08 50C5   MOV       L:0x50c5, #0x8
-    171            CLK->CKDIVR = 0;      /*SET TO FULL SPEED 16MHZ*/
+    168            CLK->CKDIVR = 0;      /*SET TO FULL SPEED 16MHZ*/
    \   000004 35 00 50C6   MOV       L:0x50c6, #0x0
-    172            CLK->PCKENR1 = 0x8D;  /*TIM1, I2C CLOCK ENABLED, UART1,3*/
+    169            CLK->PCKENR1 = 0x8D;  /*TIM1, I2C CLOCK ENABLED, UART1,3*/
    \   000008 35 8D 50C7   MOV       L:0x50c7, #0x8d
-    173            CLK->PCKENR2 = 0x08;  /*ADC CLOCK ENABLED*/
+    170            CLK->PCKENR2 = 0x08;  /*ADC CLOCK ENABLED*/
    \   00000C 35 08 50CA   MOV       L:0x50ca, #0x8
-    174            CLK->CSSR = 0x00;     /*security off*/
+    171            CLK->CSSR = 0x00;     /*security off*/
    \   000010 35 00 50C8   MOV       L:0x50c8, #0x0
-    175          }
+    172          }
    \   000014 87           RETF
-    176          /*******************************************************************************
-    177          * Function Name  : GPIO_Configuration
-    178          * Description    : Configures the different GPIO ports.
-    179          * Input          : None
-    180          * Output         : None
-    181          * Return         : None
-    182          *******************************************************************************/
+    173          /*******************************************************************************
+    174          * Function Name  : GPIO_Configuration
+    175          * Description    : Configures the different GPIO ports.
+    176          * Input          : None
+    177          * Output         : None
+    178          * Return         : None
+    179          *******************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    183          void GPIO_Configuration(void){
-    184            GPIOA->DDR = 0xDF;  /*all outputs*/
+    180          void GPIO_Configuration(void){
+    181            GPIOA->DDR = 0xDF;  /*all outputs*/
    \                     GPIO_Configuration:
    \   000000 35 DF 5002   MOV       L:0x5002, #0xdf
-    185            GPIOA->CR1 = 0x70; /*default inputs floating outputs OD*/
+    182            GPIOA->CR1 = 0x70; /*default inputs floating outputs OD*/
    \   000004 35 70 5003   MOV       L:0x5003, #0x70
-    186            GPIOA->CR2 = 0; /*default values no ints, 2mhz speed*/
+    183            GPIOA->CR2 = 0; /*default values no ints, 2mhz speed*/
    \   000008 35 00 5004   MOV       L:0x5004, #0x0
-    187            GPIOB->DDR = 0xF0;  /*4-7 outputs, 0-3 inputs*/
+    184            GPIOB->DDR = 0xF0;  /*4-7 outputs, 0-3 inputs*/
    \   00000C 35 F0 5007   MOV       L:0x5007, #0xf0
-    188            GPIOB->CR1 = 0; /*default inputs floating outputs OD*/
+    185            GPIOB->CR1 = 0; /*default inputs floating outputs OD*/
    \   000010 35 00 5008   MOV       L:0x5008, #0x0
-    189            GPIOB->CR2 = 0; /*default values no ints, 2mhz speed*/
+    186            GPIOB->CR2 = 0; /*default values no ints, 2mhz speed*/
    \   000014 35 00 5009   MOV       L:0x5009, #0x0
-    190            GPIOC->DDR = 0xFF;  /*all outputs*/
+    187            GPIOC->DDR = 0xFF;  /*all outputs*/
    \   000018 35 FF 500C   MOV       L:0x500c, #0xff
-    191            GPIOC->CR1 = 0xFF; /*outputs push pull*/
+    188            GPIOC->CR1 = 0xFF; /*outputs push pull*/
    \   00001C 35 FF 500D   MOV       L:0x500d, #0xff
-    192            GPIOC->CR2 = 0; /*default values no ints, 2mhz speed*/
+    189            GPIOC->CR2 = 0; /*default values no ints, 2mhz speed*/
    \   000020 35 00 500E   MOV       L:0x500e, #0x0
-    193            GPIOD->DDR = 0xBD;  /*all outputs except D1,D6 */
+    190            GPIOD->DDR = 0xBD;  /*all outputs except D1,D6 */
    \   000024 35 BD 5011   MOV       L:0x5011, #0xbd
-    194            GPIOD->CR1 = 0xB1; /*outputs push pull except 2,3,46 OD*/
+    191            GPIOD->CR1 = 0xB1; /*outputs push pull except 2,3,46 OD*/
    \   000028 35 B1 5012   MOV       L:0x5012, #0xb1
-    195            GPIOD->CR2 = 0; /*default values no ints, 2mhz speed*/
+    192            GPIOD->CR2 = 0; /*default values no ints, 2mhz speed*/
    \   00002C 35 00 5013   MOV       L:0x5013, #0x0
-    196            GPIOE->DDR = 0xFF;  /*all outputs */
+    193            GPIOE->DDR = 0xFF;  /*all outputs */
    \   000030 35 FF 5016   MOV       L:0x5016, #0xff
-    197            GPIOE->CR1 = 0x09; /*default inputs floating outputs OD*/
+    194            GPIOE->CR1 = 0x09; /*default inputs floating outputs OD*/
    \   000034 35 09 5017   MOV       L:0x5017, #0x9
-    198            GPIOE->CR2 = 0; /*default values no ints, 2mhz speed*/
+    195            GPIOE->CR2 = 0; /*default values no ints, 2mhz speed*/
    \   000038 35 00 5018   MOV       L:0x5018, #0x0
-    199            GPIOG->DDR = 0xFE;  /*all outputs except PG0 */
+    196            GPIOG->DDR = 0xFE;  /*all outputs except PG0 */
    \   00003C 35 FE 5020   MOV       L:0x5020, #0xfe
-    200            GPIOG->CR1 = 0xFE; /*outputs push pull input is floating */
+    197            GPIOG->CR1 = 0xFE; /*outputs push pull input is floating */
    \   000040 35 FE 5021   MOV       L:0x5021, #0xfe
-    201            GPIOG->CR2 = 0; /*default values no ints, 2mhz speed*/
+    198            GPIOG->CR2 = 0; /*default values no ints, 2mhz speed*/
    \   000044 35 00 5022   MOV       L:0x5022, #0x0
-    202          }
+    199          }
    \   000048 87           RETF
-    203          
-    204          /* TIMER1 configuration -----------------------------------------------------*/
-    205          /*USED FOR GP TIMING RUN AT 200HZ                                            */
-    206          /*---------------------------------------------------------------------------*/
+    200          
+    201          /* TIMER1 configuration -----------------------------------------------------*/
+    202          /*USED FOR GP TIMING RUN AT 200HZ                                            */
+    203          /*---------------------------------------------------------------------------*/
 
    \                                 In section .far_func.text, align 1
-    207          void TIMER1_Configuration (void){
-    208            TIM1->PSCRH = 0x00; /*prescale div by 4  (16m/4 = 4mhz)*/
+    204          void TIMER1_Configuration (void){
+    205            TIM1->PSCRH = 0x00; /*prescale div by 4  (16m/4 = 4mhz)*/
    \                     TIMER1_Configuration:
    \   000000 35 00 5260   MOV       L:0x5260, #0x0
-    209            TIM1->PSCRL = 0x03; /*prescale div by 4  (16m/4 = 4mhz)*/
+    206            TIM1->PSCRL = 0x03; /*prescale div by 4  (16m/4 = 4mhz)*/
    \   000004 35 03 5261   MOV       L:0x5261, #0x3
-    210            TIM1->ARRH = 0x4E; /*auto reload = 20000 (4m/20k = 200)*/
+    207            TIM1->ARRH = 0x4E; /*auto reload = 20000 (4m/20k = 200)*/
    \   000008 35 4E 5262   MOV       L:0x5262, #0x4e
-    211            TIM1->ARRL = 0x20;
+    208            TIM1->ARRL = 0x20;
    \   00000C 35 20 5263   MOV       L:0x5263, #0x20
-    212            TIM1->CR1 = 0x91; /*enable counter with interrupts on overflow*/
+    209            TIM1->CR1 = 0x91; /*enable counter with interrupts on overflow*/
    \   000010 35 91 5250   MOV       L:0x5250, #0x91
-    213            TIM1->IER = 0x01; /*enable interrupts*/
+    210            TIM1->IER = 0x01; /*enable interrupts*/
    \   000014 35 01 5254   MOV       L:0x5254, #0x1
-    214          }
+    211          }
    \   000018 87           RETF
-    215          
+    212          
 
    Section sizes:
 
@@ -440,14 +432,14 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\main.c
       25  TIMER1_Configuration
        4  VER
        1  assert_failed
-     229  main
+     220  main
 
  
- 350 bytes in section .far_func.text
+ 341 bytes in section .far_func.text
    5 bytes in section .near.bss
    4 bytes in section .near.data
  
- 350 bytes of CODE memory
+ 341 bytes of CODE memory
    9 bytes of DATA memory
 
 Errors: none

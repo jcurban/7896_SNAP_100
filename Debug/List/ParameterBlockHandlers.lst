@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.40.1.50106 for STM8             09/Jul/2013  07:09:50 #
+# IAR C/C++ Compiler V1.40.1.50106 for STM8             17/Jul/2013  08:20:54 #
 # Copyright 2010-2013 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\jurban\Documents\GitHub\7896_SNAP_100\Parameter #
@@ -40,7 +40,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\ParameterBlockHandlers.c
      13          #include "SNAP_Defines.h"
      14          /* external routines*/
      15          extern void FillBuffer (char bufr[],char filchr, int cntr);
-     16          extern void Int2ASCII(void);
+     16          extern void Int2ASCII(char i);
      17          /* local Routine prototypes */
      18          void Make_Website_Update_from_Processing_Buffer(void);
      19          void makePNumberHeader(char numb);
@@ -61,242 +61,299 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\ParameterBlockHandlers.c
      34          extern char Packet_Data_Buffer[];
      35          extern char Device_Processing_Buffer[];
      36          extern char Device_Receiver_Buffer[];
-     37          /*******************************************************************************
-     38          *****        Make_Website_Update_from_Processing_Buffer                     ****
-     39          *****   taskes the raw device data, and converts to ASCII for website       ****
-     40          *****  makes a pnumber header in the following format:                      ****
-     41          *****     /P1/... /P15/ then converts binary if necessary                   ****
-     42          ***** this creates a buffer with ONLY parameter data, no other headers are  ****
-     43          *****   included. ex. /P1/0000010123456789/P2/700/P3/800/P4/900.....        ****
-     44          ***** the "httpsend = bwgroup.." is a stock block when ready to send the    ****
-     45          ***** httpsend block is copied to the xmit buffer, then the parameters are added
-     46          *****                                                                       ****
-     47          *****  all data going into the Packet_Data_Buffer uses Website_Param_Pointer
-     48          *****  to put it into the buffer
-     49          *******************************************************************************/
+     37          extern char Device_Serial_number[];
+     38          /*******************************************************************************
+     39          *****        Make_Website_Update_from_Processing_Buffer                     ****
+     40          *****   taskes the raw device data, and converts to ASCII for website       ****
+     41          *****  makes a pnumber header in the following format:                      ****
+     42          *****     /P1/... /P15/ then converts binary if necessary                   ****
+     43          ***** this creates a buffer with ONLY parameter data, no other headers are  ****
+     44          *****   included. ex. /P1/0000010123456789/P2/700/P3/800/P4/900.....        ****
+     45          ***** the "httpsend = bwgroup.." is a stock block when ready to send the    ****
+     46          ***** httpsend block is copied to the xmit buffer, then the parameters are added
+     47          *****                                                                       ****
+     48          *****  all data going into the Packet_Data_Buffer uses Website_Param_Pointer
+     49          *****  to put it into the buffer
+     50          *******************************************************************************/
 
    \                                 In section .far_func.text, align 1
-     50          void Make_Website_Update_from_Processing_Buffer(void){
+     51          void Make_Website_Update_from_Processing_Buffer(void){
    \                     Make_Website_Update_from_Processing_Buffer:
    \   000000 3B ....      PUSH      S:?b8
-     51          char i;
-     52          PNumber = 1;
+     52          char i;
+     53          PNumber = 1;
    \   000003 35 01 ....   MOV       L:PNumber, #0x1
-     53          Packet_Data_Pointer = 0;
+     54          Packet_Data_Pointer = 0;
    \   000007 5F           CLRW      X
    \   000008 CF ....      LDW       L:Packet_Data_Pointer, X
-     54          for (ProcessPtr =3; ProcessPtr <=Processing_Byte_Count;ProcessPtr++){
-   \   00000B AE 0003      LDW       X, #0x3
-   \   00000E CF ....      LDW       L:ProcessPtr, X
-   \                     ??Make_Website_Update_from_Processing_Buffer_0:
-   \   000011 CE ....      LDW       X, L:Processing_Byte_Count
-   \   000014 C3 ....      CPW       X, L:ProcessPtr
-   \   000017 2E 03        JRSGE     ??lb_0
-   \   000019 CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_1
-     55          if (Device_Processing_Buffer[ProcessPtr] == 'A'){
-   \                     ??lb_0:
-   \   00001C CE ....      LDW       X, L:ProcessPtr
-   \   00001F A6 41        LD        A, #0x41
-   \   000021 D1 ....      CP        A, (L:Device_Processing_Buffer,X)
-   \   000024 26 4C        JRNE      L:??Make_Website_Update_from_Processing_Buffer_2
+     55          /* put in serial number first */
      56              makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
-   \   000026 C6 ....      LD        A, L:PNumber
-   \   000029 8D ......    CALLF     makePNumberHeader
-     57               copyPHeaderToWebsite();
-   \   00002D 8D ......    CALLF     copyPHeaderToWebsite
-     58               ProcessPtr++;
-   \   000031 CE ....      LDW       X, L:ProcessPtr
-   \   000034 5C           INCW      X
-   \   000035 CF ....      LDW       L:ProcessPtr, X
-     59              for (ProcessPtr=ProcessPtr ; ProcessPtr<BFRSIZE;ProcessPtr++){
-   \   000038 CE ....      LDW       X, L:ProcessPtr
-   \   00003B CF ....      LDW       L:ProcessPtr, X
-   \                     ??Make_Website_Update_from_Processing_Buffer_3:
-   \   00003E CE ....      LDW       X, L:ProcessPtr
-   \   000041 A3 00FF      CPW       X, #0xff
-   \   000044 2F 03        JRSLT     ??lb_1
-   \   000046 CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_4
-     60                if (Device_Processing_Buffer[ProcessPtr] == ',') break;
-   \                     ??lb_1:
-   \   000049 CE ....      LDW       X, L:ProcessPtr
-   \   00004C A6 2C        LD        A, #0x2c
-   \   00004E D1 ....      CP        A, (L:Device_Processing_Buffer,X)
-   \   000051 26 03        JRNE      L:??Make_Website_Update_from_Processing_Buffer_5
-   \   000053 CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_4
-     61                Packet_Data_Buffer[Packet_Data_Pointer] = Device_Processing_Buffer[ProcessPtr];
-   \                     ??Make_Website_Update_from_Processing_Buffer_5:
-   \   000056 CE ....      LDW       X, L:ProcessPtr
-   \   000059 D6 ....      LD        A, (L:Device_Processing_Buffer,X)
-   \   00005C CE ....      LDW       X, L:Packet_Data_Pointer
-   \   00005F D7 ....      LD        (L:Packet_Data_Buffer,X), A
-     62                Packet_Data_Pointer++;
-   \   000062 CE ....      LDW       X, L:Packet_Data_Pointer
-   \   000065 5C           INCW      X
-   \   000066 CF ....      LDW       L:Packet_Data_Pointer, X
-     63              }
-   \   000069 CE ....      LDW       X, L:ProcessPtr
-   \   00006C 5C           INCW      X
-   \   00006D CF ....      LDW       L:ProcessPtr, X
-   \   000070 20 CC        JRA       L:??Make_Website_Update_from_Processing_Buffer_3
-     64            }
-     65            else if (Device_Processing_Buffer[ProcessPtr] == 'B'){
-   \                     ??Make_Website_Update_from_Processing_Buffer_2:
-   \   000072 CE ....      LDW       X, L:ProcessPtr
-   \   000075 A6 42        LD        A, #0x42
-   \   000077 D1 ....      CP        A, (L:Device_Processing_Buffer,X)
-   \   00007A 27 03        JREQ      ??lb_2
-   \   00007C CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_6
-     66              makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
-   \                     ??lb_2:
-   \   00007F C6 ....      LD        A, L:PNumber
-   \   000082 8D ......    CALLF     makePNumberHeader
-     67              clear_tempblock();
-   \   000086 8D ......    CALLF     clear_tempblock
-     68              copyPHeaderToWebsite();
-   \   00008A 8D ......    CALLF     copyPHeaderToWebsite
-     69              ProcessPtr++;
-   \   00008E CE ....      LDW       X, L:ProcessPtr
-   \   000091 5C           INCW      X
-   \   000092 CF ....      LDW       L:ProcessPtr, X
-     70              if (Device_Processing_Buffer[ProcessPtr] == ','){
-   \   000095 CE ....      LDW       X, L:ProcessPtr
-   \   000098 A6 2C        LD        A, #0x2c
-   \   00009A D1 ....      CP        A, (L:Device_Processing_Buffer,X)
-   \   00009D 26 20        JRNE      L:??Make_Website_Update_from_Processing_Buffer_7
-     71              i = 0;
-   \   00009F 4F           CLR       A
-   \   0000A0 B7 ..        LD        S:?b8, A
-     72              tempblock[i] = Device_Processing_Buffer[ProcessPtr];
-   \   0000A2 CE ....      LDW       X, L:ProcessPtr
-   \   0000A5 D6 ....      LD        A, (L:Device_Processing_Buffer,X)
-   \   0000A8 5F           CLRW      X
-   \   0000A9 41           EXG       A, XL
-   \   0000AA B6 ..        LD        A, S:?b8
-   \   0000AC 41           EXG       A, XL
-   \   0000AD D7 ....      LD        (L:tempblock,X), A
-     73              ProcessPtr++;
-   \   0000B0 CE ....      LDW       X, L:ProcessPtr
-   \   0000B3 5C           INCW      X
-   \   0000B4 CF ....      LDW       L:ProcessPtr, X
-     74              i++;
-   \   0000B7 B6 ..        LD        A, S:?b8
-   \   0000B9 AB 01        ADD       A, #0x1
-   \   0000BB B7 ..        LD        S:?b8, A
-   \   0000BD 20 03        JRA       L:??Make_Website_Update_from_Processing_Buffer_8
-     75              }
-     76              else i = 0;
-   \                     ??Make_Website_Update_from_Processing_Buffer_7:
-   \   0000BF 4F           CLR       A
-   \   0000C0 B7 ..        LD        S:?b8, A
-     77              while (Device_Processing_Buffer[ProcessPtr]!= ',') {
-   \                     ??Make_Website_Update_from_Processing_Buffer_8:
-   \   0000C2 CE ....      LDW       X, L:ProcessPtr
-   \   0000C5 A6 2C        LD        A, #0x2c
-   \   0000C7 D1 ....      CP        A, (L:Device_Processing_Buffer,X)
-   \   0000CA 27 1D        JREQ      L:??Make_Website_Update_from_Processing_Buffer_9
-     78                tempblock[i] = Device_Processing_Buffer[ProcessPtr];
-   \   0000CC CE ....      LDW       X, L:ProcessPtr
-   \   0000CF D6 ....      LD        A, (L:Device_Processing_Buffer,X)
-   \   0000D2 5F           CLRW      X
-   \   0000D3 41           EXG       A, XL
-   \   0000D4 B6 ..        LD        A, S:?b8
-   \   0000D6 41           EXG       A, XL
-   \   0000D7 D7 ....      LD        (L:tempblock,X), A
-     79                i++;
-   \   0000DA B6 ..        LD        A, S:?b8
-   \   0000DC AB 01        ADD       A, #0x1
-   \   0000DE B7 ..        LD        S:?b8, A
-     80                ProcessPtr++;
-   \   0000E0 CE ....      LDW       X, L:ProcessPtr
-   \   0000E3 5C           INCW      X
-   \   0000E4 CF ....      LDW       L:ProcessPtr, X
-   \   0000E7 20 D9        JRA       L:??Make_Website_Update_from_Processing_Buffer_8
-     81              }
-     82                Int2ASCII();
-   \                     ??Make_Website_Update_from_Processing_Buffer_9:
-   \   0000E9 8D ......    CALLF     Int2ASCII
-     83              for (i=0;i<=7;i++){
-   \   0000ED 4F           CLR       A
-   \   0000EE B7 ..        LD        S:?b8, A
-   \                     ??Make_Website_Update_from_Processing_Buffer_10:
-   \   0000F0 B6 ..        LD        A, S:?b8
-   \   0000F2 A1 08        CP        A, #0x8
-   \   0000F4 24 52        JRNC      L:??Make_Website_Update_from_Processing_Buffer_4
-     84                if (B2ASCBuf[i]!=' '){
-   \   0000F6 5F           CLRW      X
-   \   0000F7 41           EXG       A, XL
-   \   0000F8 B6 ..        LD        A, S:?b8
-   \   0000FA 41           EXG       A, XL
-   \   0000FB A6 20        LD        A, #0x20
-   \   0000FD D1 ....      CP        A, (L:B2ASCBuf,X)
-   \   000100 27 17        JREQ      L:??Make_Website_Update_from_Processing_Buffer_11
-     85                 Packet_Data_Buffer[Packet_Data_Pointer] = B2ASCBuf[i];
-   \   000102 5F           CLRW      X
-   \   000103 41           EXG       A, XL
-   \   000104 B6 ..        LD        A, S:?b8
-   \   000106 41           EXG       A, XL
-   \   000107 D6 ....      LD        A, (L:B2ASCBuf,X)
-   \   00010A CE ....      LDW       X, L:Packet_Data_Pointer
-   \   00010D D7 ....      LD        (L:Packet_Data_Buffer,X), A
-     86                 Packet_Data_Pointer++;
-   \   000110 CE ....      LDW       X, L:Packet_Data_Pointer
-   \   000113 5C           INCW      X
-   \   000114 CF ....      LDW       L:Packet_Data_Pointer, X
-   \   000117 20 0D        JRA       L:??Make_Website_Update_from_Processing_Buffer_12
-     87                }
-     88                else if (i==7) Packet_Data_Buffer[Packet_Data_Pointer] = 0;
-   \                     ??Make_Website_Update_from_Processing_Buffer_11:
-   \   000119 B6 ..        LD        A, S:?b8
-   \   00011B A1 07        CP        A, #0x7
-   \   00011D 26 07        JRNE      L:??Make_Website_Update_from_Processing_Buffer_12
-   \   00011F CE ....      LDW       X, L:Packet_Data_Pointer
-   \   000122 4F           CLR       A
-   \   000123 D7 ....      LD        (L:Packet_Data_Buffer,X), A
-     89                }
-   \                     ??Make_Website_Update_from_Processing_Buffer_12:
-   \   000126 B6 ..        LD        A, S:?b8
-   \   000128 AB 01        ADD       A, #0x1
-   \   00012A B7 ..        LD        S:?b8, A
-   \   00012C 20 C2        JRA       L:??Make_Website_Update_from_Processing_Buffer_10
-     90               }
-     91              else if (Device_Processing_Buffer[ProcessPtr] == 0x00){
-   \                     ??Make_Website_Update_from_Processing_Buffer_6:
-   \   00012E CE ....      LDW       X, L:ProcessPtr
-   \   000131 724D ....    TNZ       (L:Device_Processing_Buffer,X)
-   \   000135 26 11        JRNE      L:??Make_Website_Update_from_Processing_Buffer_4
-     92                Packet_Data_Buffer[Packet_Data_Pointer] = CR;
-   \   000137 CE ....      LDW       X, L:Packet_Data_Pointer
-   \   00013A A6 0D        LD        A, #0xd
-   \   00013C D7 ....      LD        (L:Packet_Data_Buffer,X), A
-     93                PacketCount = Packet_Data_Pointer;
-   \   00013F CE ....      LDW       X, L:Packet_Data_Pointer
-   \   000142 9F           LD        A, XL
-   \   000143 C7 ....      LD        L:PacketCount, A
-     94                break;
-   \   000146 20 0A        JRA       L:??Make_Website_Update_from_Processing_Buffer_1
-     95              }
-     96            }  
-   \                     ??Make_Website_Update_from_Processing_Buffer_4:
-   \   000148 CE ....      LDW       X, L:ProcessPtr
-   \   00014B 5C           INCW      X
-   \   00014C CF ....      LDW       L:ProcessPtr, X
-   \   00014F CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_0
-     97            FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE);
+   \   00000B C6 ....      LD        A, L:PNumber
+   \   00000E 8D ......    CALLF     makePNumberHeader
+     57              copyPHeaderToWebsite();
+   \   000012 8D ......    CALLF     copyPHeaderToWebsite
+     58              for (i = 0;i<=15;i++){
+   \   000016 4F           CLR       A
+   \   000017 B7 ..        LD        S:?b8, A
+   \                     ??Make_Website_Update_from_Processing_Buffer_0:
+   \   000019 B6 ..        LD        A, S:?b8
+   \   00001B A1 10        CP        A, #0x10
+   \   00001D 24 1D        JRNC      L:??Make_Website_Update_from_Processing_Buffer_1
+     59                Packet_Data_Buffer[Packet_Data_Pointer] = Device_Serial_number[i];
+   \   00001F 5F           CLRW      X
+   \   000020 41           EXG       A, XL
+   \   000021 B6 ..        LD        A, S:?b8
+   \   000023 41           EXG       A, XL
+   \   000024 D6 ....      LD        A, (L:Device_Serial_number,X)
+   \   000027 CE ....      LDW       X, L:Packet_Data_Pointer
+   \   00002A D7 ....      LD        (L:Packet_Data_Buffer,X), A
+     60                Packet_Data_Pointer++; }
+   \   00002D CE ....      LDW       X, L:Packet_Data_Pointer
+   \   000030 5C           INCW      X
+   \   000031 CF ....      LDW       L:Packet_Data_Pointer, X
+   \   000034 B6 ..        LD        A, S:?b8
+   \   000036 AB 01        ADD       A, #0x1
+   \   000038 B7 ..        LD        S:?b8, A
+   \   00003A 20 DD        JRA       L:??Make_Website_Update_from_Processing_Buffer_0
+     61          
+     62          /* position the process pointer*/
+     63              if (Device_Processing_Buffer[3] == 'A')
    \                     ??Make_Website_Update_from_Processing_Buffer_1:
-   \   000152 90AE 00FF    LDW       Y, #0xff
-   \   000156 4F           CLR       A
-   \   000157 AE ....      LDW       X, #Device_Receiver_Buffer
-   \   00015A 8D ......    CALLF     FillBuffer
-     98          
-     99            } 
-   \   00015E 32 ....      POP       S:?b8
-   \   000161 87           RETF
-    100          
+   \   00003C C6 ....      LD        A, L:Device_Processing_Buffer + 3
+   \   00003F A1 41        CP        A, #0x41
+   \   000041 26 06        JRNE      L:??Make_Website_Update_from_Processing_Buffer_2
+     64                i= 21;
+   \   000043 A6 15        LD        A, #0x15
+   \   000045 B7 ..        LD        S:?b8, A
+   \   000047 20 0B        JRA       L:??Make_Website_Update_from_Processing_Buffer_3
+     65              
+     66            else if (Device_Processing_Buffer[3] == 'B')
+   \                     ??Make_Website_Update_from_Processing_Buffer_2:
+   \   000049 C6 ....      LD        A, L:Device_Processing_Buffer + 3
+   \   00004C A1 42        CP        A, #0x42
+   \   00004E 26 04        JRNE      L:??Make_Website_Update_from_Processing_Buffer_3
+     67              i = 12;
+   \   000050 A6 0C        LD        A, #0xc
+   \   000052 B7 ..        LD        S:?b8, A
+     68           
+     69          for (ProcessPtr =i; ProcessPtr <=Processing_Byte_Count;ProcessPtr++){
+   \                     ??Make_Website_Update_from_Processing_Buffer_3:
+   \   000054 5F           CLRW      X
+   \   000055 41           EXG       A, XL
+   \   000056 B6 ..        LD        A, S:?b8
+   \   000058 41           EXG       A, XL
+   \   000059 CF ....      LDW       L:ProcessPtr, X
+   \                     ??Make_Website_Update_from_Processing_Buffer_4:
+   \   00005C CE ....      LDW       X, L:Processing_Byte_Count
+   \   00005F C3 ....      CPW       X, L:ProcessPtr
+   \   000062 2E 03        JRSGE     ??lb_0
+   \   000064 CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_5
+     70          
+     71           if (Device_Processing_Buffer[ProcessPtr] == 'A'){ /* copy an ASCII field*/
+   \                     ??lb_0:
+   \   000067 CE ....      LDW       X, L:ProcessPtr
+   \   00006A A6 41        LD        A, #0x41
+   \   00006C D1 ....      CP        A, (L:Device_Processing_Buffer,X)
+   \   00006F 26 4C        JRNE      L:??Make_Website_Update_from_Processing_Buffer_6
+     72              makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
+   \   000071 C6 ....      LD        A, L:PNumber
+   \   000074 8D ......    CALLF     makePNumberHeader
+     73               copyPHeaderToWebsite();
+   \   000078 8D ......    CALLF     copyPHeaderToWebsite
+     74               ProcessPtr++;
+   \   00007C CE ....      LDW       X, L:ProcessPtr
+   \   00007F 5C           INCW      X
+   \   000080 CF ....      LDW       L:ProcessPtr, X
+     75              for (ProcessPtr=ProcessPtr ; ProcessPtr<BFRSIZE;ProcessPtr++){
+   \   000083 CE ....      LDW       X, L:ProcessPtr
+   \   000086 CF ....      LDW       L:ProcessPtr, X
+   \                     ??Make_Website_Update_from_Processing_Buffer_7:
+   \   000089 CE ....      LDW       X, L:ProcessPtr
+   \   00008C A3 00FF      CPW       X, #0xff
+   \   00008F 2F 03        JRSLT     ??lb_1
+   \   000091 CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_8
+     76                if (Device_Processing_Buffer[ProcessPtr] == ',') break;
+   \                     ??lb_1:
+   \   000094 CE ....      LDW       X, L:ProcessPtr
+   \   000097 A6 2C        LD        A, #0x2c
+   \   000099 D1 ....      CP        A, (L:Device_Processing_Buffer,X)
+   \   00009C 26 03        JRNE      L:??Make_Website_Update_from_Processing_Buffer_9
+   \   00009E CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_8
+     77                Packet_Data_Buffer[Packet_Data_Pointer] = Device_Processing_Buffer[ProcessPtr];
+   \                     ??Make_Website_Update_from_Processing_Buffer_9:
+   \   0000A1 CE ....      LDW       X, L:ProcessPtr
+   \   0000A4 D6 ....      LD        A, (L:Device_Processing_Buffer,X)
+   \   0000A7 CE ....      LDW       X, L:Packet_Data_Pointer
+   \   0000AA D7 ....      LD        (L:Packet_Data_Buffer,X), A
+     78                Packet_Data_Pointer++;
+   \   0000AD CE ....      LDW       X, L:Packet_Data_Pointer
+   \   0000B0 5C           INCW      X
+   \   0000B1 CF ....      LDW       L:Packet_Data_Pointer, X
+     79              }
+   \   0000B4 CE ....      LDW       X, L:ProcessPtr
+   \   0000B7 5C           INCW      X
+   \   0000B8 CF ....      LDW       L:ProcessPtr, X
+   \   0000BB 20 CC        JRA       L:??Make_Website_Update_from_Processing_Buffer_7
+     80            }
+     81            else if (Device_Processing_Buffer[ProcessPtr] == 'B'){ /* convert-copy an binary field*/
+   \                     ??Make_Website_Update_from_Processing_Buffer_6:
+   \   0000BD CE ....      LDW       X, L:ProcessPtr
+   \   0000C0 A6 42        LD        A, #0x42
+   \   0000C2 D1 ....      CP        A, (L:Device_Processing_Buffer,X)
+   \   0000C5 27 03        JREQ      ??lb_2
+   \   0000C7 CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_10
+     82              makePNumberHeader(PNumber); /* make /Pxx/ header for data*/
+   \                     ??lb_2:
+   \   0000CA C6 ....      LD        A, L:PNumber
+   \   0000CD 8D ......    CALLF     makePNumberHeader
+     83              clear_tempblock();
+   \   0000D1 8D ......    CALLF     clear_tempblock
+     84              copyPHeaderToWebsite();
+   \   0000D5 8D ......    CALLF     copyPHeaderToWebsite
+     85              ProcessPtr++;
+   \   0000D9 CE ....      LDW       X, L:ProcessPtr
+   \   0000DC 5C           INCW      X
+   \   0000DD CF ....      LDW       L:ProcessPtr, X
+     86              if (Device_Processing_Buffer[ProcessPtr] == ','){
+   \   0000E0 CE ....      LDW       X, L:ProcessPtr
+   \   0000E3 A6 2C        LD        A, #0x2c
+   \   0000E5 D1 ....      CP        A, (L:Device_Processing_Buffer,X)
+   \   0000E8 26 20        JRNE      L:??Make_Website_Update_from_Processing_Buffer_11
+     87              i = 0;
+   \   0000EA 4F           CLR       A
+   \   0000EB B7 ..        LD        S:?b8, A
+     88              tempblock[i] = Device_Processing_Buffer[ProcessPtr];
+   \   0000ED CE ....      LDW       X, L:ProcessPtr
+   \   0000F0 D6 ....      LD        A, (L:Device_Processing_Buffer,X)
+   \   0000F3 5F           CLRW      X
+   \   0000F4 41           EXG       A, XL
+   \   0000F5 B6 ..        LD        A, S:?b8
+   \   0000F7 41           EXG       A, XL
+   \   0000F8 D7 ....      LD        (L:tempblock,X), A
+     89              ProcessPtr++;
+   \   0000FB CE ....      LDW       X, L:ProcessPtr
+   \   0000FE 5C           INCW      X
+   \   0000FF CF ....      LDW       L:ProcessPtr, X
+     90              i++;
+   \   000102 B6 ..        LD        A, S:?b8
+   \   000104 AB 01        ADD       A, #0x1
+   \   000106 B7 ..        LD        S:?b8, A
+   \   000108 20 03        JRA       L:??Make_Website_Update_from_Processing_Buffer_12
+     91              }
+     92              else i=0;
+   \                     ??Make_Website_Update_from_Processing_Buffer_11:
+   \   00010A 4F           CLR       A
+   \   00010B B7 ..        LD        S:?b8, A
+     93              while (Device_Processing_Buffer[ProcessPtr]!= ',') {
+   \                     ??Make_Website_Update_from_Processing_Buffer_12:
+   \   00010D CE ....      LDW       X, L:ProcessPtr
+   \   000110 A6 2C        LD        A, #0x2c
+   \   000112 D1 ....      CP        A, (L:Device_Processing_Buffer,X)
+   \   000115 27 1D        JREQ      L:??Make_Website_Update_from_Processing_Buffer_13
+     94                tempblock[i] = Device_Processing_Buffer[ProcessPtr];
+   \   000117 CE ....      LDW       X, L:ProcessPtr
+   \   00011A D6 ....      LD        A, (L:Device_Processing_Buffer,X)
+   \   00011D 5F           CLRW      X
+   \   00011E 41           EXG       A, XL
+   \   00011F B6 ..        LD        A, S:?b8
+   \   000121 41           EXG       A, XL
+   \   000122 D7 ....      LD        (L:tempblock,X), A
+     95                ProcessPtr++;
+   \   000125 CE ....      LDW       X, L:ProcessPtr
+   \   000128 5C           INCW      X
+   \   000129 CF ....      LDW       L:ProcessPtr, X
+     96                i++;
+   \   00012C B6 ..        LD        A, S:?b8
+   \   00012E AB 01        ADD       A, #0x1
+   \   000130 B7 ..        LD        S:?b8, A
+   \   000132 20 D9        JRA       L:??Make_Website_Update_from_Processing_Buffer_12
+     97               }
+     98                Int2ASCII(1);
+   \                     ??Make_Website_Update_from_Processing_Buffer_13:
+   \   000134 A6 01        LD        A, #0x1
+   \   000136 8D ......    CALLF     Int2ASCII
+     99              for (i=0;i<=9;i++){
+   \   00013A 4F           CLR       A
+   \   00013B B7 ..        LD        S:?b8, A
+   \                     ??Make_Website_Update_from_Processing_Buffer_14:
+   \   00013D B6 ..        LD        A, S:?b8
+   \   00013F A1 0A        CP        A, #0xa
+   \   000141 24 52        JRNC      L:??Make_Website_Update_from_Processing_Buffer_8
+    100                if (B2ASCBuf[i]!=' '){
+   \   000143 5F           CLRW      X
+   \   000144 41           EXG       A, XL
+   \   000145 B6 ..        LD        A, S:?b8
+   \   000147 41           EXG       A, XL
+   \   000148 A6 20        LD        A, #0x20
+   \   00014A D1 ....      CP        A, (L:B2ASCBuf,X)
+   \   00014D 27 17        JREQ      L:??Make_Website_Update_from_Processing_Buffer_15
+    101                 Packet_Data_Buffer[Packet_Data_Pointer] = B2ASCBuf[i];
+   \   00014F 5F           CLRW      X
+   \   000150 41           EXG       A, XL
+   \   000151 B6 ..        LD        A, S:?b8
+   \   000153 41           EXG       A, XL
+   \   000154 D6 ....      LD        A, (L:B2ASCBuf,X)
+   \   000157 CE ....      LDW       X, L:Packet_Data_Pointer
+   \   00015A D7 ....      LD        (L:Packet_Data_Buffer,X), A
+    102                 Packet_Data_Pointer++;
+   \   00015D CE ....      LDW       X, L:Packet_Data_Pointer
+   \   000160 5C           INCW      X
+   \   000161 CF ....      LDW       L:Packet_Data_Pointer, X
+   \   000164 20 0D        JRA       L:??Make_Website_Update_from_Processing_Buffer_16
+    103                }
+    104                else if (i==9) Packet_Data_Buffer[Packet_Data_Pointer] = 0;
+   \                     ??Make_Website_Update_from_Processing_Buffer_15:
+   \   000166 B6 ..        LD        A, S:?b8
+   \   000168 A1 09        CP        A, #0x9
+   \   00016A 26 07        JRNE      L:??Make_Website_Update_from_Processing_Buffer_16
+   \   00016C CE ....      LDW       X, L:Packet_Data_Pointer
+   \   00016F 4F           CLR       A
+   \   000170 D7 ....      LD        (L:Packet_Data_Buffer,X), A
+    105                }
+   \                     ??Make_Website_Update_from_Processing_Buffer_16:
+   \   000173 B6 ..        LD        A, S:?b8
+   \   000175 AB 01        ADD       A, #0x1
+   \   000177 B7 ..        LD        S:?b8, A
+   \   000179 20 C2        JRA       L:??Make_Website_Update_from_Processing_Buffer_14
+    106               }
+    107              else if (Device_Processing_Buffer[ProcessPtr] == 0x00){
+   \                     ??Make_Website_Update_from_Processing_Buffer_10:
+   \   00017B CE ....      LDW       X, L:ProcessPtr
+   \   00017E 724D ....    TNZ       (L:Device_Processing_Buffer,X)
+   \   000182 26 11        JRNE      L:??Make_Website_Update_from_Processing_Buffer_8
+    108                Packet_Data_Buffer[Packet_Data_Pointer] = CR;
+   \   000184 CE ....      LDW       X, L:Packet_Data_Pointer
+   \   000187 A6 0D        LD        A, #0xd
+   \   000189 D7 ....      LD        (L:Packet_Data_Buffer,X), A
+    109                PacketCount = Packet_Data_Pointer;
+   \   00018C CE ....      LDW       X, L:Packet_Data_Pointer
+   \   00018F 9F           LD        A, XL
+   \   000190 C7 ....      LD        L:PacketCount, A
+    110                break;
+   \   000193 20 0A        JRA       L:??Make_Website_Update_from_Processing_Buffer_5
+    111              }
+    112            }  
+   \                     ??Make_Website_Update_from_Processing_Buffer_8:
+   \   000195 CE ....      LDW       X, L:ProcessPtr
+   \   000198 5C           INCW      X
+   \   000199 CF ....      LDW       L:ProcessPtr, X
+   \   00019C CC ....      JP        L:??Make_Website_Update_from_Processing_Buffer_4
+    113            FillBuffer (Device_Receiver_Buffer,0x00, BFRSIZE_HALF);
+   \                     ??Make_Website_Update_from_Processing_Buffer_5:
+   \   00019F 90AE 0080    LDW       Y, #0x80
+   \   0001A3 4F           CLR       A
+   \   0001A4 AE ....      LDW       X, #Device_Receiver_Buffer
+   \   0001A7 8D ......    CALLF     FillBuffer
+    114          
+    115            } 
+   \   0001AB 32 ....      POP       S:?b8
+   \   0001AE 87           RETF
+    116          /* clear the tempblock*/
 
    \                                 In section .far_func.text, align 1
-    101          void clear_tempblock(void){
-    102           char i;
-    103           for (i=0; i <= 4; i++)
+    117          void clear_tempblock(void){
+    118           char i;
+    119           for (i=0; i <= 4; i++)
    \                     clear_tempblock:
    \   000000 4F           CLR       A
    \   000001 B7 ..        LD        S:?b0, A
@@ -304,7 +361,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\ParameterBlockHandlers.c
    \   000003 B6 ..        LD        A, S:?b0
    \   000005 A1 05        CP        A, #0x5
    \   000007 24 11        JRNC      L:??clear_tempblock_1
-    104             tempblock[i]=0x00;
+    120             tempblock[i]=0x00;
    \   000009 5F           CLRW      X
    \   00000A 41           EXG       A, XL
    \   00000B B6 ..        LD        A, S:?b0
@@ -315,14 +372,15 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\ParameterBlockHandlers.c
    \   000014 AB 01        ADD       A, #0x1
    \   000016 B7 ..        LD        S:?b0, A
    \   000018 20 E9        JRA       L:??clear_tempblock_0
-    105          }
+    121          }
    \                     ??clear_tempblock_1:
    \   00001A 87           RETF
+    122          /* Clear_PHeaderBuffer*/
 
    \                                 In section .far_func.text, align 1
-    106          void Clear_PHeaderBuffer(void){
-    107          char i;
-    108            for (i=0; i<=6;i++)
+    123          void Clear_PHeaderBuffer(void){
+    124          char i;
+    125            for (i=0; i<=6;i++)
    \                     Clear_PHeaderBuffer:
    \   000000 4F           CLR       A
    \   000001 B7 ..        LD        S:?b0, A
@@ -330,7 +388,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\ParameterBlockHandlers.c
    \   000003 B6 ..        LD        A, S:?b0
    \   000005 A1 07        CP        A, #0x7
    \   000007 24 11        JRNC      L:??Clear_PHeaderBuffer_1
-    109              PHeaderBuffer[i] = 0;
+    126              PHeaderBuffer[i] = 0;
    \   000009 5F           CLRW      X
    \   00000A 41           EXG       A, XL
    \   00000B B6 ..        LD        A, S:?b0
@@ -341,17 +399,17 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\ParameterBlockHandlers.c
    \   000014 AB 01        ADD       A, #0x1
    \   000016 B7 ..        LD        S:?b0, A
    \   000018 20 E9        JRA       L:??Clear_PHeaderBuffer_0
-    110          }
+    127          }
    \                     ??Clear_PHeaderBuffer_1:
    \   00001A 87           RETF
-    111          
+    128          /* copyPHeaderToWebsite*/
 
    \                                 In section .far_func.text, align 1
-    112          void copyPHeaderToWebsite(void){
-    113          char pntr=0;
+    129          void copyPHeaderToWebsite(void){
+    130          char pntr=0;
    \                     copyPHeaderToWebsite:
    \   000000 3F ..        CLR       S:?b0
-    114          while (PHeaderBuffer[pntr] != 0x00){
+    131          while (PHeaderBuffer[pntr] != 0x00){
    \                     ??copyPHeaderToWebsite_0:
    \   000002 5F           CLRW      X
    \   000003 41           EXG       A, XL
@@ -359,7 +417,7 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\ParameterBlockHandlers.c
    \   000006 41           EXG       A, XL
    \   000007 724D ....    TNZ       (L:PHeaderBuffer,X)
    \   00000B 27 1D        JREQ      L:??copyPHeaderToWebsite_1
-    115            Packet_Data_Buffer[Packet_Data_Pointer] = PHeaderBuffer[pntr];
+    132            Packet_Data_Buffer[Packet_Data_Pointer] = PHeaderBuffer[pntr];
    \   00000D 5F           CLRW      X
    \   00000E 41           EXG       A, XL
    \   00000F B6 ..        LD        A, S:?b0
@@ -367,87 +425,88 @@ C:\Users\jurban\Documents\GitHub\7896_SNAP_100\ParameterBlockHandlers.c
    \   000012 D6 ....      LD        A, (L:PHeaderBuffer,X)
    \   000015 CE ....      LDW       X, L:Packet_Data_Pointer
    \   000018 D7 ....      LD        (L:Packet_Data_Buffer,X), A
-    116            Packet_Data_Pointer++;
+    133            Packet_Data_Pointer++;
    \   00001B CE ....      LDW       X, L:Packet_Data_Pointer
    \   00001E 5C           INCW      X
    \   00001F CF ....      LDW       L:Packet_Data_Pointer, X
-    117            pntr++;
+    134            pntr++;
    \   000022 B6 ..        LD        A, S:?b0
    \   000024 AB 01        ADD       A, #0x1
    \   000026 B7 ..        LD        S:?b0, A
    \   000028 20 D8        JRA       L:??copyPHeaderToWebsite_0
-    118          }
-    119          }
+    135            }
+    136          }
    \                     ??copyPHeaderToWebsite_1:
    \   00002A 87           RETF
-    120          /*****************************************************************************
-    121           *****             makePNumberHeader                                      ****
-    122           ****************************************************************************/
+    137          /*****************************************************************************
+    138           *****             makePNumberHeader                                      ****
+    139           ****************************************************************************/
 
    \                                 In section .far_func.text, align 1
-    123          void makePNumberHeader(char numb){
+    140          void makePNumberHeader(char numb){
    \                     makePNumberHeader:
    \   000000 3B ....      PUSH      S:?b8
    \   000003 B7 ..        LD        S:?b8, A
-    124            Clear_PHeaderBuffer();
+    141            Clear_PHeaderBuffer();
    \   000005 8D ......    CALLF     Clear_PHeaderBuffer
-    125             clear_tempblock();
+    142             clear_tempblock();
    \   000009 8D ......    CALLF     clear_tempblock
-    126            tempblock[0] = numb;
+    143            tempblock[0] = numb;
    \   00000D B6 ..        LD        A, S:?b8
    \   00000F C7 ....      LD        L:tempblock, A
-    127            Int2ASCII();
-   \   000012 8D ......    CALLF     Int2ASCII
-    128            PHeaderBuffer[0] = '/';
-   \   000016 35 2F ....   MOV       L:PHeaderBuffer, #0x2f
-    129            PHeaderBuffer[1] = 'p';
-   \   00001A 35 70 ....   MOV       L:PHeaderBuffer + 1, #0x70
-    130              if (B2ASCBuf[6]!= ' '){
-   \   00001E C6 ....      LD        A, L:B2ASCBuf + 6
-   \   000021 A1 20        CP        A, #0x20
-   \   000023 27 12        JREQ      L:??makePNumberHeader_0
-    131                PHeaderBuffer[2] = B2ASCBuf[6];
-   \   000025 C6 ....      LD        A, L:B2ASCBuf + 6
-   \   000028 C7 ....      LD        L:PHeaderBuffer + 2, A
-    132                PHeaderBuffer[3] = B2ASCBuf[7];
-   \   00002B C6 ....      LD        A, L:B2ASCBuf + 7
-   \   00002E C7 ....      LD        L:PHeaderBuffer + 3, A
-    133                PHeaderBuffer[4] = '/';
-   \   000031 35 2F ....   MOV       L:PHeaderBuffer + 4, #0x2f
-   \   000035 20 0A        JRA       L:??makePNumberHeader_1
-    134               }
-    135               else{
-    136                PHeaderBuffer[2] = B2ASCBuf[7];
+    144            Int2ASCII(1);
+   \   000012 A6 01        LD        A, #0x1
+   \   000014 8D ......    CALLF     Int2ASCII
+    145            PHeaderBuffer[0] = '/';
+   \   000018 35 2F ....   MOV       L:PHeaderBuffer, #0x2f
+    146            PHeaderBuffer[1] = 'p';
+   \   00001C 35 70 ....   MOV       L:PHeaderBuffer + 1, #0x70
+    147              if (B2ASCBuf[8]!= ' '){
+   \   000020 C6 ....      LD        A, L:B2ASCBuf + 8
+   \   000023 A1 20        CP        A, #0x20
+   \   000025 27 12        JREQ      L:??makePNumberHeader_0
+    148                PHeaderBuffer[2] = B2ASCBuf[8];
+   \   000027 C6 ....      LD        A, L:B2ASCBuf + 8
+   \   00002A C7 ....      LD        L:PHeaderBuffer + 2, A
+    149                PHeaderBuffer[3] = B2ASCBuf[9];
+   \   00002D C6 ....      LD        A, L:B2ASCBuf + 9
+   \   000030 C7 ....      LD        L:PHeaderBuffer + 3, A
+    150                PHeaderBuffer[4] = '/';
+   \   000033 35 2F ....   MOV       L:PHeaderBuffer + 4, #0x2f
+   \   000037 20 0A        JRA       L:??makePNumberHeader_1
+    151               }
+    152               else{
+    153                PHeaderBuffer[2] = B2ASCBuf[9];
    \                     ??makePNumberHeader_0:
-   \   000037 C6 ....      LD        A, L:B2ASCBuf + 7
-   \   00003A C7 ....      LD        L:PHeaderBuffer + 2, A
-    137                PHeaderBuffer[3] = '/';
-   \   00003D 35 2F ....   MOV       L:PHeaderBuffer + 3, #0x2f
-    138               }
-    139                PNumber++;
+   \   000039 C6 ....      LD        A, L:B2ASCBuf + 9
+   \   00003C C7 ....      LD        L:PHeaderBuffer + 2, A
+    154                PHeaderBuffer[3] = '/';
+   \   00003F 35 2F ....   MOV       L:PHeaderBuffer + 3, #0x2f
+    155               }
+    156                PNumber++;
    \                     ??makePNumberHeader_1:
-   \   000041 C6 ....      LD        A, L:PNumber
-   \   000044 AB 01        ADD       A, #0x1
-   \   000046 C7 ....      LD        L:PNumber, A
-    140          }
-   \   000049 32 ....      POP       S:?b8
-   \   00004C 87           RETF
-    141          
+   \   000043 C6 ....      LD        A, L:PNumber
+   \   000046 AB 01        ADD       A, #0x1
+   \   000048 C7 ....      LD        L:PNumber, A
+    157          }
+   \   00004B 32 ....      POP       S:?b8
+   \   00004E 87           RETF
+    158          
 
    Section sizes:
 
    Bytes  Function/Label
    -----  --------------
       27  Clear_PHeaderBuffer
-     354  Make_Website_Update_from_Processing_Buffer
+     431  Make_Website_Update_from_Processing_Buffer
       27  clear_tempblock
       43  copyPHeaderToWebsite
-      77  makePNumberHeader
+      79  makePNumberHeader
 
  
- 528 bytes in section .far_func.text
+ 607 bytes in section .far_func.text
  
- 528 bytes of CODE memory
+ 607 bytes of CODE memory
 
 Errors: none
 Warnings: none

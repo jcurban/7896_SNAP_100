@@ -27,7 +27,7 @@ extern int Add_Char_to_Buffer (char *bufr, int ptr, char chr);
 extern int Add_Integer_to_Buffer (char *bufr,int ptr, int vint);
 extern int Add_String_to_Buffer (char *bufr, int ptr, char *srce);
 extern void CopyBufferGS1011 (char dest[], char srce[]);
-extern void CopySerialNumber(void);
+extern void Process_Serial_Number(void);
 extern void Make_Website_Update_from_Processing_Buffer(void);
 extern void Add_String_to_GS1011_Buffer ( char *srce);
 extern void Send_ACK_Message(void);
@@ -35,13 +35,13 @@ extern void Send_ACK_Message(void);
 extern char Device_Rcvr_EOM_Timer;
 extern char Device_Rcvr_Timeout;
 extern char SNAP_State;
-extern char checksum_Okay;
 extern char CID_Value;
 extern char Device_State;
+extern char Device_DLE_Flag;
+extern char Device_Rcvr_Count;
 extern char checksum_this;
 extern char Processing_Byte_Count;
 extern u8 Device_RX_InPtr;
-extern u8 Device_RX_OutPtr;
 extern int Device_Rcvr_Char_Count;
 extern u8 Device_Rcvr_Complete_flag;
 extern char Device_Update_Ready_for_Website_flag;
@@ -77,6 +77,7 @@ extern char Device_Serial_number[];
 void InitDeviceUART(void);
 void Get_Device_Char(void);
 void Send_Next_Char_to_Device(void);
+
 /*void Make_Send_SNAP_Ready_Message(void);*/
 void InitializeDeviceBuffer(void);
 void Handle_Device_State(void);
@@ -108,6 +109,7 @@ void Send_ConfiguringAdaptor_Message(void);
 void Send_Resend_Message(void);
 void Add_Char_to_GS1011_Buffer (char chr);
 void copyStockSerialNumber(void);
+void saveDeviceCharacter(void);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****       device State machine                                        *****/
@@ -127,8 +129,8 @@ void Send_Powered(void){
 /* State 1 - Wait_For_Update                                                 */
 /*      can't do much without the update data                                */
 /*****************************************************************************/
-#define COMMAND_BYTE 0x03
-#define STATUS_COMMAND_BYTE 0x04
+#define COMMAND_BYTE 0x02
+#define STATUS_COMMAND_BYTE 0x03
 void Wait_For_Update(void){
   if (Device_Rcvr_Complete_flag != 0){
       Check_Device_Input();
@@ -156,11 +158,12 @@ void Check_Device_Input (void){
 /*      convert the update data to ASCII for the website                     */
 /*****************************************************************************/
 void Process_Received_Update(void){
+ char checksum_Okay;
   Process_Receiver_Device_Message();
   checksum_Okay = Check_Checksum_Device_Buffer();
   if (checksum_Okay == 0x55){
-    CopySerialNumber();
-    copyStockSerialNumber();   /* THIS IS ONLY SO WE DON'T INTERFERE WITH THE SHOW !!!!*/
+    Process_Serial_Number();
+//    copyStockSerialNumber();   /* THIS IS ONLY SO WE DON'T INTERFERE WITH THE SHOW !!!!*/
     Make_Website_Update_from_Processing_Buffer();
     InitializeDeviceBuffer();
     SNAP_State = GET_GS1011_NETWORK_STATE;
@@ -305,7 +308,7 @@ char Check_Checksum_Device_Buffer(){
   checksum = 0;
   cntr = Device_Processing_Buffer[0];
   cntr = (cntr + Device_Processing_Buffer[1] * 256);  /* number of bytes to checksum */
-                                      /* after stx and to etx */
+  cntr++;                                    /* after stx and to etx */
  if (cntr < BFRSIZE){
   for (gtchr = 0; gtchr <= cntr; gtchr++){
       checksum += Device_Processing_Buffer[gtchr];  /*ADDIN THE BYTES OF THE PAYLOAD TO THE CHECKSUM*/
@@ -324,7 +327,7 @@ char Check_Checksum_Device_Buffer(){
 /*****************************************************************************/
 void Process_Xmit_Device_Message(char bufr[], char bufr2[]){
 int bfrptr;
- u16 xmtptr;
+ char xmtptr;
  int cntr;
  u8 i;
  for (bfrptr = 0; bfrptr <3; bfrptr++){      /* PUT SOH, PACKET COUNT INTO*/
@@ -360,18 +363,30 @@ bufr2[xmtptr] =  ETX;
 void Get_Device_Char(void){
   (void)UART3->SR;
   Device_Rcvr_char = ((u8)UART3->DR);
-
-  Device_Receiver_Buffer[Device_RX_InPtr] = Device_Rcvr_char;
-  if (Device_Rcvr_char == 0x03){
+  if (Device_DLE_Flag == 1){ 
+    Device_Rcvr_char = ~Device_Rcvr_char;
+    saveDeviceCharacter();
+    Device_DLE_Flag = 0;}
+  else if (Device_Rcvr_char == 0x02){
+    Device_RX_InPtr = 0;
+    Device_Rcvr_Count = 0;}
+  else if (Device_Rcvr_char == 0x10){
+    Device_DLE_Flag = 1;
+    Device_Rcvr_EOM_Timer = 150;}
+  else if (Device_Rcvr_char == 0x03){
      Device_Rcvr_EOM_Timer = 0;
      Device_Rcvr_Complete_flag = 1;
-  }
+     Device_Receiver_Buffer[Device_RX_InPtr] = Device_Rcvr_char;}
   else {
-  Device_Rcvr_EOM_Timer = 150;
-  Device_RX_InPtr++;
+      saveDeviceCharacter();}
 }
-}
+void saveDeviceCharacter(void){
+     Device_Receiver_Buffer[Device_RX_InPtr] = Device_Rcvr_char;
+     Device_Rcvr_EOM_Timer = 150;
+     Device_RX_InPtr++;
+     Device_Rcvr_Count++;
 
+}
 /*****************************************************************************/
 /*****************************************************************************/
 /*****        Device Receive message handlers                            *****/
@@ -387,19 +402,11 @@ void Process_Receiver_Device_Message(void){
  u16 prcsbufrptr;
  u8 i;
 prcsbufrptr =0;
-for (rcvrbfrptr = 1; rcvrbfrptr <BFRSIZE_HALF; rcvrbfrptr++){
+Processing_Byte_Count = 0;
+for (rcvrbfrptr = 0; rcvrbfrptr <Device_Rcvr_Count; rcvrbfrptr++){
   i = Device_Receiver_Buffer[rcvrbfrptr];
-  if (i == 0x03) {
-    Device_Processing_Buffer[prcsbufrptr] =  i;
-    break;
-    }
-  if (Device_Receiver_Buffer[rcvrbfrptr] == 0x10){
-    rcvrbfrptr++;
-    i = Device_Receiver_Buffer[rcvrbfrptr];
-     i ^= 0xFF;
-  }
   Device_Processing_Buffer[prcsbufrptr] =  i;
-  Processing_Byte_Count = prcsbufrptr;
+  Processing_Byte_Count++;
   prcsbufrptr++;
  }
 }

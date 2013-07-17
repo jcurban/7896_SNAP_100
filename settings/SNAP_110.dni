@@ -1,0 +1,41 @@
+[DebugChecksum]
+Checksum=-289816701
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[DataSample]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.319.9" 0 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "0x008AF1" 0 0 0 0 "" 0 ""
+Bp2=_ "STD_DATA" "CID_Value" 0 0 0 3 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.346.3" 0 0 0 0 "" 0 ""
+Bp4=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.345.5" 0 0 0 0 "" 0 ""
+Bp5=_ "STD_CODE" "{$PROJ_DIR$\GS1011_Serial_Handlers.c}.340.7" 0 0 0 0 "" 0 ""
+Bp6=_ "STD_DATA" "Processing_Byte_Count" 0 0 0 3 0 "" 0 ""
+Count=7
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[Aliases]
+A0=_ "E:\7896_SNAP_110\StringUtilities.c" "C:\Users\jurban\Documents\GitHub\7896_SNAP_110\StringUtilities.c"
+Count=1
+SuppressDialog=0

@@ -2,8 +2,9 @@
 #include "SNAP_Defines.h"
 ;
 char SNAP_State;
-u8 checksum_Okay;   /* 0 = okay, 1 = not*/
-
+char CID_Value;
+char Binary_Device_Class[3];
+char Binary_Devce_Serial[4];
 char Device_Serial_number[16];
 char website_IP_Address[15];
 /* conversion variables*/
@@ -13,13 +14,14 @@ int ProcessPtr;
 int Packet_Data_Pointer;
 char PHeaderBuffer[6];
 char tempblock[4];
-char B2ASCBuf[8];
+char B2ASCBuf[10];
 
 /* DEVICE DATA */
 char Device_State;
 /*device receiving data*/
+u8 Device_DLE_Flag;
+u8 Device_Rcvr_Count;
 u8 Device_RX_InPtr;
-u8 Device_RX_OutPtr;
 u16 Device_Rcvr_Char_Count;
 u8 Device_Rcvr_Complete_flag;
 u8 Device_Update_Ready_for_Website_flag;
@@ -40,8 +42,9 @@ u8 Device_Xmit_Char;
 char Device_Xmit_Pointer;
 char Device_Xmit_Setup_Char_Pointer;
 u8 Device_Xmit_Char_Count;
-char* Device_Processing_Pointer;
-int Processing_Byte_Count;
+char Device_Processing_Pointer;
+char Processing_Byte_Count;
+char Xmit_Processing_Byte_Count;
 unsigned char Device_Processing_Buffer[BFRSIZE];
 unsigned char Device_Xmit_Buffer[BFRSIZE_HALF];
 /*GS1011 data*/
@@ -66,7 +69,5 @@ u8 GS1011_Xmit_Char_Count;
 char GS1011_Xmit_Setup_Char_Pointer;
 unsigned char GS1011_Xmit_Char;
 unsigned char GS1011_Xmit_Buffer[BFRSIZE];
-
-char CID_Value;
 
 

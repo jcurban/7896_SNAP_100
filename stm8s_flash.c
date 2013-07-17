@@ -389,12 +389,12 @@ uint32_t FLASH_GetBootSize(void)
     uint32_t temp = 0;
 
     /* Calculates the number of bytes */
-    temp = (uint32_t)((uint32_t)FLASH->FPR * (uint32_t)512);
+    temp = (uint32_t)((uint32_t)FLASH->FPR * (uint32_t)BFRSIZEX2);
 
     /* Correction because size of 127.5 kb doesn't exist */
     if (FLASH->FPR == 0xFF)
     {
-        temp += 512;
+        temp += BFRSIZEX2;
     }
 
     /* Return value */
